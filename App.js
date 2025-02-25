@@ -1,14 +1,5 @@
-import { useState } from 'react';
-import { View } from 'react-native';
-import OnboardingScreen from './screens/OnboardingScreen';
-import HomeScreen from './screens/HomeScreen';
+// App.js
+import 'expo-router/entry';
 
-export default function App() {
-  const [isOnboarded, setIsOnboarded] = useState(false);
-
-  return (
-    <View style={{ flex: 1 }}>
-      {isOnboarded ? <HomeScreen /> : <OnboardingScreen onFinish={() => setIsOnboarded(true)} />}
-    </View>
-  );
-}
+// Note: App.js becomes just an entry point for expo-router
+// You don't need to export anything here
