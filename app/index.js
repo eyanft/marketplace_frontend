@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import OnboardingScreen from "../screens/OnboardingScreen";
+import OnboardingScreen from "../src/screens/OnboardingScreen";
 
 export default function Index() {
   const [isOnboarded, setIsOnboarded] = useState(false);
