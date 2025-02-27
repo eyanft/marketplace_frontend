@@ -20,9 +20,9 @@ export default function TabLayout() {
           marginTop: 4, 
         },
         tabBarLabelStyle: {
-          fontSize: 14, // Increase the font size
-          fontWeight: '500', // Make it a bit bolder
-          marginBottom: 4, // Add some space below the text
+          fontSize: 14, 
+          fontWeight: '500', 
+          marginBottom: 4, 
         },
       }}
     >
@@ -30,21 +30,21 @@ export default function TabLayout() {
         name="home"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size + 4} color={color} />, // Increase icon size
+          tabBarIcon: ({ color, size }) => <Home size={size + 4} color={color} />, 
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
           title: 'Shop',
-          tabBarIcon: ({ color, size }) => <ShoppingBag size={size + 4} color={color} />, // Increase icon size
+          tabBarIcon: ({ color, size }) => <ShoppingBag size={size + 4} color={color} />, 
         }}
       />
       <Tabs.Screen
         name="favorites"
         options={{
           title: 'Favorites',
-          tabBarIcon: ({ color, size }) => <Heart size={size + 4} color={color} />, // Increase icon size
+          tabBarIcon: ({ color, size }) => <Heart size={size + 4} color={color} />, 
         }}
       />
       <Tabs.Screen
