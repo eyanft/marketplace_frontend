@@ -1,7 +1,7 @@
-import { View } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import OnboardingScreen from '../screens/OnboardingScreen';
+import { View } from "react-native";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import OnboardingScreen from "../screens/OnboardingScreen";
 
 export default function Index() {
   const [isOnboarded, setIsOnboarded] = useState(false);
@@ -9,7 +9,7 @@ export default function Index() {
 
   useEffect(() => {
     if (isOnboarded) {
-      router.replace('/(tabs)/home');
+      router.replace("/(tabs)/home");
     }
   }, [isOnboarded]);
 
