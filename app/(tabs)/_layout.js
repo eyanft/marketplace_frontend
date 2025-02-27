@@ -1,67 +1,103 @@
-import { Tabs } from "expo-router";
-import { Home, ShoppingBag, Heart, User } from "lucide-react-native";
-import { Colors } from "../../config/colors";
+import { Tabs } from 'expo-router';
+import { Home, ShoppingCart, Plus, Heart, User } from 'lucide-react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { Colors } from '../../config/colors';
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true,
+        tabBarActiveTintColor: Colors.primary, 
+        tabBarInactiveTintColor: '#9E9E9E',
         tabBarStyle: {
-          backgroundColor: "#fff",
-          borderTopWidth: 1,
-          borderTopColor: "#f1f1f1",
+          borderTopWidth: 0,
+          elevation: 0,
+          shadowOpacity: 0,
           height: 60,
-          paddingBottom: 8,
-        },
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: "#999",
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
-        tabBarLabelStyle: {
-          fontSize: 14,
-          fontWeight: "500",
-          marginBottom: 4,
+          paddingBottom: 10,
         },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Home size={size + 4} color={color} />
+            <Home color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
-          title: "Shop",
+          title: 'Shop',
           tabBarIcon: ({ color, size }) => (
-            <ShoppingBag size={size + 4} color={color} />
+            <ShoppingCart color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="plus"
+        options={{
+          title: '',
+          tabBarIcon: ({ color }) => (
+            <View style={styles.ctaButton}>
+              <Plus color="#FFFFFF" size={24} />
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              style={styles.tabBarButton}
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="favorites"
         options={{
-          title: "Favorites",
+          title: 'Favorites',
           tabBarIcon: ({ color, size }) => (
-            <Heart size={size + 4} color={color} />
+            <Heart color={color} size={size} />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <User size={size + 4} color={color} />
-          ), // Increase icon size
+            <User color={color} size={size} />
+          ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarIcon: {
+    marginBottom: -3,
+  },
+  ctaButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: Colors.primary, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    marginBottom: 10,
+  },
+  tabBarButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
