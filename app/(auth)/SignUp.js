@@ -1,22 +1,23 @@
 import React from "react";
-import { Pressable, View } from "react-native";
+import Button from "../../src/components/buttons/FilledButton";
 import Text from "../../src/components/text/CustomText";
 import Input from "../../src/components/input/CustomInput";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Pressable, View } from "react-native";
 import { Link } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
-import Button from "../../src/components/buttons/FilledButton";
-export default function Login() {
+
+export default function SignUp() {
   return (
     <View className="flex flex-col p-6 pt-20 h-screen gap-5   bg-gray-100">
-      <Text className="text-4xl font-bold text-gray-700  mb-16">Login</Text>
-
+      <Text className="text-4xl font-bold text-gray-700  mb-16">Sign up</Text>
+      <Input placeholder="Name" />
       <Input placeholder="Email" />
       <Input placeholder="Password" />
 
-      <Link push href="/PasswordReset">
+      <Link push href="/Login">
         <View className="flex-row justify-end items-center gap-3 w-full">
           <Text className="text-gray-700 font-medium text-lg">
-            Forgot your password?
+            Already have an account?
           </Text>
           <FontAwesome
             name="long-arrow-right"
@@ -27,7 +28,7 @@ export default function Login() {
         </View>
       </Link>
 
-      <Button>LOGIN</Button>
+      <Button>SIGN UP</Button>
       <View className="flex flex-col  self-center w-64 h-16  mt-10">
         <Text className="text-gray-700 text-center text-lg font-medium">
           Or sign up with social account

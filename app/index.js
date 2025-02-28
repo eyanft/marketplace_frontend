@@ -1,21 +1,12 @@
 import { View } from "react-native";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import OnboardingScreen from "../src/screens/OnboardingScreen";
 
 export default function Index() {
-  const [isOnboarded, setIsOnboarded] = useState(false);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isOnboarded) {
-      router.replace("/(tabs)/home");
-    }
-  }, [isOnboarded]);
-
   return (
     <View style={{ flex: 1 }}>
-      <OnboardingScreen onFinish={() => setIsOnboarded(true)} />
+      <OnboardingScreen onFinish={() => router.replace("/(auth)/SignUp")} />
     </View>
   );
 }

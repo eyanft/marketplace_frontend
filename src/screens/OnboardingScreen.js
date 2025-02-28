@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -40,15 +40,11 @@ const ONBOARDING_DATA = [
 export default function OnboardingScreen({ onFinish }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  const isScrolling = useRef(false);
 
   const onNext = () => {
     if (currentIndex < ONBOARDING_DATA.length - 1) {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
-      scrollViewRef.current.scrollTo({
-        x: SCREEN_WIDTH * nextIndex,
-        animated: true,
-      });
+      setCurrentIndex(currentIndex + 1);
     } else {
       onFinish();
     }
@@ -56,20 +52,33 @@ export default function OnboardingScreen({ onFinish }) {
 
   const onPrevious = () => {
     if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      setCurrentIndex(prevIndex);
-      scrollViewRef.current.scrollTo({
-        x: SCREEN_WIDTH * prevIndex,
-        animated: true,
-      });
+      setCurrentIndex(currentIndex - 1);
     }
   };
 
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      isScrolling.current = true;
+      scrollViewRef.current.scrollTo({
+        x: SCREEN_WIDTH * currentIndex,
+        animated: true,
+      });
+    }
+  }, [currentIndex]);
+
+  const handleMomentumScrollEnd = () => {
+    isScrolling.current = false;
+  };
+
   const onScroll = (event) => {
-    const pageIndex = Math.round(
-      event.nativeEvent.contentOffset.x / SCREEN_WIDTH
-    );
-    setCurrentIndex(pageIndex);
+    if (isScrolling.current) return;
+
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const pageIndex = Math.round(offsetX / SCREEN_WIDTH);
+
+    if (pageIndex !== currentIndex) {
+      setCurrentIndex(pageIndex);
+    }
   };
 
   return (
@@ -81,6 +90,8 @@ export default function OnboardingScreen({ onFinish }) {
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
         scrollEventThrottle={16}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        decelerationRate="fast"
       >
         {ONBOARDING_DATA.map((item, index) => (
           <View key={index} style={styles.slide}>
