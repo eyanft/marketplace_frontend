@@ -23,37 +23,39 @@ export default function SearchBar() {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    height: 50,
-  },
-  searchIcon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    height: '100%',
-  },
-  filterButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 25,
-    backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-  },
-});
+    container: {
+      flexDirection: 'row',
+      paddingHorizontal: 10,
+      alignItems: 'center',
+      marginBottom: 15,
+    },
+    searchContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: '#f5f5f5',
+      borderRadius: 25,
+      paddingHorizontal: 10,
+      height: 40,
+      borderWidth: 1, 
+      borderColor: '#ddd', 
+    },
+    searchIcon: {
+      marginRight: 10,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: '#333',
+      height: '100%',
+    },
+    filterButton: {
+      width: 35,
+      height: 35,
+      borderRadius: 25,
+      backgroundColor: Colors.primary,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginLeft: 10,
+    },
+  });
