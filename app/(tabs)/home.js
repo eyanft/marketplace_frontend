@@ -1,9 +1,9 @@
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import HeroBanner from '../../components/homeHero'; 
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-gray-100">
       <HeroBanner
         image={require('../../assets/images/hero.png')}
         title="All You Need, One Place."
@@ -11,10 +11,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-});

@@ -20,7 +20,7 @@ export default function HeroBanner(props) {
 const styles = StyleSheet.create({
   container: {
     width: width,
-    height: 300,
+    height: 200,
     marginBottom: 24,
   },
   image: {

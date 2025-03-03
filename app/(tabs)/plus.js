@@ -28,7 +28,7 @@ export default function PlusScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
