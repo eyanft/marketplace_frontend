@@ -2,11 +2,13 @@ import { View, ScrollView } from "react-native";
 import HeroBanner from "../../components/homeHero";
 import SearchBar from "../../components/SearchBar";
 import LocationSelector from "../../components/LocationSelector";
+import Notification from "../../components/Notification";
 
 export default function HomeScreen() {
   return (
     <View className="flex-1 bg-gray-100">
       <ScrollView className="flex-1">
+        <Notification/>
         <View className="mt-4 mx-4">
           <LocationSelector />
         </View>
