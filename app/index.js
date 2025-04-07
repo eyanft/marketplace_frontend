@@ -6,7 +6,9 @@ import OnboardingScreen from "../src/screens/OnboardingScreen";
 export default function Index() {
   return (
     <View style={{ flex: 1 }}>
-      <OnboardingScreen onFinish={() => router.replace("/cart")} />
+      <OnboardingScreen
+        onFinish={() => router.replace("/(profile)/MyProfile")}
+      />
     </View>
   );
 }

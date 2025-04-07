@@ -3,7 +3,7 @@ import { Pressable, View } from "react-native";
 import { Image } from "expo-image";
 import ItemText from "../text/CustomText";
 import AntDesign from "@expo/vector-icons/AntDesign";
-export default function ItemCart() {
+export default function ItemCart({ edit, ...props }) {
   return (
     <View className="flex flex-row w-full h-36 bg-white rounded-lg">
       <Image
@@ -20,25 +20,32 @@ export default function ItemCart() {
             <ItemText className="text-lg opacity-25 ">Size:</ItemText>
             <ItemText className="text-lg ">L</ItemText>
           </View>
-          <View className="mt-5 flex items-center flex-row gap-5 w-full ">
-            <Pressable className="bg-white rounded-full p-1 shadow-2xl  ">
-              <AntDesign
-                className="opacity-25"
-                name="minus"
-                size={24}
-                color="black"
-              />
-            </Pressable>
-            <ItemText className="text-xl">1</ItemText>
-            <Pressable className="bg-white rounded-full p-1 shadow-2xl  ">
-              <AntDesign
-                className="opacity-25"
-                name="plus"
-                size={24}
-                color="black"
-              />
-            </Pressable>
-          </View>
+          {edit ? (
+            <View className="mt-5 flex items-center flex-row gap-5 w-full ">
+              <Pressable className="bg-white rounded-full p-1 shadow-2xl">
+                <AntDesign
+                  className="opacity-25"
+                  name="minus"
+                  size={24}
+                  color="black"
+                />
+              </Pressable>
+              <ItemText className="text-xl">1</ItemText>
+              <Pressable className="bg-white rounded-full p-1 shadow-2xl  ">
+                <AntDesign
+                  className="opacity-25"
+                  name="plus"
+                  size={24}
+                  color="black"
+                />
+              </Pressable>
+            </View>
+          ) : (
+            <View className="flex flex-row gap-2 mt-8">
+              <ItemText className="text-lg opacity-25">Units:</ItemText>
+              <ItemText className="text-lg ">1</ItemText>
+            </View>
+          )}
         </View>
       </View>
       <View className=" w-32 h-full p-4  justify-end">

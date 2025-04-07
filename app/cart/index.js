@@ -17,12 +17,12 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-4">
-          <ItemCard />
-          <ItemCard />
-          <ItemCard />
-          <ItemCard />
-          <ItemCard />
-          <ItemCard />
+          <ItemCard edit={true} />
+          <ItemCard edit={true} />
+          <ItemCard edit={true} />
+          <ItemCard edit={true} />
+          <ItemCard edit={true} />
+          <ItemCard edit={true} />
         </View>
       </ScrollView>
       <View className="flex flex-row justify-between w-full mt-4">
