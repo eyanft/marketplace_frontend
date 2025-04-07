@@ -5,8 +5,12 @@ import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import SubmitButton from "../../src/components/buttons/FilledButton";
-
+import AddressCard from "../../src/components/cards/AddressCard";
+import { router } from "expo-router";
 export default function Checkout() {
+  const submitOrder = () => {
+    router.push("/(payment)/SuccessPurchase");
+  };
   return (
     <>
       <SafeAreaView className="bg-white shadow-xl">
@@ -22,21 +26,7 @@ export default function Checkout() {
         <SectionText className="ml-2 text-xl font-semibold ">
           Shipping address
         </SectionText>
-        <View className="p-4 w-full h-32 bg-white shadow-xl rounded-lg">
-          <View className="flex flex-row justify-between ">
-            <SectionText className="text-lg font-medium">John Doe</SectionText>
-            <SectionText className="text-lg font-medium text-orange-500">
-              Change
-            </SectionText>
-          </View>
-
-          <SectionText className="mt-4 text-lg font-normal ">
-            1234 Main St
-          </SectionText>
-          <SectionText className="text-lg font-normal ">
-            Springfield, IL 62701
-          </SectionText>
-        </View>
+        <AddressCard editable={false} defaultAddress={false} />
         <View>
           <View className="flex flex-row justify-between py-6 px-2">
             <SectionText className="text-xl font-medium">Payment</SectionText>
@@ -76,7 +66,7 @@ export default function Checkout() {
             112 DT
           </SectionText>
         </View>
-        <SubmitButton>SUBMIT ORDER</SubmitButton>
+        <SubmitButton onPress={submitOrder}>SUBMIT ORDER</SubmitButton>
       </View>
     </>
   );
