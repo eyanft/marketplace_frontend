@@ -147,7 +147,27 @@ const RatingReviews = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.writeReviewButton}>
+        <TouchableOpacity
+          style={styles.writeReviewButton}
+          onPress={() => {
+            if (!product) {
+              console.error('Product is undefined or invalid');
+              return;
+            }
+            
+            const simplifiedProduct = {
+              id: product.id,
+              name: product.name || '',
+              brand: product.brand || '',
+              imageUrl: product.imageUrl || 'https://via.placeholder.com/150',
+            };
+            
+            router.push({
+              pathname: '/write-review',
+              params: { product: JSON.stringify(simplifiedProduct) }
+            });
+          }}
+        >
           <Text style={styles.writeReviewText}>WRITE A REVIEW</Text>
         </TouchableOpacity>
       </ScrollView>
