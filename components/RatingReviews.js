@@ -1,13 +1,30 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { 
+  StyleSheet, 
+  View, 
+  Text, 
+  Image, 
+  TouchableOpacity, 
+  ScrollView, 
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions
+} from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from "../config/colors";
+
+const { height } = Dimensions.get('window');
 
 const RatingReviews = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const product = typeof params.product === 'string' ? JSON.parse(params.product) : params.product;
+  const [showWriteReview, setShowWriteReview] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [photos, setPhotos] = useState([]);
 
   const reviewsData = [
     {
@@ -66,6 +83,31 @@ const RatingReviews = () => {
       );
     }
     return stars;
+  };
+
+  const handleRating = (selectedRating) => {
+    setRating(selectedRating);
+  };
+
+  const handleReviewTextChange = (text) => {
+    setReviewText(text);
+  };
+
+  const handleAddPhoto = () => {
+    setPhotos([...photos, 'https://via.placeholder.com/150']);
+  };
+
+  const handleSubmitReview = () => {
+    console.log('Submitting review:', {
+      product: product.name,
+      rating,
+      reviewText,
+      photos,
+    });
+    setShowWriteReview(false);
+    setRating(0);
+    setReviewText('');
+    setPhotos([]);
   };
 
   return (
@@ -149,28 +191,87 @@ const RatingReviews = () => {
 
         <TouchableOpacity
           style={styles.writeReviewButton}
-          onPress={() => {
-            if (!product) {
-              console.error('Product is undefined or invalid');
-              return;
-            }
-            
-            const simplifiedProduct = {
-              id: product.id,
-              name: product.name || '',
-              brand: product.brand || '',
-              imageUrl: product.imageUrl || 'https://via.placeholder.com/150',
-            };
-            
-            router.push({
-              pathname: '/write-review',
-              params: { product: JSON.stringify(simplifiedProduct) }
-            });
-          }}
+          onPress={() => setShowWriteReview(true)}
         >
           <Text style={styles.writeReviewText}>WRITE A REVIEW</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Write Review Modal */}
+      {showWriteReview && (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoidingView}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHandle} />
+            
+            <ScrollView contentContainerStyle={styles.modalContent}>
+              {/* Close Button */}
+              <TouchableOpacity 
+                style={styles.closeButton}
+                onPress={() => setShowWriteReview(false)}
+              >
+                <AntDesign name="close" size={24} color="#666" />
+              </TouchableOpacity>
+
+              {/* Rating Section */}
+              <View style={styles.ratingSection}>
+                <Text style={styles.ratingLabel}>What is your rate?</Text>
+                <View style={styles.starsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      style={styles.starIconContainer}
+                      onPress={() => handleRating(star)}
+                    >
+                      <AntDesign
+                        name={star <= rating ? 'star' : 'staro'}
+                        size={30}
+                        color={star <= rating ? '#FFD700' : '#ccc'}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Review Text Section */}
+              <View style={styles.reviewTextSection}>
+                <Text style={styles.reviewTextLabel}>Please share your opinion about the product</Text>
+                <TextInput
+                  multiline
+                  placeholder="Your review"
+                  value={reviewText}
+                  onChangeText={handleReviewTextChange}
+                  style={styles.reviewTextInput}
+                />
+              </View>
+
+              {/* Photo Upload Section */}
+              <View style={styles.photoUploadSection}>
+                <TouchableOpacity onPress={handleAddPhoto} style={styles.addPhotoButton}>
+                  <View style={styles.cameraIconContainer}>
+                    <AntDesign name="camerao" size={24} color="#fff" />
+                  </View>
+                  <Text style={styles.addPhotoText}>Add your photos</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Photos Preview */}
+              <View style={styles.photosPreview}>
+                {photos.map((photo, index) => (
+                  <Image key={index} source={{ uri: photo }} style={styles.photoPreview} />
+                ))}
+              </View>
+
+              {/* Submit Button */}
+              <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
+                <Text style={styles.submitButtonText}>SEND REVIEW</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      )}
     </View>
   );
 };
@@ -358,6 +459,113 @@ const styles = StyleSheet.create({
   writeReviewText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  // Modal styles
+  keyboardAvoidingView: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    height: height * 0.85,
+    paddingTop: 20,
+  },
+  modalHandle: {
+    width: 40,
+    height: 4,
+    backgroundColor: '#ccc',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 10,
+  },
+  modalContent: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 10,
+  },
+  ratingSection: {
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+  ratingLabel: {
+    fontSize: 24,
+    fontWeight: '600',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  starIconContainer: {
+    marginHorizontal: 10,
+  },
+  reviewTextSection: {
+    marginBottom: 30,
+  },
+  reviewTextLabel: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  reviewTextInput: {
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 8,
+    padding: 15,
+    minHeight: 150,
+    fontSize: 16,
+  },
+  photoUploadSection: {
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  addPhotoButton: {
+    alignItems: 'center',
+  },
+  cameraIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  addPhotoText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#555',
+  },
+  photosPreview: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  photoPreview: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    margin: 8,
+  },
+  submitButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 15,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  submitButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 
