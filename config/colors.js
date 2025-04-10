@@ -1,6 +1,6 @@
 export const Colors = {
     primary: '#FF5C00', 
-    secondary: '#007AFF',
+    secondary: '#FFFAF8',
     background: '#FFFFFF', 
     text: '#000000', 
     dotActive: '#FF5C00',

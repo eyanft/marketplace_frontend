@@ -6,9 +6,7 @@ import OnboardingScreen from "../src/screens/OnboardingScreen";
 export default function Index() {
   return (
     <View style={{ flex: 1 }}>
-      <OnboardingScreen
-        onFinish={() => router.replace("/(profile)/MyProfile")}
-      />
+      <OnboardingScreen onFinish={() => router.replace("/(tabs)/home")} />
     </View>
   );
 }

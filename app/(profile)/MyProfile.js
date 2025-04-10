@@ -28,7 +28,7 @@ export default function MyProfile() {
         <SectionCard
           title={"Shipping addresses"}
           subtitle={"3 addresses"}
-          link=""
+          link="(profile)/AddressList"
         />
         <SectionCard
           title={"Payment methods"}
