@@ -4,8 +4,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { Colors } from '../../config/colors';
 
+const { width } = Dimensions.get('window');
+
 const PRODUCT_IMAGES = [
-  'https://images.unsplash.com/photo-1539008835657-9e8e9680c956',
+  'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1983&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446',
   'https://images.unsplash.com/photo-1550639525-c97d455acf70',
 ];
@@ -51,14 +53,12 @@ export default function ProductDetailScreen() {
   const lastOffsetRef = useRef(0);
 
   const handleScroll = (event) => {
-    const slideSize = Dimensions.get('window').width;
+    const slideSize = width;
     const currentOffset = event.nativeEvent.contentOffset.x;
     const totalWidth = slideSize * PRODUCT_IMAGES.length;
 
-    // Check if we're scrolling past the last image
     if (currentOffset >= totalWidth - slideSize) {
       if (currentOffset > lastOffsetRef.current && !isScrollingRef.current) {
-        // Scrolling right past the last image
         isScrollingRef.current = true;
         scrollViewRef.current?.scrollTo({ x: 0, animated: true });
         setActiveImageIndex(0);
@@ -67,24 +67,19 @@ export default function ProductDetailScreen() {
         }, 300);
       }
     } else {
-      // Normal scrolling
       const index = Math.floor(currentOffset / slideSize);
       setActiveImageIndex(index);
     }
-    
     lastOffsetRef.current = currentOffset;
   };
 
-  // Parse the product data from the params
-  const product = typeof params.product === 'string' 
-    ? JSON.parse(params.product) 
-    : params.product;
+  const product = typeof params.product === 'string' ? JSON.parse(params.product) : params.product;
 
   const handleShare = async () => {
     try {
       await Share.share({
         message: `Check out this ${product.name} by ${product.brand}!`,
-        url: product.image,
+        url: product.imageUrl,
       });
     } catch (error) {
       console.error(error);
@@ -106,9 +101,17 @@ export default function ProductDetailScreen() {
     return stars;
   };
 
+  const handleRatingPress = () => {
+    // Use router.push for expo-router navigation
+    router.push({
+      pathname: '/rating-reviews',
+      params: { product: JSON.stringify(product) },
+    });
+  };
+
   return (
     <View style={styles.container}>
-      {/* Fixed Header */}
+      {/* Header */}
       <View style={styles.headerFixed}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerButton}>
           <AntDesign name="left" size={20} color="black" />
@@ -119,12 +122,13 @@ export default function ProductDetailScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Scrollable Content */}
       <ScrollView>
+        {/* Product Images */}
         <View>
-          {/* Product Images */}
-          <ScrollView 
+          <ScrollView
             ref={scrollViewRef}
-            horizontal 
+            horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
             onScroll={handleScroll}
@@ -132,34 +136,23 @@ export default function ProductDetailScreen() {
             style={styles.imageContainer}
           >
             {PRODUCT_IMAGES.map((image, index) => (
-              <Image 
-                key={index}
-                source={{ uri: image }} 
-                style={styles.image}
-              />
+              <Image key={index} source={{ uri: image }} style={styles.image} />
             ))}
           </ScrollView>
-
-          {/* Pagination Dots */}
           <View style={styles.pagination}>
             {PRODUCT_IMAGES.map((_, index) => (
-              <TouchableOpacity 
-                key={index} 
+              <TouchableOpacity
+                key={index}
                 onPress={() => {
                   scrollViewRef.current?.scrollTo({
-                    x: index * Dimensions.get('window').width,
-                    animated: true
+                    x: index * width,
+                    animated: true,
                   });
                   setActiveImageIndex(index);
                 }}
                 style={styles.paginationDotContainer}
               >
-                <View
-                  style={[
-                    styles.paginationDot,
-                    index === activeImageIndex && styles.paginationDotActive,
-                  ]}
-                />
+                <View style={[styles.paginationDot, index === activeImageIndex && styles.paginationDotActive]} />
               </TouchableOpacity>
             ))}
           </View>
@@ -167,7 +160,6 @@ export default function ProductDetailScreen() {
 
         {/* Product Info */}
         <View style={styles.infoContainer}>
-          {/* Size and Color Selection Row */}
           <View style={styles.selectionRow}>
             <TouchableOpacity style={styles.dropdown}>
               <Text style={styles.dropdownText}>Size</Text>
@@ -181,27 +173,22 @@ export default function ProductDetailScreen() {
               <AntDesign name="hearto" size={20} color="black" />
             </TouchableOpacity>
           </View>
-
-          {/* Brand, Name, Rating, and Description */}
           <View style={styles.productInfo}>
             <Text style={styles.brand}>{product.brand}</Text>
             <Text style={styles.name}>{product.name}</Text>
-            <View style={styles.ratingContainer}>
+            <TouchableOpacity style={styles.ratingContainer} onPress={handleRatingPress}>
               <View style={styles.stars}>{renderStars(product.rating)}</View>
-              <Text style={styles.reviews}>({product.reviews || 0})</Text>
-            </View>
+              <Text style={styles.reviews}>({product.reviewCount || 0})</Text>
+            </TouchableOpacity>
             <Text style={styles.description}>
-              Short dress in soft cotton jersey with decorative buttons down the front and a wide, frill-trimmed square neckline with concealed elastication. Elasticated seam under the bust and short puff sleeves with a small frill trim.
+              Short dress in soft cotton jersey with decorative buttons down the front and a wide, frill-trimmed square neckline with
+              concealed elastication. Elasticated seam under the bust and short puff sleeves with a small frill trim.
             </Text>
             <Text style={styles.price}>${product.salePrice || product.price}</Text>
           </View>
-
-          {/* Add to Cart Button */}
           <TouchableOpacity style={styles.addToCartButton}>
             <Text style={styles.addToCartText}>ADD TO CART</Text>
           </TouchableOpacity>
-
-          {/* Additional Info */}
           <View style={styles.additionalInfo}>
             <TouchableOpacity style={styles.infoLink}>
               <Text style={styles.infoLinkText}>Shipping info</Text>
@@ -212,14 +199,10 @@ export default function ProductDetailScreen() {
               <AntDesign name="right" size={14} color="black" />
             </TouchableOpacity>
           </View>
-
-          {/* You May Also Like */}
           <View style={styles.relatedSection}>
             <Text style={styles.relatedTitle}>You can also like this</Text>
             <Text style={styles.itemCount}>12 items</Text>
           </View>
-
-          {/* Related Products */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.relatedProducts}>
             {SAMPLE_PRODUCTS.map((item) => (
               <TouchableOpacity key={item.id} style={styles.relatedItem}>
@@ -256,8 +239,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 10,
-    elevation: 3, // for Android shadow
-    shadowColor: '#000', // for iOS shadow
+    elevation: 3,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -276,13 +259,38 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   imageContainer: {
-    height: Dimensions.get('window').width,
-    marginTop: 56, // height of the header
+    height: width,
+    marginTop: 56,
   },
   image: {
-    width: Dimensions.get('window').width,
-    height: Dimensions.get('window').width,
+    width: width,
+    height: width,
     resizeMode: 'cover',
+  },
+  pagination: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 16,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  paginationDotContainer: {
+    padding: 4,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: Colors.primary,
+    width: 20,
+    borderRadius: 4,
   },
   infoContainer: {
     padding: 12,
@@ -422,29 +430,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  pagination: {
-    flexDirection: 'row',
-    position: 'absolute',
-    bottom: 16,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  paginationDotContainer: {
-    padding: 4, // Makes the touch target larger
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    marginHorizontal: 4,
-  },
-  paginationDotActive: {
-    backgroundColor: Colors.primary,
-    width: 20,
-    borderRadius: 4,
-  },
-}); 
+});
