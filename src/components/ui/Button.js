@@ -12,7 +12,6 @@ const Button = ({ children, variant = 'default', size = 'default', style, onPres
     style,
   ];
 
-  // Helper function to ensure text is wrapped in a Text component
   const renderChildren = () => {
     if (typeof children === 'string') {
       return <Text style={styles.buttonText}>{children}</Text>;
