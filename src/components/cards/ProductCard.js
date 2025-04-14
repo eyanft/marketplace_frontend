@@ -63,7 +63,7 @@ const ProductCard = ({ product }) => {
             <Text style={styles.grayText}>Color: </Text>
             {product.color}
           </Text>
-          <Text style={styles.detailText}>
+          <Text style={[styles.detailText, { marginLeft: 10 }]}>
             <Text style={styles.grayText}>Size: </Text>
             {product.size}
           </Text>
@@ -82,7 +82,7 @@ const ProductCard = ({ product }) => {
   );
 };
 
-ProductCard.displayName = 'ProductCard';
+
 
 const styles = StyleSheet.create({
   productCard: {

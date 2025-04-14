@@ -5,7 +5,6 @@ import FilterTags from '../../src/components/filters/FilterTags';
 import FilterControls from '../../src/components/filters/FilterControls';
 import ProductCard from '../../src/components/cards/ProductCard';
 
-// Données directement dans le composant principal
 const filterTags = [
   { id: '1', name: 'Dress' },
   { id: '2', name: 'T-Shirts' },
@@ -72,8 +71,6 @@ const products = [
     discount: '-30%',
   },
 ];
-
-
 const FavoritesScreen = () => {
   return (
     <SafeAreaView style={styles.container}>

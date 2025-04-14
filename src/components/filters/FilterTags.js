@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import Badge from '../ui/Badge'; // Assuming you have a Badge component
+import Badge from '../ui/Badge'; 
 
 const FilterTags = ({ tags }) => {
   return (

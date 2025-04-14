@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../../config/colors'; 
 
 const Button = ({ children, variant = 'default', size = 'default', style, onPress }) => {
@@ -12,9 +12,18 @@ const Button = ({ children, variant = 'default', size = 'default', style, onPres
     style,
   ];
 
+  // Helper function to ensure text is wrapped in a Text component
+  const renderChildren = () => {
+    if (typeof children === 'string') {
+      return <Text style={styles.buttonText}>{children}</Text>;
+    }
+    return children;
+  };
+
   return (
     <TouchableOpacity style={buttonStyle} onPress={onPress}>
-      {children}    </TouchableOpacity>
+      {renderChildren()}
+    </TouchableOpacity>
   );
 };
 
@@ -37,6 +46,10 @@ const styles = StyleSheet.create({
   buttonIcon: {
     width: 36,
     height: 36,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: '600',
   },
 });
 
