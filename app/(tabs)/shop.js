@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import CartItem from "../../components/CartItem";
+import CartItem from "../../src/components/items/CartItem";
 import { Colors } from "../../config/colors";
 import Cart from "../cart";
 const initialItems = [

@@ -1,1 +1,1 @@
-export { default } from '../../components/RatingReviews';
+export { default } from '../../src/screens/RatingReviews';
