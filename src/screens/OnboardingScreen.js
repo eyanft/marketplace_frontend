@@ -1,15 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import { View, ScrollView, Dimensions, StyleSheet } from "react-native";
 import { Colors } from "../../config/colors";
+import OnboardingSlide from "../components/slides/OnboardingSlide";
+import OnboardingBottomContainer from "../components/items/OnboardingBottomContainer";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -94,44 +87,21 @@ export default function OnboardingScreen({ onFinish }) {
         decelerationRate="fast"
       >
         {ONBOARDING_DATA.map((item, index) => (
-          <View key={index} style={styles.slide}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Image source={{ uri: item.image }} style={styles.image} />
-            <Text style={styles.description}>{item.description}</Text>
-          </View>
+          <OnboardingSlide
+            key={index}
+            title={item.title}
+            description={item.description}
+            image={item.image}
+          />
         ))}
       </ScrollView>
 
-      <View style={styles.bottomContainer}>
-        <View style={styles.pagination}>
-          {ONBOARDING_DATA.map((_, index) => (
-            <View
-              key={index}
-              style={[styles.dot, currentIndex === index && styles.activeDot]}
-            />
-          ))}
-        </View>
-
-        {currentIndex === ONBOARDING_DATA.length - 1 ? (
-          <TouchableOpacity style={styles.startButton} onPress={onNext}>
-            <Text style={styles.startButtonText}>Start</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.navigationButtons}>
-            {currentIndex > 0 ? (
-              <TouchableOpacity style={styles.navButton} onPress={onPrevious}>
-                <Icon name="arrow-back" size={24} color={Colors.primary} />
-              </TouchableOpacity>
-            ) : (
-              <View style={{ width: 50 }} />
-            )}
-
-            <TouchableOpacity style={styles.navButtonFilled} onPress={onNext}>
-              <Icon name="arrow-forward" size={24} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+      <OnboardingBottomContainer
+        currentIndex={currentIndex}
+        totalSlides={ONBOARDING_DATA.length}
+        onNext={onNext}
+        onPrevious={onPrevious}
+      />
     </View>
   );
 }
@@ -140,85 +110,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  slide: {
-    width: SCREEN_WIDTH,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "700",
-    color: Colors.text,
-    marginBottom: 40,
-  },
-  description: {
-    fontSize: 17,
-    fontWeight: "400",
-    color: Colors.text,
-    textAlign: "center",
-    paddingHorizontal: 30,
-    lineHeight: 24,
-  },
-  image: {
-    width: "80%",
-    height: 300,
-    borderRadius: 20,
-    resizeMode: "cover",
-    marginBottom: 40,
-  },
-  bottomContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-  },
-  pagination: {
-    flexDirection: "row",
-    marginBottom: 20,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.dotInactive,
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    width: 20,
-    backgroundColor: Colors.dotActive,
-  },
-  startButton: {
-    backgroundColor: Colors.primary,
-    paddingHorizontal: 30,
-    paddingVertical: 15,
-    borderRadius: 25,
-  },
-  startButtonText: {
-    color: "#fff",
-    fontSize: 18,
-  },
-  navigationButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
-  },
-  navButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: Colors.primary,
-  },
-  navButtonFilled: {
-    backgroundColor: Colors.primary,
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
