@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Plus } from 'lucide-react-native';
 import { Colors } from '../../config/colors';
 import { useRouter } from 'expo-router';
-import ProductForm from '../../components/ProductForm';
+import ProductForm from '../../src/components/forms/ProductForm';
 
 
 export default function PlusScreen() {

@@ -1,10 +1,10 @@
 import { View, ScrollView } from 'react-native';
-import HeroBanner from '../../components/homeHero';
-import SearchBar from '../../components/SearchBar';
-import LocationSelector from '../../components/LocationSelector';
-import Notification from '../../components/Notification';
-import CategoryList from '../../components/CategoryList';
-import ProductScreen from '../../components/ProductScreen';
+import HeroBanner from '../../src/components/items/homeHero';
+import SearchBar from '../../src/components/filters/SearchBar';
+import LocationSelector from '../../src/components/items/LocationSelector';
+import Notification from '../../src/components/items/Notification';
+import CategoryList from '../../src/components/lists/CategoryList';
+import ProductScreen from '../../src/screens/ProductScreen';
 
 export default function HomeScreen() {
   return (
