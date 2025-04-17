@@ -1,9 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Text, View } from "react-native";
 import SectionCard from "../../src/components/cards/SectionCard";
 import Title from "../../src/components/text/CustomText";
 import { Image } from "expo-image";
+import { useZustandStore } from "../../src/store/zustand";
+import Button from "../../src/components/buttons/FilledButton";
+import { logout } from "../../src/services/auth/authService";
+import { useRouter } from "expo-router";
 export default function MyProfile() {
+  const router = useRouter();
+  const user = useZustandStore((state) => state.user);
+  const loadUser = useZustandStore((state) => state.loadUser);
+  const clearUser = useZustandStore((state) => state.logout);
+  const onLogoutPress = async () => {
+    await logout();
+    await clearUser();
+    router.replace("(auth)/login");
+  };
+  useEffect(() => {
+    loadUser();
+  }, []);
   return (
     <View className="p-8 mt-16">
       <Title className="text-5xl font-medium">My profile</Title>
@@ -15,14 +31,21 @@ export default function MyProfile() {
           />
         </View>
         <View className="flex flex-col">
-          <Title className="font-medium text-lg">Matilda brown</Title>
-          <Title className="opacity-50">matildabrown@mail.com</Title>
+          <Title className="font-medium text-lg">
+            {user && user?.firstname + " "}
+            {user && user?.lastname}
+          </Title>
+          <Title className="opacity-50">{user?.email}</Title>
         </View>
       </View>
       <View className=" flex flex-col gap-10 mt-10">
         <SectionCard
           title={"My orders"}
-          subtitle={"Already have 12 orders"}
+          subtitle={
+            user?.orders?.length
+              ? `Already have ${user.orders.length} orders`
+              : "No orders yet"
+          }
           link="myorders"
         />
         <SectionCard
@@ -40,6 +63,9 @@ export default function MyProfile() {
           subtitle={"Notifications, password"}
           link="(profile)/Settings"
         />
+      </View>
+      <View className="w-full mt-10">
+        <Button onPress={onLogoutPress}>LOG OUT</Button>
       </View>
     </View>
   );

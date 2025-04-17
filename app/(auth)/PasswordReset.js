@@ -4,8 +4,37 @@ import { Pressable, View } from "react-native";
 import Button from "../../src/components/buttons/FilledButton";
 import Input from "../../src/components/input/CustomInput";
 import Text from "../../src/components/text/CustomText";
+import { useForm } from "react-hook-form";
+import { forgotPassword, logout } from "../../src/services/auth/authService";
 
 export default function PasswordReset() {
+  const { control, handleSubmit, setError } = useForm();
+  const onSubmit = async ({ email }) => {
+    try {
+      await forgotPassword(email);
+    } catch (err) {
+      switch (err.code) {
+        case "auth/user-not-found":
+          setError("email", {
+            type: "manual",
+            message: "No account found with this email.",
+          });
+          break;
+
+        case "auth/invalid-email":
+          setError("email", {
+            type: "manual",
+            message: "Invalid email address.",
+          });
+          break;
+        default:
+          setError("root", {
+            type: "manual",
+            message: "Something went wrong. Please try again.",
+          });
+      }
+    }
+  };
   return (
     <View className="flex flex-col p-6 pt-20 h-screen gap-5   bg-gray-100">
       <Text className="text-4xl font-bold text-gray-700  mb-16">
@@ -15,9 +44,16 @@ export default function PasswordReset() {
         Please, enter your email address.You will receive a link to create a new
         password via email.
       </Text>
-      <Input placeholder="Email" />
+      <Input
+        name="email"
+        control={control}
+        placeholder="Email"
+        rules={{
+          required: "Email is required",
+        }}
+      />
 
-      <Button>SEND</Button>
+      <Button onPress={handleSubmit(onSubmit)}>SEND</Button>
     </View>
   );
 }
