@@ -6,27 +6,28 @@ import { Link, useRouter } from "expo-router";
 import { FontAwesome } from "@expo/vector-icons";
 import Button from "../../src/components/buttons/FilledButton";
 import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
 import { signIn } from "../../src/services/auth/authService";
 import { useZustandStore } from "../../src/store/zustand";
 import { getUserDetails } from "../../src/services/user/userService";
 
 export default function Login() {
-  const onGoogleButtonPress = async () => {
-    console.log("first");
-  };
   const router = useRouter();
   const setUser = useZustandStore((state) => state.setUser);
   const { control, handleSubmit, setError } = useForm();
-  const onSubmit = async ({ email, password }) => {
-    try {
+
+  const mutation = useMutation({
+    mutationFn: async ({ email, password }) => {
       const userData = await signIn(email, password);
-
-      const user = await getUserDetails(userData.user.uid);
-
+      return userData.user.uid;
+    },
+    onSuccess: async (userId) => {
+      const user = await getUserDetails(userId);
       setUser(user);
       router.replace("(tabs)/home");
-    } catch (err) {
-      switch (err.code) {
+    },
+    onError: (error) => {
+      switch (error.code) {
         case "auth/invalid-credential":
         case "auth/wrong-password":
         case "auth/user-not-found":
@@ -35,32 +36,34 @@ export default function Login() {
             message: "Email or password is incorrect",
           });
           break;
-
         case "auth/too-many-requests":
           setError("email", {
             type: "manual",
             message: "Too many attempts. Please try again later.",
           });
           break;
-
         case "auth/network-request-failed":
           setError("root", {
             type: "manual",
             message: "Network error. Please check your connection.",
           });
           break;
-
         default:
           setError("root", {
             type: "manual",
             message: "Something went wrong. Please try again.",
           });
       }
-    }
+    },
+  });
+
+  const onSubmit = (data) => {
+    mutation.mutate(data);
   };
+
   return (
-    <View className="flex flex-col p-6 pt-20 h-screen gap-5   bg-gray-100">
-      <Text className="text-4xl font-bold text-gray-700  mb-16">Login</Text>
+    <View className="flex flex-col p-6 pt-20 h-screen gap-5 bg-gray-100">
+      <Text className="text-4xl font-bold text-gray-700 mb-16">Login</Text>
 
       <Input
         name="email"
@@ -96,15 +99,18 @@ export default function Login() {
         </View>
       </Link>
 
-      <Button onPress={handleSubmit(onSubmit)}>LOGIN</Button>
-      <View className="flex flex-col  self-center w-64 h-16  mt-10">
+      <Button onPress={handleSubmit(onSubmit)} disabled={mutation.isLoading}>
+        {mutation.isLoading ? "Logging in..." : "LOGIN"}
+      </Button>
+
+      <View className="flex flex-col self-center w-64 h-16 mt-10">
         <Text className="text-gray-700 text-center text-lg font-medium">
-          Or sign up with social account
+          Or sign up with a social account
         </Text>
         <View className="flex flex-row justify-center gap-5 mt-5">
           <Pressable className="bg-white w-1/2 h-20 items-center justify-center p-2 rounded-full">
             <FontAwesome
-              onPress={onGoogleButtonPress}
+              onPress={() => console.log("Google button pressed")}
               name="google"
               size={24}
               color="black"

@@ -6,33 +6,45 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Pressable, View } from "react-native";
 import { Link } from "expo-router";
 import { useForm } from "react-hook-form";
-import { register } from "../../src/services/auth/authService";
+import { useMutation } from "@tanstack/react-query"; // Import the correct hook
+import { register } from "../../src/services/auth/authService"; // Assuming this is your registration API function
 
 export default function SignUp() {
   const { control, handleSubmit, setError } = useForm();
-  const onSubmit = async (data) => {
-    try {
+
+  const mutation = useMutation({
+    mutationFn: async (data) => {
       await register(data);
-    } catch (err) {
+    },
+    onError: (err) => {
       if (err.response?.data.includes("EMAIL_EXISTS")) {
         setError("email", {
           type: "manual",
           message: "Email already in use.",
         });
       }
-    }
+    },
+    onSuccess: () => {
+      console.log("Registration successful");
+    },
+  });
+
+  const onSubmit = (data) => {
+    mutation.mutate(data);
   };
+
   return (
-    <View className="flex flex-col p-6 pt-20 h-screen gap-5   bg-gray-100">
-      <Text className="text-4xl font-bold text-gray-700  mb-16">Sign up</Text>
+    <View className="flex flex-col p-6 pt-20 h-screen gap-5 bg-gray-100">
+      <Text className="text-4xl font-bold text-gray-700 mb-16">Sign up</Text>
+
       <Input
-        placeholder="Last Name"
+        placeholder="First Name"
         name="firstname"
         control={control}
         rules={{ required: "First Name is required" }}
       />
       <Input
-        placeholder="First Name"
+        placeholder="Last Name"
         name="lastname"
         control={control}
         rules={{ required: "Last Name is required" }}
@@ -85,8 +97,11 @@ export default function SignUp() {
         </View>
       </Link>
 
-      <Button onPress={handleSubmit(onSubmit)}>SIGN UP</Button>
-      <View className="flex flex-col  self-center w-64 h-16  mt-10">
+      <Button onPress={handleSubmit(onSubmit)} disabled={mutation.isLoading}>
+        {mutation.isLoading ? "Signing up..." : "SIGN UP"}
+      </Button>
+
+      <View className="flex flex-col self-center w-64 h-16 mt-10">
         <Text className="text-gray-700 text-center text-lg font-medium">
           Or sign up with social account
         </Text>

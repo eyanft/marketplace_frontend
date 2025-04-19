@@ -8,6 +8,8 @@ import { useZustandStore } from "../../src/store/zustand";
 import { changePassword, signIn } from "../../src/services/auth/authService";
 import Button from "../../src/components/buttons/FilledButton";
 import { updateUserDetails } from "../../src/services/user/userService";
+import { useMutation } from "@tanstack/react-query";
+
 export default function Settings() {
   const user = useZustandStore((state) => state.user);
   const setUserModifications = useZustandStore((state) => state.setUser);
@@ -19,10 +21,37 @@ export default function Settings() {
       email: user.email,
     },
   });
+
   const newPassword = watch("newpassword");
   const confirmPassword = watch("confirmpassword");
   const [notif, setNotif] = useState(true);
   const [sheetVisible, setSheetVisible] = useState(false);
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async (newPassword) => {
+      await changePassword(newPassword);
+    },
+    onError: (error) => {
+      console.error("Error changing password:", error.message);
+    },
+    onSuccess: () => {
+      handleCloseSheet();
+    },
+  });
+
+  const updateUserMutation = useMutation({
+    mutationFn: async (data) => {
+      const newUser = { firebaseID: user.firebaseID, ...data };
+      await updateUserDetails(newUser);
+      await setUserModifications(newUser);
+    },
+    onError: (error) => {
+      console.error("Error updating user info:", error.message);
+    },
+    onSuccess: () => {
+      console.log("User details updated successfully");
+    },
+  });
 
   const handleChangePassword = () => {
     setSheetVisible(true);
@@ -47,6 +76,7 @@ export default function Settings() {
       confirmpassword: "",
     });
   };
+
   const handleSavePassword = async (data) => {
     try {
       await signIn(user.email, data.oldpassword);
@@ -54,8 +84,7 @@ export default function Settings() {
         setError("confirmpassword", { message: "Passwords do not match" });
         return;
       }
-      await changePassword(newPassword);
-      handleCloseSheet();
+      changePasswordMutation.mutate(newPassword);
     } catch (error) {
       if (error.code === "auth/wrong-password") {
         setError("oldpassword", { message: "Old password is incorrect" });
@@ -64,16 +93,11 @@ export default function Settings() {
       }
     }
   };
-  const changePersonalInfo = async (data) => {
-    newUser = { firebaseID: user.firebaseID, ...data };
-    try {
-      console.log(newUser);
-      await updateUserDetails(newUser);
-      await setUserModifications(newUser);
-    } catch (error) {
-      console.error("Error updating user info:", error.message);
-    }
+
+  const changePersonalInfo = (data) => {
+    updateUserMutation.mutate(data);
   };
+
   const translateY = slideAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [600, 0],

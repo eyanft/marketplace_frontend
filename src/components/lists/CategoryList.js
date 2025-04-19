@@ -1,14 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, FlatList } from 'react-native';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  FlatList,
+} from "react-native";
+import { getCategories } from "../../services/category/categoryService";
 
-const categories = [
-    { name: 'Clothing', icon: require('../../../assets/images/clothing.png') },
-    { name: 'Electronics', icon: require('../../../assets/images/electronics.png') },
-    { name: 'Furniture', icon: require('../../../assets/images/furniture.png') },
-    { name: 'Automotive', icon: require('../../../assets/images/automotive.png') },
-  ];
-  
-  
+// const categories = [
+//   { name: "Clothing", icon: require("../../../assets/images/clothing.png") },
+//   {
+//     name: "Electronics",
+//     icon: require("../../../assets/images/electronics.png"),
+//   },
+//   { name: "Furniture", icon: require("../../../assets/images/furniture.png") },
+//   {
+//     name: "Automotive",
+//     icon: require("../../../assets/images/automotive.png"),
+//   },
+// ];
 
 const CategoryItem = ({ name, icon }) => {
   return (
@@ -22,6 +34,10 @@ const CategoryItem = ({ name, icon }) => {
 };
 
 const CategoryList = () => {
+  const [categories, setCategories] = useState(null);
+  useEffect(() => {
+    setCategories(getCategories());
+  }, []);
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -35,7 +51,9 @@ const CategoryList = () => {
         data={categories}
         horizontal
         keyExtractor={(item) => item.name}
-        renderItem={({ item }) => <CategoryItem name={item.name} icon={item.icon} />}
+        renderItem={({ item }) => (
+          <CategoryItem name={item.name} icon={item.icon} />
+        )}
         showsHorizontalScrollIndicator={false}
       />
     </View>
@@ -47,31 +65,31 @@ const styles = StyleSheet.create({
     margin: 16,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    fontWeight: "bold",
+    color: "#333",
   },
   seeAll: {
     fontSize: 14,
-    color: '#bd643c',
+    color: "#bd643c",
   },
   categoryContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     width: 80,
   },
   iconContainer: {
     width: 60,
     height: 60,
     borderRadius: 40,
-    backgroundColor: '#F9F1E7',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#F9F1E7",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   icon: {
@@ -80,8 +98,8 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    color: '#333',
-    textAlign: 'center',
+    color: "#333",
+    textAlign: "center",
   },
 });
 

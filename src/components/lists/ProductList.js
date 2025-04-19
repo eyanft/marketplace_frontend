@@ -1,6 +1,12 @@
-import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import ProductCard from '../cards/HomeCard';
+import React from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import ProductCard from "../cards/HomeCard";
 
 const ProductList = ({ title, products }) => {
   const marketingText =
