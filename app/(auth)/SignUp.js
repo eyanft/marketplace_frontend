@@ -5,14 +5,83 @@ import Input from "../../src/components/input/CustomInput";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Pressable, View } from "react-native";
 import { Link } from "expo-router";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query"; // Import the correct hook
+import { register } from "../../src/services/auth/authService"; // Assuming this is your registration API function
 
 export default function SignUp() {
+  const { control, handleSubmit, setError } = useForm();
+
+  const mutation = useMutation({
+    mutationFn: async (data) => {
+      await register(data);
+    },
+    onError: (err) => {
+      if (err.response?.data.includes("EMAIL_EXISTS")) {
+        setError("email", {
+          type: "manual",
+          message: "Email already in use.",
+        });
+      }
+    },
+    onSuccess: () => {
+      console.log("Registration successful");
+    },
+  });
+
+  const onSubmit = (data) => {
+    mutation.mutate(data);
+  };
+
   return (
-    <View className="flex flex-col p-6 pt-20 h-screen gap-5   bg-gray-100">
-      <Text className="text-4xl font-bold text-gray-700  mb-16">Sign up</Text>
-      <Input placeholder="Name" />
-      <Input placeholder="Email" />
-      <Input placeholder="Password" />
+    <View className="flex flex-col p-6 pt-20 h-screen gap-5 bg-gray-100">
+      <Text className="text-4xl font-bold text-gray-700 mb-16">Sign up</Text>
+
+      <Input
+        placeholder="First Name"
+        name="firstname"
+        control={control}
+        rules={{ required: "First Name is required" }}
+      />
+      <Input
+        placeholder="Last Name"
+        name="lastname"
+        control={control}
+        rules={{ required: "Last Name is required" }}
+      />
+      <Input
+        name="email"
+        control={control}
+        placeholder="Email"
+        rules={{
+          required: "Email is required",
+          pattern: {
+            value: /^\S+@\S+$/i,
+            message: "Invalid email address",
+          },
+        }}
+      />
+      <Input
+        name="password"
+        control={control}
+        placeholder="Password"
+        secureTextEntry
+        rules={{
+          required: "Password is required",
+          minLength: {
+            value: 6,
+            message: "Password must be at least 6 characters",
+          },
+          maxLength: {
+            value: 20,
+            message: "Password must be at least 20 characters",
+          },
+          pattern: {
+            value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
+            message: "Password must include uppercase, lowercase, and a number",
+          },
+        }}
+      />
 
       <Link push href="/Login">
         <View className="flex-row justify-end items-center gap-3 w-full">
@@ -28,8 +97,11 @@ export default function SignUp() {
         </View>
       </Link>
 
-      <Button>SIGN UP</Button>
-      <View className="flex flex-col  self-center w-64 h-16  mt-10">
+      <Button onPress={handleSubmit(onSubmit)} disabled={mutation.isLoading}>
+        {mutation.isLoading ? "Signing up..." : "SIGN UP"}
+      </Button>
+
+      <View className="flex flex-col self-center w-64 h-16 mt-10">
         <Text className="text-gray-700 text-center text-lg font-medium">
           Or sign up with social account
         </Text>

@@ -5,6 +5,19 @@ module.exports = function (api) {
       ["babel-preset-expo", { jsxImportSource: "nativewind" }],
       "nativewind/babel",
     ],
-    plugins: ["expo-router/babel"],
+    plugins: [
+      "expo-router/babel",
+      [
+        "module:react-native-dotenv",
+        {
+          moduleName: "@env",
+          path: ".env",
+          blocklist: null,
+          allowlist: null,
+          safe: false,
+          allowUndefined: true,
+        },
+      ],
+    ],
   };
 };
