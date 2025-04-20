@@ -8,12 +8,7 @@ import {
 } from "react-native";
 import ProductCard from "../cards/HomeCard";
 
-const ProductList = ({ title, products }) => {
-  const marketingText =
-    title === "On Sale"
-      ? "Grab the best deals now! 🔥"
-      : "Check out the latest trends! ✨";
-
+const ProductList = ({ title, products, description }) => {
   return (
     <View style={styles.section}>
       <View style={styles.titleContainer}>
@@ -22,7 +17,7 @@ const ProductList = ({ title, products }) => {
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.marketingText}>{marketingText}</Text>
+      <Text style={styles.marketingText}>{description}</Text>
       <FlatList
         horizontal
         data={products}

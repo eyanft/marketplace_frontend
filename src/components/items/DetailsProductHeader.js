@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AntDesign, Feather } from '@expo/vector-icons';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { AntDesign, Feather } from "@expo/vector-icons";
 
 export default function DetailsProductHeader({ productName, onBack, onShare }) {
   return (
@@ -18,20 +18,20 @@ export default function DetailsProductHeader({ productName, onBack, onShare }) {
 
 const styles = StyleSheet.create({
   headerFixed: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     padding: 12,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    position: 'absolute',
+    borderBottomColor: "#eee",
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -42,11 +42,11 @@ const styles = StyleSheet.create({
   headerButton: {
     width: 32,
     height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 });

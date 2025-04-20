@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { Pressable, Switch, Text, View, TouchableOpacity } from "react-native";
+import {
+  Pressable,
+  Switch,
+  Text,
+  View,
+  TouchableOpacity,
+  ToastAndroid,
+} from "react-native";
 import Title from "../../src/components/text/CustomText";
 import CustomInput from "../../src/components/input/CustomInput";
 import { Animated, Modal } from "react-native";
@@ -36,6 +43,11 @@ export default function Settings() {
     },
     onSuccess: () => {
       handleCloseSheet();
+      ToastAndroid.show(
+        "Password changed successfully",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
     },
   });
 
@@ -49,7 +61,11 @@ export default function Settings() {
       console.error("Error updating user info:", error.message);
     },
     onSuccess: () => {
-      console.log("User details updated successfully");
+      ToastAndroid.show(
+        "Profile Updated",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
     },
   });
 

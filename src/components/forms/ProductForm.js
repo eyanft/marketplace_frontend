@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,88 +7,153 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-} from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import * as ImagePicker from 'expo-image-picker';
-import StepIndicator from 'react-native-step-indicator';
-import { Colors } from '../../../config/colors';
+  ToastAndroid,
+} from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import * as ImagePicker from "expo-image-picker";
+import StepIndicator from "react-native-step-indicator";
+import { Colors } from "../../../config/colors";
+import { getCategories } from "../../services/category/categoryService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { uploadProduct } from "../../services/product/productService";
+import { useNavigation } from "expo-router";
+import { useZustandStore } from "../../store/zustand";
 
-const categories = [
-  { id: 1, name: 'Voitures' },
-  { id: 2, name: 'Immobilier' },
-  { id: 3, name: 'Électronique' },
-  { id: 4, name: 'Mode' },
-];
-const brands = ['Suzuki', 'Toyota', 'Renault', 'Peugeot', 'Hyundai'];
+// const categories = [
+//   { id: 1, name: 'Voitures' },
+//   { id: 2, name: 'Immobilier' },
+//   { id: 3, name: 'Électronique' },
+//   { id: 4, name: 'Mode' },
+// ];
+const brands = ["Suzuki", "Toyota", "Renault", "Peugeot", "Hyundai"];
 const models = {
-  'Suzuki': ['Celerio', 'Swift', 'Vitara', 'Baleno'],
-  'Toyota': ['Corolla', 'Yaris', 'RAV4', 'Hilux'],
-  'Renault': ['Clio', 'Megane', 'Captur', 'Kadjar'],
-  'Peugeot': ['208', '308', '3008', '5008'],
-  'Hyundai': ['i10', 'i20', 'Tucson', 'Santa Fe']
+  Suzuki: ["Celerio", "Swift", "Vitara", "Baleno"],
+  Toyota: ["Corolla", "Yaris", "RAV4", "Hilux"],
+  Renault: ["Clio", "Megane", "Captur", "Kadjar"],
+  Peugeot: ["208", "308", "3008", "5008"],
+  Hyundai: ["i10", "i20", "Tucson", "Santa Fe"],
 };
-const years = Array.from({ length: 30 }, (_, i) => (new Date().getFullYear() - i).toString());
-const transactionTypes = ['A Vendre', 'A Louer', 'A Echanger'];
+const years = Array.from({ length: 30 }, (_, i) =>
+  (new Date().getFullYear() - i).toString()
+);
+const transactionTypes = ["A Vendre", "A Louer", "A Echanger"];
 
 export default function ProductForm({ onSubmit, onCancel }) {
+  const router = useNavigation();
+  const queryClient = useQueryClient();
+  const { user } = useZustandStore();
+
+  const {
+    mutate: submitProduct,
+    isPending,
+    isSuccess,
+    error: mutationError,
+  } = useMutation({
+    mutationFn: uploadProduct,
+    onSuccess: () => {
+      router.navigate("home");
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
+
+      ToastAndroid.show(
+        "Product Added Successfully",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
+    },
+    onError: (error) => {
+      console.error("Upload failed:", error.message);
+      if (error.response) {
+        console.log("Response error:", error.response.data);
+      } else if (error.request) {
+        console.log("No response received. Request details:", error.request);
+      } else {
+        console.log("Something else failed:", error.message);
+      }
+    },
+  });
+
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>Something went wrong!</Text>;
+  }
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    price: '',
-    stock: '',
-    category: '',
+    name: "",
+    description: "",
+    price: "",
+    stock: "",
+    category: "",
     images: [],
-    brand: '',
-    model: '',
-    year: '',
-    transactionType: ''
+    brand: "",
+    model: "",
+    year: "",
+    transactionType: "",
   });
   const [errors, setErrors] = useState({});
-  const [currentStep, setCurrentStep] = useState(0); // Updated to 0-based index for StepIndicator
+  const [currentStep, setCurrentStep] = useState(0);
 
   // Validation Function
   const validateField = (name, value) => {
-    let error = '';
+    let error = "";
     switch (name) {
-      case 'name':
-        if (!value) error = 'Le nom est requis';
-        else if (value.length < 3) error = 'Le nom doit contenir au moins 3 caractères';
+      case "name":
+        if (!value) error = "Le nom est requis";
+        else if (value.length < 3)
+          error = "Le nom doit contenir au moins 3 caractères";
         break;
-      case 'description':
-        if (!value) error = 'La description est requise';
+      case "description":
+        if (!value) error = "La description est requise";
         break;
-      case 'price':
-        if (!value) error = 'Le prix est requis';
+      case "price":
+        if (!value) error = "Le prix est requis";
         else if (isNaN(value) || parseFloat(value) <= 0)
-          error = 'Le prix doit être un nombre positif';
+          error = "Le prix doit être un nombre positif";
         break;
-      case 'category':
-        if (!value) error = 'La catégorie est requise';
+      case "category":
+        if (!value) error = "La catégorie est requise";
         break;
-      case 'brand':
-        if (!value) error = 'La marque est requise';
-        break;
-      case 'model':
-        if (!value) error = 'Le modèle est requis';
-        break;
-      case 'year':
-        if (!value) error = "L'année est requise";
-        break;
-      case 'transactionType':
-        if (!value) error = 'Le type de transaction est requis';
+      // case "brand":
+      //   if (!value) error = "La marque est requise";
+      //   break;
+      // case "model":
+      //   if (!value) error = "Le modèle est requis";
+      //   break;
+      // case "year":
+      //   if (!value) error = "L'année est requise";
+      //   break;
+      case "transactionType":
+        if (!value) error = "Le type de transaction est requis";
         break;
     }
-    setErrors(prev => ({ ...prev, [name]: error }));
+    setErrors((prev) => ({ ...prev, [name]: error }));
     return !error;
   };
 
   // Handle Input Changes
   const handleChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    if (name === "category") {
+      const selectedCategory = categories.find((cat) => cat.id === value);
+      setFormData((prev) => ({ ...prev, category: selectedCategory }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
     validateField(name, value);
     // Reset model when brand changes
-    if (name === 'brand') {
-      setFormData(prev => ({ ...prev, model: '' }));
+    if (name === "brand") {
+      setFormData((prev) => ({ ...prev, model: "" }));
     }
   };
 
@@ -101,32 +166,53 @@ export default function ProductForm({ onSubmit, onCancel }) {
       quality: 1,
     });
     if (!result.canceled) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, ...result.assets.map(asset => asset.uri)],
+        images: [...prev.images, ...result.assets.map((asset) => asset.uri)],
       }));
     }
   };
-
-  // Remove Image Functionality
   const removeImage = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      images: prev.images.filter((_, i) => i !== index),
     }));
   };
 
-  // Form Submission
   const handleSubmit = () => {
     let isValid = true;
-    Object.keys(formData).forEach(key => {
-      if (!validateField(key, formData[key])) {
-        isValid = false;
-      }
+
+    if (!isValid) return;
+
+    const form = new FormData();
+
+    const product = {
+      name: formData.name,
+      description: formData.description,
+      price: parseFloat(formData.price || "0"),
+      stock: parseInt(formData.stock || "0"),
+
+      category: {
+        id: formData.category?.id,
+        name: formData.category?.name,
+      },
+
+      seller: {
+        id: user.id,
+      },
+    };
+    const imageUri = formData.images[0];
+    form.append("file", {
+      uri: imageUri,
+      type: "image/jpeg",
+      name: "photo.jpg",
     });
-    if (isValid) {
-      onSubmit?.(formData);
-    }
+    form.append("product", {
+      uri: `data:application/json;base64,${btoa(JSON.stringify(product))}`,
+      type: "application/json",
+      name: "product.json",
+    });
+    submitProduct(form);
   };
 
   // Step Navigation
@@ -151,18 +237,18 @@ export default function ProductForm({ onSubmit, onCancel }) {
     stepStrokeCurrentColor: Colors.primary,
     stepStrokeWidth: 3,
     stepStrokeFinishedColor: Colors.primary,
-    stepStrokeUnFinishedColor: '#aaaaaa',
+    stepStrokeUnFinishedColor: "#aaaaaa",
     separatorFinishedColor: Colors.primary,
-    separatorUnFinishedColor: '#aaaaaa',
+    separatorUnFinishedColor: "#aaaaaa",
     stepIndicatorFinishedColor: Colors.primary,
-    stepIndicatorUnFinishedColor: '#ffffff',
+    stepIndicatorUnFinishedColor: "#ffffff",
     stepIndicatorCurrentColor: Colors.primary,
     stepIndicatorLabelFontSize: 13,
     currentStepIndicatorLabelFontSize: 13,
-    stepIndicatorLabelCurrentColor: '#ffffff',
-    stepIndicatorLabelFinishedColor: '#ffffff',
-    stepIndicatorLabelUnFinishedColor: '#aaaaaa',
-    labelColor: '#999999',
+    stepIndicatorLabelCurrentColor: "#ffffff",
+    stepIndicatorLabelFinishedColor: "#ffffff",
+    stepIndicatorLabelUnFinishedColor: "#aaaaaa",
+    labelColor: "#999999",
     labelSize: 13,
     currentStepLabelColor: Colors.primary,
   };
@@ -209,7 +295,7 @@ export default function ProductForm({ onSubmit, onCancel }) {
               style={styles.input}
               placeholder="Entrez le titre de l'annonce"
               value={formData.name}
-              onChangeText={(value) => handleChange('name', value)}
+              onChangeText={(value) => handleChange("name", value)}
             />
             {errors.name && <Text style={styles.error}>{errors.name}</Text>}
           </View>
@@ -221,38 +307,49 @@ export default function ProductForm({ onSubmit, onCancel }) {
               multiline
               numberOfLines={4}
               value={formData.description}
-              onChangeText={(value) => handleChange('description', value)}
+              onChangeText={(value) => handleChange("description", value)}
             />
-            {errors.description && <Text style={styles.error}>{errors.description}</Text>}
+            {errors.description && (
+              <Text style={styles.error}>{errors.description}</Text>
+            )}
           </View>
           <View style={styles.formGroup}>
             <Text style={styles.label}>Catégorie</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.category}
-                onValueChange={(value) => handleChange('category', value)}
+                onValueChange={(value) => handleChange("category", value)}
                 style={styles.picker}
               >
-                <Picker.Item label="Choisir la catégorie de l'annonce" value="" />
+                <Picker.Item
+                  label="Choisir la catégorie de l'annonce"
+                  value=""
+                />
                 {categories.map((category) => (
-                  <Picker.Item key={category.id} label={category.name} value={category.id} />
+                  <Picker.Item
+                    key={category.id}
+                    label={category.name}
+                    value={category.id}
+                  />
                 ))}
               </Picker>
             </View>
-            {errors.category && <Text style={styles.error}>{errors.category}</Text>}
+            {errors.category && (
+              <Text style={styles.error}>{errors.category}</Text>
+            )}
           </View>
         </>
       )}
 
       {/* Step 2 Details */}
-      {currentStep === 1 && formData.category === '1' && (
+      {currentStep === 1 && formData.category === "1" && (
         <>
           <View style={styles.formGroup}>
             <Text style={styles.label}>Marque de voiture</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.brand}
-                onValueChange={(value) => handleChange('brand', value)}
+                onValueChange={(value) => handleChange("brand", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="Sélectionnez une marque" value="" />
@@ -268,14 +365,15 @@ export default function ProductForm({ onSubmit, onCancel }) {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.model}
-                onValueChange={(value) => handleChange('model', value)}
+                onValueChange={(value) => handleChange("model", value)}
                 style={styles.picker}
                 enabled={!!formData.brand}
               >
                 <Picker.Item label="Sélectionnez un modèle" value="" />
-                {formData.brand && models[formData.brand]?.map((model) => (
-                  <Picker.Item key={model} label={model} value={model} />
-                ))}
+                {formData.brand &&
+                  models[formData.brand]?.map((model) => (
+                    <Picker.Item key={model} label={model} value={model} />
+                  ))}
               </Picker>
             </View>
             {errors.model && <Text style={styles.error}>{errors.model}</Text>}
@@ -285,7 +383,7 @@ export default function ProductForm({ onSubmit, onCancel }) {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.year}
-                onValueChange={(value) => handleChange('year', value)}
+                onValueChange={(value) => handleChange("year", value)}
                 style={styles.picker}
               >
                 <Picker.Item label="Sélectionnez une année" value="" />
@@ -307,7 +405,9 @@ export default function ProductForm({ onSubmit, onCancel }) {
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.transactionType}
-                onValueChange={(value) => handleChange('transactionType', value)}
+                onValueChange={(value) =>
+                  handleChange("transactionType", value)
+                }
                 style={styles.picker}
               >
                 <Picker.Item label="Sélectionnez un type" value="" />
@@ -316,7 +416,9 @@ export default function ProductForm({ onSubmit, onCancel }) {
                 ))}
               </Picker>
             </View>
-            {errors.transactionType && <Text style={styles.error}>{errors.transactionType}</Text>}
+            {errors.transactionType && (
+              <Text style={styles.error}>{errors.transactionType}</Text>
+            )}
           </View>
           <View style={styles.formGroup}>
             <Text style={styles.label}>Prix (TND)</Text>
@@ -327,7 +429,7 @@ export default function ProductForm({ onSubmit, onCancel }) {
                 placeholder="0.00"
                 keyboardType="decimal-pad"
                 value={formData.price}
-                onChangeText={(value) => handleChange('price', value)}
+                onChangeText={(value) => handleChange("price", value)}
               />
             </View>
             {errors.price && <Text style={styles.error}>{errors.price}</Text>}
@@ -357,14 +459,18 @@ export default function ProductForm({ onSubmit, onCancel }) {
             style={[styles.button, styles.primaryButton]}
             onPress={nextStep}
           >
-            <Text style={[styles.buttonText, styles.primaryButtonText]}>Suivant</Text>
+            <Text style={[styles.buttonText, styles.primaryButtonText]}>
+              Suivant
+            </Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
             onPress={handleSubmit}
           >
-            <Text style={[styles.buttonText, styles.primaryButtonText]}>Publier</Text>
+            <Text style={[styles.buttonText, styles.primaryButtonText]}>
+              Publier
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -377,7 +483,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   stepContainer: {
     marginBottom: 20,
@@ -387,34 +493,34 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
     color: Colors.text,
   },
   input: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
     fontSize: 16,
   },
   textArea: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: "#E0E0E0",
   },
   currency: {
     paddingHorizontal: 12,
     fontSize: 16,
-    color: '#757575',
+    color: "#757575",
   },
   priceInput: {
     flex: 1,
@@ -422,38 +528,38 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   pickerContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    overflow: 'hidden',
+    borderColor: "#E0E0E0",
+    overflow: "hidden",
   },
   picker: {
     height: 50,
   },
   imageUploader: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: Colors.primary,
-    borderStyle: 'dashed',
+    borderStyle: "dashed",
     padding: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   uploaderText: {
     color: Colors.primary,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   imagePreviewContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginTop: 10,
     gap: 10,
   },
   imageWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   imagePreview: {
     width: 100,
@@ -461,30 +567,30 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   removeImageButton: {
-    position: 'absolute',
+    position: "absolute",
     top: 5,
     right: 5,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: "rgba(0,0,0,0.5)",
     width: 20,
     height: 20,
     borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   removeImageText: {
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
     fontSize: 14,
     lineHeight: 18,
   },
   error: {
-    color: '#FF3B30',
+    color: "#FF3B30",
     fontSize: 14,
     marginTop: 4,
   },
   buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 20,
     gap: 10,
   },
@@ -492,22 +598,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   cancelButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   secondaryButton: {
-    backgroundColor: '#F5F5F5',
+    backgroundColor: "#F5F5F5",
   },
   primaryButton: {
     backgroundColor: Colors.primary,
   },
   buttonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
 });

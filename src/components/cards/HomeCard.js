@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { Heart, Star } from 'lucide-react-native';
-import { useRouter } from 'expo-router';
+import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { Heart, Star } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 const RatingStars = ({ rating, reviews }) => {
   const fullStars = Math.floor(rating);
@@ -9,10 +9,17 @@ const RatingStars = ({ rating, reviews }) => {
 
   return (
     <View style={styles.ratingContainer}>
-      {[...Array(fullStars)].map((_, index) => (
-        <Star key={index} size={12} color="#FFD700" fill="#FFD700" />
-      ))}
-      {hasHalfStar && <Star size={12} color="#FFD700" />}
+      {rating ? (
+        <>
+          {" "}
+          {[...Array(fullStars)].map((_, index) => (
+            <Star key={index} size={12} color="#FFD700" fill="#FFD700" />
+          ))}
+          {hasHalfStar && <Star size={12} color="#FFD700" />}
+        </>
+      ) : (
+        <Text style={styles.reviewText}>No reviews yet</Text>
+      )}
       <Text style={styles.reviewText}>({reviews})</Text>
     </View>
   );
@@ -22,43 +29,43 @@ const ProductCard = ({ product }) => {
   const router = useRouter();
 
   const handleProductPress = () => {
-    const productData = {
-      id: product.id,
-      name: product.name,
-      brand: product.brand,
-      price: product.salePrice.replace('$', ''),
-      imageUrl: product.image.uri,
-      rating: product.rating,
-      reviewCount: product.reviews,
-      description: product.description,
-      colors: product.colors,
-      sizes: product.sizes,
-      discount: product.discount,
-      originalPrice: product.originalPrice
-    };
+    // const productData = {
+    //   id: product.id,
+    //   name: product.name,
+    //   // brand: product.brand,
+    //   price: product.salePrice.replace("$", "DT"),
+    //   imageUrl: product.imageUrl,
+    //   // rating: product.rating,
+    //   // reviewCount: product.reviews,
+    //   description: product.description,
+    //   // colors: product.colors,
+    //   // sizes: product.sizes,
+    //   // discount: product.discount,
+    //   // originalPrice: product.originalPrice
+    // };
 
     router.push({
       pathname: `/product/${product.id}`,
-      params: { product: JSON.stringify(productData) }
+      params: { product: JSON.stringify(product) },
     });
   };
 
   return (
     <TouchableOpacity onPress={handleProductPress}>
       <View style={styles.card}>
-        <Image source={product.image} style={styles.image} />
-        <View style={styles.badgeContainer}>
+        <Image source={{ uri: product.imageUrl }} style={styles.image} />
+        {/* <View style={styles.badgeContainer}>
           <Text style={styles.badge}>{product.discount}</Text>
-        </View>
+        </View> */}
         <TouchableOpacity style={styles.heartButton}>
           <Heart size={20} color="#bd643c" />
         </TouchableOpacity>
-        <RatingStars rating={product.rating} reviews={product.reviews} />
-        <Text style={styles.brand}>{product.brand}</Text>
+        <RatingStars rating={product.rating} reviews={product.reviewCount} />
+        <Text style={styles.brand}>{product.name}</Text>
         <Text style={styles.name}>{product.name}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.originalPrice}>{product.originalPrice}</Text>
-          <Text style={styles.salePrice}>{product.salePrice}</Text>
+          {/* <Text style={styles.originalPrice}>{product.price}</Text> */}
+          <Text style={styles.salePrice}>{product.price} DT</Text>
         </View>
       </View>
     </TouchableOpacity>

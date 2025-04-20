@@ -8,6 +8,7 @@ import {
   FlatList,
 } from "react-native";
 import { getCategories } from "../../services/category/categoryService";
+import { useQuery } from "@tanstack/react-query";
 
 // const categories = [
 //   { name: "Clothing", icon: require("../../../assets/images/clothing.png") },
@@ -26,7 +27,11 @@ const CategoryItem = ({ name, icon }) => {
   return (
     <TouchableOpacity style={styles.categoryContainer}>
       <View style={styles.iconContainer}>
-        <Image source={icon} style={styles.icon} resizeMode="contain" />
+        <Image
+          source={{ uri: icon }}
+          style={styles.icon}
+          resizeMode="contain"
+        />
       </View>
       <Text style={styles.categoryText}>{name}</Text>
     </TouchableOpacity>
@@ -34,10 +39,22 @@ const CategoryItem = ({ name, icon }) => {
 };
 
 const CategoryList = () => {
-  const [categories, setCategories] = useState(null);
-  useEffect(() => {
-    setCategories(getCategories());
-  }, []);
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
+
+  if (isLoading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>Something went wrong!</Text>;
+  }
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -50,9 +67,9 @@ const CategoryList = () => {
       <FlatList
         data={categories}
         horizontal
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <CategoryItem name={item.name} icon={item.icon} />
+          <CategoryItem name={item.name} icon={item.imageUrl} />
         )}
         showsHorizontalScrollIndicator={false}
       />

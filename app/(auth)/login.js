@@ -23,6 +23,7 @@ export default function Login() {
     },
     onSuccess: async (userId) => {
       const user = await getUserDetails(userId);
+
       setUser(user);
       router.replace("(tabs)/home");
     },
