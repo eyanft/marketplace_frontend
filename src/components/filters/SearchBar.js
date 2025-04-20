@@ -3,9 +3,11 @@ import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Search, SlidersHorizontal, Camera } from 'lucide-react-native';
 import { Colors } from '../../../config/colors';   
 import VisualSearch from '../filters/VisualSearch';
+import FilterModal from './FilterModal';
 
 export default function SearchBar() {
   const [visualSearchVisible, setVisualSearchVisible] = useState(false);
+  const [filterVisible, setFilterVisible] = useState(false);
 
   return (
     <>
@@ -24,7 +26,10 @@ export default function SearchBar() {
             <Camera size={20} color="#999" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.filterButton}>
+        <TouchableOpacity 
+          style={styles.filterButton}
+          onPress={() => setFilterVisible(true)}
+        >
           <SlidersHorizontal size={20} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -32,6 +37,11 @@ export default function SearchBar() {
       <VisualSearch 
         visible={visualSearchVisible}
         onClose={() => setVisualSearchVisible(false)}
+      />
+
+      <FilterModal
+        visible={filterVisible}
+        onClose={() => setFilterVisible(false)}
       />
     </>
   );
