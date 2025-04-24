@@ -1,9 +1,8 @@
 import api from "../api/axios";
-export const getUserDetails = async (firebaseID) => {
+export const getUserDetails = async () => {
   try {
-    response = await api.get("users" + `/${firebaseID}`);
+    const response = await api.get("users");
     console.log("here");
-
     return response.data;
   } catch (err) {
     console.log(err);
@@ -13,7 +12,7 @@ export const getUserDetails = async (firebaseID) => {
 export const updateUserDetails = async (data) => {
   try {
     console.log(data);
-    response = await api.put("users/update", data);
+    const response = await api.put("users/update", data);
     return response.data;
   } catch (err) {
     console.log(err);

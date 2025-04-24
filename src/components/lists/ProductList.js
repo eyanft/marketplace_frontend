@@ -7,13 +7,22 @@ import {
   StyleSheet,
 } from "react-native";
 import ProductCard from "../cards/HomeCard";
+import { useRouter } from "expo-router";
 
-const ProductList = ({ title, products, description }) => {
+const ProductList = ({ category, products, description }) => {
+  const router = useRouter();
+
+  const onViewAllPress = (category) => {
+    router.push({
+      pathname: `product`,
+      params: { category: category },
+    });
+  };
   return (
     <View style={styles.section}>
       <View style={styles.titleContainer}>
-        <Text style={styles.sectionTitle}>{title}</Text>
-        <TouchableOpacity>
+        <Text style={styles.sectionTitle}>{category}</Text>
+        <TouchableOpacity onPress={() => onViewAllPress(category)}>
           <Text style={styles.viewAll}>View All</Text>
         </TouchableOpacity>
       </View>

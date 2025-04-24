@@ -1,22 +1,32 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import Badge from '../ui/Badge'; 
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
+import Badge from "../ui/Badge";
 
-const FilterTags = ({ tags }) => {
+const FilterTags = ({ tags, onRemoveFilter }) => {
+  const handleRemoveFilter = (tag) => {
+    onRemoveFilter(tag);
+  };
+
   return (
-    <ScrollView 
+    <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.scrollContainer}
       style={styles.scrollView}
     >
       <View style={styles.filterTagsContainer}>
-        {tags.map(tag => (
-          <Badge key={tag.id} style={styles.filterTag}>
-            <Text style={styles.filterTagText} numberOfLines={1} ellipsizeMode="tail">
-              {tag.name}
-            </Text>
-          </Badge>
+        {tags.map((tag) => (
+          <Pressable onPress={() => handleRemoveFilter(tag)}>
+            <Badge key={tag.id} style={styles.filterTag}>
+              <Text
+                style={styles.filterTagText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {tag} X
+              </Text>
+            </Badge>
+          </Pressable>
         ))}
       </View>
     </ScrollView>
@@ -25,34 +35,34 @@ const FilterTags = ({ tags }) => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    maxHeight: 40, 
-    paddingVertical: 4, 
+    maxHeight: 40,
+    paddingVertical: 4,
   },
   scrollContainer: {
-    paddingHorizontal: 3, 
+    paddingHorizontal: 3,
   },
   filterTagsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   filterTag: {
-    backgroundColor: 'black',
-    paddingHorizontal: 16, 
-    paddingVertical: 8, 
+    backgroundColor: "black",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 29,
     minWidth: 100,
     height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 1, 
+    justifyContent: "center",
+    alignItems: "center",
+    flexShrink: 1,
   },
   filterTagText: {
-    color: 'white',
+    color: "white",
     fontSize: 14,
-    fontWeight: '500',
-    includeFontPadding: false, 
-    textAlignVertical: 'center', 
+    fontWeight: "500",
+    includeFontPadding: false,
+    textAlignVertical: "center",
   },
 });
 

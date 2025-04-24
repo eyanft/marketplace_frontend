@@ -36,12 +36,14 @@ const models = {
 const years = Array.from({ length: 30 }, (_, i) =>
   (new Date().getFullYear() - i).toString()
 );
-const transactionTypes = ["A Vendre", "A Louer", "A Echanger"];
+const transactionTypes = [
+  { label: "Livraison", value: "0" },
+  { label: "Ramasser", value: "1" },
+];
 
 export default function ProductForm({ onSubmit, onCancel }) {
   const router = useNavigation();
   const queryClient = useQueryClient();
-  const { user } = useZustandStore();
 
   const {
     mutate: submitProduct,
@@ -104,7 +106,30 @@ export default function ProductForm({ onSubmit, onCancel }) {
   });
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
+  const validateCurrentStep = () => {
+    let isValid = true;
 
+    if (currentStep === 0) {
+      isValid =
+        validateField("name", formData.name) &
+        validateField("description", formData.description) &
+        validateField("category", formData.category);
+    } else if (currentStep === 1) {
+      isValid =
+        validateField("price", formData.price) &
+        validateField("transactionType", formData.transactionType);
+    } else if (currentStep === 2) {
+      if (!formData.images || formData.images.length === 0) {
+        ToastAndroid.show(
+          "Veuillez ajouter au moins une image",
+          ToastAndroid.SHORT
+        );
+        isValid = false;
+      }
+    }
+
+    return Boolean(isValid);
+  };
   // Validation Function
   const validateField = (name, value) => {
     let error = "";
@@ -180,9 +205,7 @@ export default function ProductForm({ onSubmit, onCancel }) {
   };
 
   const handleSubmit = () => {
-    let isValid = true;
-
-    if (!isValid) return;
+    if (!validateCurrentStep()) return;
 
     const form = new FormData();
 
@@ -196,16 +219,14 @@ export default function ProductForm({ onSubmit, onCancel }) {
         id: formData.category?.id,
         name: formData.category?.name,
       },
-
-      seller: {
-        id: user.id,
-      },
+      deliveryMethod: formData.transactionType,
     };
-    const imageUri = formData.images[0];
-    form.append("file", {
-      uri: imageUri,
-      type: "image/jpeg",
-      name: "photo.jpg",
+    formData.images.forEach((uri, index) => {
+      form.append("files", {
+        uri,
+        type: "image/jpeg",
+        name: `image${index}.jpg`,
+      });
     });
     form.append("product", {
       uri: `data:application/json;base64,${btoa(JSON.stringify(product))}`,
@@ -215,10 +236,9 @@ export default function ProductForm({ onSubmit, onCancel }) {
     submitProduct(form);
   };
 
-  // Step Navigation
   const nextStep = () => {
-    if (currentStep < 2) {
-      setCurrentStep(currentStep + 1);
+    if (validateCurrentStep()) {
+      setCurrentStep((prev) => prev + 1);
     }
   };
   const prevStep = () => {
@@ -266,25 +286,6 @@ export default function ProductForm({ onSubmit, onCancel }) {
       </View>
 
       {/* Image Upload Section - Always Visible */}
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Ajouter des images d'annonce</Text>
-        <TouchableOpacity style={styles.imageUploader} onPress={pickImage}>
-          <Text style={styles.uploaderText}>+ Ajouter une image</Text>
-        </TouchableOpacity>
-        <View style={styles.imagePreviewContainer}>
-          {formData.images.map((uri, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <Image source={{ uri }} style={styles.imagePreview} />
-              <TouchableOpacity
-                style={styles.removeImageButton}
-                onPress={() => removeImage(index)}
-              >
-                <Text style={styles.removeImageText}>×</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
-      </View>
 
       {/* Step 1 Content */}
       {currentStep === 0 && (
@@ -342,9 +343,9 @@ export default function ProductForm({ onSubmit, onCancel }) {
       )}
 
       {/* Step 2 Details */}
-      {currentStep === 1 && formData.category === "1" && (
+      {currentStep === 1 && (
         <>
-          <View style={styles.formGroup}>
+          {/* <View style={styles.formGroup}>
             <Text style={styles.label}>Marque de voiture</Text>
             <View style={styles.pickerContainer}>
               <Picker
@@ -393,15 +394,9 @@ export default function ProductForm({ onSubmit, onCancel }) {
               </Picker>
             </View>
             {errors.year && <Text style={styles.error}>{errors.year}</Text>}
-          </View>
-        </>
-      )}
-
-      {/* Step 3 others */}
-      {currentStep === 2 && (
-        <>
+          </View> */}
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Type de transaction</Text>
+            <Text style={styles.label}>Type de livraison</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.transactionType}
@@ -412,7 +407,11 @@ export default function ProductForm({ onSubmit, onCancel }) {
               >
                 <Picker.Item label="Sélectionnez un type" value="" />
                 {transactionTypes.map((type) => (
-                  <Picker.Item key={type} label={type} value={type} />
+                  <Picker.Item
+                    key={type.value}
+                    label={type.label}
+                    value={type.value}
+                  />
                 ))}
               </Picker>
             </View>
@@ -433,6 +432,31 @@ export default function ProductForm({ onSubmit, onCancel }) {
               />
             </View>
             {errors.price && <Text style={styles.error}>{errors.price}</Text>}
+          </View>
+        </>
+      )}
+
+      {/* Step 3 others */}
+      {currentStep === 2 && (
+        <>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Ajouter des images d'annonce</Text>
+            <TouchableOpacity style={styles.imageUploader} onPress={pickImage}>
+              <Text style={styles.uploaderText}>+ Ajouter une image</Text>
+            </TouchableOpacity>
+            <View style={styles.imagePreviewContainer}>
+              {formData.images.map((uri, index) => (
+                <View key={index} style={styles.imageWrapper}>
+                  <Image source={{ uri }} style={styles.imagePreview} />
+                  <TouchableOpacity
+                    style={styles.removeImageButton}
+                    onPress={() => removeImage(index)}
+                  >
+                    <Text style={styles.removeImageText}>×</Text>
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
           </View>
         </>
       )}
