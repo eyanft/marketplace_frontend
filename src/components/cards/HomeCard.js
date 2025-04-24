@@ -11,16 +11,15 @@ const RatingStars = ({ rating, reviews }) => {
     <View style={styles.ratingContainer}>
       {rating ? (
         <>
-          {" "}
           {[...Array(fullStars)].map((_, index) => (
             <Star key={index} size={12} color="#FFD700" fill="#FFD700" />
           ))}
           {hasHalfStar && <Star size={12} color="#FFD700" />}
+          <Text style={styles.reviewText}>({reviews})</Text>
         </>
       ) : (
         <Text style={styles.reviewText}>No reviews yet</Text>
       )}
-      <Text style={styles.reviewText}>({reviews})</Text>
     </View>
   );
 };

@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  StyleSheet, 
+  View, 
+  ScrollView, 
+  ActivityIndicator, 
+  Text,
+  TouchableOpacity, 
+  RefreshControl,
+  Alert
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import Header from '../components/items/TopReviews';
@@ -7,46 +16,121 @@ import ProductHeader from '../components/items/ProductHeader';
 import RatingSummary from '../components/items/RatingSummary';
 import ReviewsList from '../components/lists/ReviewsList';
 import WriteReviewModal from '../components/modals/WriteReviewModal';
+import { getReviewsByProduct, addReview } from '../services/review/reviewService';
+import { Colors } from '../../config/colors';
 
 const RatingReviews = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const product = typeof params.product === 'string' ? JSON.parse(params.product) : params.product;
+  
+  const product = React.useMemo(() => {
+    try {
+      return typeof params.product === 'string' ? JSON.parse(params.product) : params.product;
+    } catch (error) {
+      console.error("Failed to parse product data:", error);
+      return { id: '', name: 'Unknown Product', rating: 0 };
+    }
+  }, [params.product]);
+
   const [showWriteReview, setShowWriteReview] = useState(false);
+  const [reviewsData, setReviewsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const reviewsData = [
-    {
-      id: 1,
-      name: 'Helene Moore',
-      rating: 4,
-      date: 'June 5, 2023',
-      review: 'The dress is great! Very classy and comfortable. The material feels premium and the fit is perfect. Would definitely recommend!',
-      helpful: 10,
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-    },
-    {
-      id: 2,
-      name: 'Kate Doe',
-      rating: 5,
-      date: 'July 10, 2023',
-      review: 'Absolutely stunning dress! The color is true to the pictures and the sizing is accurate. I received many compliments when I wore it.',
-      helpful: 8,
-      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      id: 3,
-      name: 'Jennifer Smith',
-      rating: 3,
-      date: 'August 14, 2023',
-      review: 'Nice design but the fabric is thinner than I expected. Still a good purchase for the price.',
-      helpful: 3,
-      avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-    },
-  ];
+  const fetchReviews = async () => {
+    try {
+      if (!product?.id) {
+        throw new Error("Product ID is missing");
+      }
+      
+      setLoading(true);
+      setError(null);
+      const data = await getReviewsByProduct(product.id);
+      
+      if (!Array.isArray(data)) {
+        throw new Error("Received invalid reviews data");
+      }
+      
+      setReviewsData(data);
+    } catch (err) {
+      console.error("Fetch reviews error:", err);
+      setError(err.message || "Failed to load reviews");
+      setReviewsData([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
-  const handleSubmitReview = (reviewData) => {
-    console.log('Submitting review:', reviewData);
-    // Ici vous pourriez ajouter le nouvel avis à votre liste d'avis ou l'envoyer à une API
+  useEffect(() => {
+    fetchReviews();
+  }, [product.id]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchReviews();
+  };
+
+  const handleSubmitReview = async (reviewData) => {
+    try {
+      setLoading(true);
+      await addReview(product.id, reviewData);
+      Alert.alert("Success", "Your review has been submitted!");
+      await fetchReviews();
+      setShowWriteReview(false);
+    } catch (error) {
+      console.error('Error submitting review:', error);
+      Alert.alert("Error", error.message || "Failed to submit review");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderContent = () => {
+    if (loading && !refreshing) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading reviews...</Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchReviews}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={handleRefresh}
+            colors={[Colors.primary]}
+            tintColor={Colors.primary}
+          />
+        }
+      >
+        <ProductHeader product={product} />
+        <RatingSummary 
+          product={product} 
+          reviewsData={reviewsData} 
+        />
+        <ReviewsList 
+          reviewsData={reviewsData} 
+          onWriteReview={() => setShowWriteReview(true)} 
+        />
+      </ScrollView>
+    );
   };
 
   return (
@@ -56,14 +140,7 @@ const RatingReviews = () => {
         onBack={() => router.back()} 
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ProductHeader product={product} />
-        <RatingSummary product={product} reviewsData={reviewsData} />
-        <ReviewsList 
-          reviewsData={reviewsData} 
-          onWriteReview={() => setShowWriteReview(true)} 
-        />
-      </ScrollView>
+      {renderContent()}
 
       <WriteReviewModal 
         visible={showWriteReview}
@@ -78,7 +155,42 @@ const RatingReviews = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: Colors.gray,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: Colors.error,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    elevation: 2,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

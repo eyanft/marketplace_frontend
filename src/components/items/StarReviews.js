@@ -1,62 +1,62 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
+import PropTypes from 'prop-types';
 
 const StarReviews = ({ 
-  rating, 
+  rating = 0, 
   size = 14, 
   activeColor = '#FFD700', 
   inactiveColor = '#666', 
   editable = false, 
-  onRatingChange 
+  onRatingChange = () => {} 
 }) => {
-  
+  const normalizedRating = Math.min(5, Math.max(0, Number(rating) || 0));
+
   const handlePress = (selectedRating) => {
-    if (editable && onRatingChange) {
+    if (editable) {
       onRatingChange(selectedRating);
     }
   };
 
-  const renderStars = () => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
+  return (
+    <View style={styles.container}>
+      {[1, 2, 3, 4, 5].map((star) => (
         <TouchableOpacity
-          key={i}
+          key={star}
           disabled={!editable}
-          style={styles.starIconContainer}
-          onPress={() => handlePress(i)}
+          onPress={() => handlePress(star)}
+          activeOpacity={0.6}
         >
           <AntDesign
-            name={i <= rating ? 'star' : 'staro'}
+            name={star <= normalizedRating ? 'star' : 'staro'}
             size={size}
-            color={i <= rating ? activeColor : inactiveColor}
-            style={styles.starIcon}
+            color={star <= normalizedRating ? activeColor : inactiveColor}
+            style={styles.star}
           />
         </TouchableOpacity>
-      );
-    }
-    return stars;
-  };
-
-  return (
-    <View style={styles.starsRow}>
-      {renderStars()}
+      ))}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  starsRow: {
+  container: {
     flexDirection: 'row',
-    marginBottom: 4,
+    alignItems: 'center',
   },
-  starIconContainer: {
-    paddingHorizontal: 2,
-  },
-  starIcon: {
+  star: {
     marginHorizontal: 2,
   },
 });
+
+StarReviews.propTypes = {
+  rating: PropTypes.number,
+  size: PropTypes.number,
+  activeColor: PropTypes.string,
+  inactiveColor: PropTypes.string,
+  editable: PropTypes.bool,
+  onRatingChange: PropTypes.func,
+};
 
 export default StarReviews;

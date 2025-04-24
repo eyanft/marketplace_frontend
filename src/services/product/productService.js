@@ -7,7 +7,6 @@ export const getProductsGroupedByCategory = async (userId) => {
     const response = await api.get("products/groupedByCategory", {
       params: { userId },
     });
-    console.log(response);
     return response.data;
   } catch (err) {
     console.log(err);

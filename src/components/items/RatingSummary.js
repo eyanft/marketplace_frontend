@@ -1,28 +1,59 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import StarRating from '../items/StarReviews';
 import { Colors } from "../../../config/colors";
+import PropTypes from 'prop-types';
 
-const RatingSummary = ({ product, reviewsData }) => {
-  // Calculate percentages for star ratings
-  const ratingCounts = [0, 0, 0, 0, 0];
-  reviewsData.forEach(review => {
-    if (review.rating >= 1 && review.rating <= 5) {
-      ratingCounts[5 - review.rating]++;
+const RatingSummary = ({ 
+  product = { id: '', rating: 0 }, 
+  reviewsData = [] 
+}) => {
+  const summaryData = useMemo(() => {
+    const ratingCounts = [0, 0, 0, 0, 0];
+    const safeReviewsData = Array.isArray(reviewsData) ? reviewsData : [];
+    
+    safeReviewsData.forEach(review => {
+      const rating = Number(review.rating);
+      if (!isNaN(rating) && rating >= 1 && rating <= 5) {
+        ratingCounts[5 - Math.floor(rating)]++;
+      }
+    });
+    
+    const totalReviews = safeReviewsData.length;
+    const ratingPercentages = ratingCounts.map(count => 
+      totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0
+    );
+
+    let averageRating = Number(product.rating) || 0;
+    if (totalReviews > 0) {
+      const sum = safeReviewsData.reduce((acc, review) => {
+        const rating = Number(review.rating);
+        return acc + (isNaN(rating) ? 0 : rating);
+      }, 0);
+      averageRating = sum / totalReviews;
     }
-  });
-  
-  const totalReviews = reviewsData.length;
-  const ratingPercentages = ratingCounts.map(count => 
-    totalReviews > 0 ? (count / totalReviews) * 100 : 0
-  );
+
+    return {
+      ratingCounts,
+      ratingPercentages,
+      totalReviews,
+      averageRating: parseFloat(averageRating.toFixed(1))
+    };
+  }, [product, reviewsData]);
 
   return (
     <View style={styles.ratingOverview}>
       <View style={styles.overallRating}>
-        <Text style={styles.ratingNumber}>{product.rating.toFixed(1)}</Text>
-        <StarRating rating={product.rating} />
-        <Text style={styles.reviewCount}>{product.reviewCount} reviews</Text>
+        <Text style={styles.ratingNumber}>
+          {summaryData.averageRating}
+        </Text>
+        <StarRating 
+          rating={summaryData.averageRating} 
+          starSize={24}
+        />
+        <Text style={styles.reviewCount}>
+          {summaryData.totalReviews} {summaryData.totalReviews === 1 ? 'review' : 'reviews'}
+        </Text>
       </View>
 
       <View style={styles.ratingBreakdown}>
@@ -33,11 +64,11 @@ const RatingSummary = ({ product, reviewsData }) => {
               <View
                 style={[
                   styles.bar,
-                  { width: `${ratingPercentages[index]}%` }
+                  { width: `${summaryData.ratingPercentages[index]}%` }
                 ]}
               />
             </View>
-            <Text style={styles.ratingRowCount}>{ratingCounts[index]}</Text>
+            <Text style={styles.ratingRowCount}>{summaryData.ratingCounts[index]}</Text>
           </View>
         ))}
       </View>
@@ -45,23 +76,41 @@ const RatingSummary = ({ product, reviewsData }) => {
   );
 };
 
+RatingSummary.propTypes = {
+  product: PropTypes.shape({
+    rating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
+  }).isRequired,
+  reviewsData: PropTypes.arrayOf(
+    PropTypes.shape({
+      rating: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
+    })
+  )
+};
+
 const styles = StyleSheet.create({
   ratingOverview: {
     padding: 16,
     flexDirection: 'row',
+    backgroundColor: '#fff',
+    marginBottom: 8,
   },
   overallRating: {
     alignItems: 'center',
     marginRight: 24,
+    width: 100,
   },
   ratingNumber: {
     fontSize: 36,
     fontWeight: 'bold',
     marginBottom: 4,
+    color: Colors.darkText,
   },
   reviewCount: {
     fontSize: 12,
-    color: '#777',
+    color: Colors.gray,
+    textAlign: 'center',
   },
   ratingBreakdown: {
     flex: 1,
@@ -75,7 +124,7 @@ const styles = StyleSheet.create({
   starCount: {
     width: 20,
     fontSize: 12,
-    color: '#777',
+    color: Colors.gray,
   },
   barContainer: {
     flex: 1,
@@ -83,6 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#eee',
     borderRadius: 4,
     marginHorizontal: 8,
+    overflow: 'hidden',
   },
   bar: {
     height: '100%',
@@ -90,10 +140,10 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   ratingRowCount: {
-    width: 20,
+    width: 24,
     fontSize: 12,
     textAlign: 'right',
-    color: '#777',
+    color: Colors.gray,
   },
 });
 
