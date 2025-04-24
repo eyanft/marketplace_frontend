@@ -107,7 +107,7 @@ const ProductScreen = () => {
           return (
             <ProductList
               key={idx}
-              title={item.category}
+              category={item.category}
               products={item.products}
               description={item.description}
             />

@@ -21,8 +21,8 @@ export default function Login() {
       const userData = await signIn(email, password);
       return userData.user.uid;
     },
-    onSuccess: async (userId) => {
-      const user = await getUserDetails(userId);
+    onSuccess: async () => {
+      const user = await getUserDetails();
 
       setUser(user);
       router.replace("(tabs)/home");

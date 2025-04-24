@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import "../config/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -7,12 +7,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          animation: "slide_from_right",
-        }}
-      />
+      <Slot />
     </QueryClientProvider>
   );
 }
