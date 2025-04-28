@@ -2,8 +2,24 @@ import React from 'react';
 import { StyleSheet, View, Text, Image, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import StarRating from '../items/StarReviews';
+import dateFormat from 'dateformat';
 
 const ReviewCard = ({ review }) => {
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        console.warn(`Invalid date string received: ${dateString}`);
+        return dateString; 
+      }
+      return dateFormat(date, 'mm/dd/yyyy');
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return dateString; 
+    }
+  };
+
   return (
     <View style={styles.reviewCard}>
       <View style={styles.reviewHeader}>
@@ -12,7 +28,7 @@ const ReviewCard = ({ review }) => {
           <Text style={styles.reviewerName}>{review.name}</Text>
           <StarRating rating={review.rating} />
         </View>
-        <Text style={styles.reviewDate}>{review.date}</Text>
+        <Text style={styles.reviewDate}>{formatDate(review.date)}</Text>
       </View>
       
       <Text style={styles.reviewText}>{review.review}</Text>
