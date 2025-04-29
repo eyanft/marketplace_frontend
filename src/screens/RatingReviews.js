@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   View,
-  ScrollView,
   ActivityIndicator,
   Text,
   TouchableOpacity,
@@ -18,7 +17,7 @@ import RatingSummary from '../components/items/RatingSummary';
 import ReviewsList from '../components/lists/ReviewsList';
 import WriteReviewModal from '../components/modals/WriteReviewModal';
 
-import { getReviewsByProduct, addReview } from '../services/review/reviewService';
+import { getReviewsByProduct, addReview, updateReview, deleteReview } from '../services/review/reviewService';
 import { Colors } from '../../config/colors';
 import { useZustandStore } from '../store/zustand';
 
@@ -54,7 +53,7 @@ const RatingReviews = () => {
     enabled: !!product.id,
   });
 
-  const mutation = useMutation({
+  const addMutation = useMutation({
     mutationFn: (reviewData) => addReview(product.id, reviewData),
     onSuccess: () => {
       queryClient.invalidateQueries(['reviews', product.id]);
@@ -67,10 +66,55 @@ const RatingReviews = () => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: ({ reviewId, reviewData }) => 
+      updateReview(product.id, reviewId, reviewData, user?.firebaseUid),
+    onSuccess: (response) => {
+      queryClient.setQueryData(['reviews', product.id], (oldData) => {
+        return oldData.map(review => 
+          review.id === response.data.id ? {
+            ...review,
+            rating: response.data.rating,
+            review: response.data.comment,
+            date: response.data.createdAt
+          } : review
+        );
+      });
+      Alert.alert('Success', 'Review updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Error updating review:', error);
+      Alert.alert('Error', error.message || 'Failed to update review');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (reviewId) => 
+      deleteReview(product.id, reviewId, user?.firebaseUid),
+    onSuccess: (_, reviewId) => {
+      queryClient.setQueryData(['reviews', product.id], (oldData) => {
+        return oldData.filter(review => review.id !== reviewId);
+      });
+      Alert.alert('Success', 'Review deleted successfully!');
+    },
+    onError: (error) => {
+      console.error('Error deleting review:', error);
+      Alert.alert('Error', error.message || 'Failed to delete review');
+    },
+  });
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
+  };
+
+  const handleUpdateReview = (reviewId, reviewData) => {
+    updateMutation.mutate({ reviewId, reviewData });
+  };
+
+  const handleDeleteReview = (reviewId) => {
+    deleteMutation.mutate(reviewId);
   };
 
   const renderContent = () => {
@@ -97,17 +141,7 @@ const RatingReviews = () => {
     }
 
     return (
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing || isRefetching}
-            onRefresh={handleRefresh}
-            colors={[Colors.primary]}
-            tintColor={Colors.primary}
-          />
-        }
-      >
+      <View style={styles.contentContainer}>
         <ProductHeader product={product} />
         <RatingSummary product={product} reviewsData={reviewsData} />
         <ReviewsList
@@ -115,22 +149,24 @@ const RatingReviews = () => {
           onWriteReview={() => setShowWriteReview(true)}
           productId={product.id}
           currentUserId={user?.id}
+          onUpdateReview={handleUpdateReview}
+          onDeleteReview={handleDeleteReview}
+          refreshing={refreshing || isRefetching}
+          onRefresh={handleRefresh}
         />
-      </ScrollView>
+      </View>
     );
   };
 
   return (
     <View style={styles.container}>
       <Header title="Ratings & Reviews" onBack={() => router.back()} />
-
       {renderContent()}
-
       <WriteReviewModal
         visible={showWriteReview}
         onClose={() => setShowWriteReview(false)}
         product={product}
-        onSubmit={(data) => mutation.mutate(data)}
+        onSubmit={(data) => addMutation.mutate(data)}
       />
     </View>
   );
@@ -140,6 +176,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  contentContainer: {
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,

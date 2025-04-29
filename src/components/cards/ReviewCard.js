@@ -53,97 +53,21 @@ const ReviewCard = ({ review, onReviewUpdated, onReviewDeleted, currentUserId, p
 
   const handleUpdateReview = async (updatedReview) => {
     try {
-      if (!productId || !review.id) {
-        throw new Error("Product ID and review ID are required");
-      }
-
-      const reviewPayload = {
-        rating: updatedReview.rating,
-        comment: updatedReview.review,
-        username: review.name,
-      };
-
-      console.log('Updating review with payload:', reviewPayload);
-
-      const response = await api.put(`/products/${productId}/reviews/${review.id}`, reviewPayload, {
-        headers: {
-          'x-user-id': currentUserId
-        }
-      });
-
-      if (response.status === 200) {
-        const updatedReviewData = {
-          ...response.data,
-          name: response.data.username,
-          review: response.data.comment,
-          date: response.data.createdAt,
-          avatar: response.data.reviewer?.profilePicture || 'https://via.placeholder.com/40',
-        };
-
-        onReviewUpdated && onReviewUpdated(updatedReviewData);
-        Alert.alert('Success', 'Review updated successfully');
-        setShowEditModal(false);
-      }
+      onReviewUpdated(review.id, updatedReview);
+      setShowEditModal(false);
     } catch (error) {
       console.error("Error updating review:", error);
-      if (error.response) {
-        console.error("Server response:", error.response.data);
-        if (error.response.status === 401) {
-          Alert.alert('Error', 'You are not authorized to edit this review');
-        } else if (error.response.status === 403) {
-          Alert.alert('Error', 'You are not allowed to edit this review');
-        } else if (error.response.status === 404) {
-          Alert.alert('Error', 'Review not found');
-        } else {
-          Alert.alert('Error', error.response.data?.message || 'Failed to update review');
-        }
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        Alert.alert('Error', 'No response received from server');
-      } else {
-        Alert.alert('Error', error.message || 'Failed to update review');
-      }
+      Alert.alert('Error', error.message || 'Failed to update review');
     }
   };
 
   const handleDeleteReview = async () => {
     try {
-      if (!productId || !review.id) {
-        throw new Error("Product ID and review ID are required");
-      }
-
-      console.log('Deleting review:', review.id);
-
-      const response = await api.delete(`/products/${productId}/reviews/${review.id}`, {
-        headers: {
-          'x-user-id': currentUserId
-        }
-      });
-
-      if (response.status === 204) {
-        onReviewDeleted && onReviewDeleted(review.id);
-        Alert.alert('Success', 'Review deleted successfully');
-        setShowDeleteModal(false);
-      }
+      onReviewDeleted(review.id);
+      setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting review:", error);
-      if (error.response) {
-        console.error("Server response:", error.response.data);
-        if (error.response.status === 401) {
-          Alert.alert('Error', 'You are not authorized to delete this review');
-        } else if (error.response.status === 403) {
-          Alert.alert('Error', 'You are not allowed to delete this review');
-        } else if (error.response.status === 404) {
-          Alert.alert('Error', 'Review not found');
-        } else {
-          Alert.alert('Error', error.response.data?.message || 'Failed to delete review');
-        }
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-        Alert.alert('Error', 'No response received from server');
-      } else {
-        Alert.alert('Error', error.message || 'Failed to delete review');
-      }
+      Alert.alert('Error', error.message || 'Failed to delete review');
     }
   };
 
