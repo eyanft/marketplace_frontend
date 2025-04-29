@@ -65,7 +65,7 @@ export const addReview = async (productId, reviewData) => {
 
     const response = await api.post(`/products/${productId}/reviews`, reviewPayload, {
       headers: {
-        'x-user-id': reviewData.firebaseUid  // Assure-toi de passer firebaseUid ici !
+        'x-user-id': reviewData.firebaseUid
       }
     });
 
@@ -88,3 +88,104 @@ export const addReview = async (productId, reviewData) => {
     }
   }
 };
+
+export const updateReview = async (productId, reviewId, reviewData, firebaseUid) => {
+  try {
+    if (!productId || !reviewId || !reviewData) {
+      throw new Error("Product ID, review ID, and review data are required");
+    }
+
+    const reviewPayload = {
+      rating: reviewData.rating,
+      comment: reviewData.review,
+      username: reviewData.name,
+    };
+
+    console.log('Updating review with payload:', reviewPayload);
+
+    const response = await api.put(`/products/${productId}/reviews/${reviewId}`, reviewPayload, {
+      headers: {
+        'x-user-id': firebaseUid
+      }
+    });
+
+    if (response.status === 200) {
+      return {
+        success: true,
+        message: "Review updated successfully",
+        data: {
+          ...response.data,
+          name: response.data.username || 'Anonymous',
+          review: response.data.comment,
+          date: response.data.createdAt,
+          avatar: response.data.reviewer?.profilePicture || 'https://via.placeholder.com/40',
+        }
+      };
+    }
+
+    throw new Error("Failed to update review");
+  } catch (error) {
+    console.error("API Error:", error);
+
+    if (error.response) {
+      console.error("Server response:", error.response.data);
+      if (error.response.status === 401) {
+        throw new Error("You are not authorized to edit this review");
+      } else if (error.response.status === 403) {
+        throw new Error("You are not allowed to edit this review");
+      } else if (error.response.status === 404) {
+        throw new Error("Review not found");
+      }
+      throw new Error(error.response.data?.message || "Failed to update review");
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+      throw new Error("No response received from server");
+    } else {
+      throw new Error(error.message || "Failed to update review");
+    }
+  }
+};
+
+export const deleteReview = async (productId, reviewId, firebaseUid) => {
+  try {
+    if (!productId || !reviewId) {
+      throw new Error("Product ID and review ID are required");
+    }
+
+    console.log('Deleting review:', reviewId);
+
+    const response = await api.delete(`/products/${productId}/reviews/${reviewId}`, {
+      headers: {
+        'x-user-id': firebaseUid
+      }
+    });
+
+    if (response.status === 204) {
+      return {
+        success: true,
+        message: "Review deleted successfully"
+      };
+    }
+
+    throw new Error("Failed to delete review");
+  } catch (error) {
+    console.error("API Error:", error);
+
+    if (error.response) {
+      console.error("Server response:", error.response.data);
+      if (error.response.status === 401) {
+        throw new Error("You are not authorized to delete this review");
+      } else if (error.response.status === 403) {
+        throw new Error("You are not allowed to delete this review");
+      } else if (error.response.status === 404) {
+        throw new Error("Review not found");
+      }
+      throw new Error(error.response.data?.message || "Failed to delete review");
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+      throw new Error("No response received from server");
+    } else {
+      throw new Error(error.message || "Failed to delete review");
+    }
+  }
+}; 

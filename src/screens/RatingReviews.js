@@ -20,11 +20,13 @@ import WriteReviewModal from '../components/modals/WriteReviewModal';
 
 import { getReviewsByProduct, addReview } from '../services/review/reviewService';
 import { Colors } from '../../config/colors';
+import { useZustandStore } from '../store/zustand';
 
 const RatingReviews = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
   const queryClient = useQueryClient();
+  const { user } = useZustandStore();
 
   const product = useMemo(() => {
     try {
@@ -111,6 +113,8 @@ const RatingReviews = () => {
         <ReviewsList
           reviewsData={reviewsData}
           onWriteReview={() => setShowWriteReview(true)}
+          productId={product.id}
+          currentUserId={user?.id}
         />
       </ScrollView>
     );

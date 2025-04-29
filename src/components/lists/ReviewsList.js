@@ -4,7 +4,7 @@ import ReviewCard from '../cards/ReviewCard';
 import { Colors } from "../../../config/colors";
 import { AntDesign } from '@expo/vector-icons';
 
-const ReviewsList = ({ reviewsData, onWriteReview }) => {
+const ReviewsList = ({ reviewsData, onWriteReview, productId, currentUserId }) => {
   const renderEmptyState = () => {
     return (
       <View style={styles.emptyState}>
@@ -32,7 +32,12 @@ const ReviewsList = ({ reviewsData, onWriteReview }) => {
         
         {reviewsData && reviewsData.length > 0 ? (
           reviewsData.map((review) => (
-            <ReviewCard key={review.id} review={review} />
+            <ReviewCard 
+              key={review.id} 
+              review={review} 
+              productId={productId}
+              currentUserId={currentUserId}
+            />
           ))
         ) : (
           renderEmptyState()
