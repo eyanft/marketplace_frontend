@@ -15,7 +15,11 @@ const ReviewCard = ({ review, onReviewUpdated, onReviewDeleted, currentUserId, p
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
 
-  const isOwner = review.userId === currentUserId;
+  console.log('ReviewCard received review:', review);
+  console.log('ReviewCard received currentUserId:', currentUserId);
+  
+  const isOwner = review.reviewer?.id === currentUserId;
+  console.log('Is owner check result:', isOwner, 'reviewer.id:', review.reviewer?.id, 'currentUserId:', currentUserId);
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -70,7 +74,7 @@ const ReviewCard = ({ review, onReviewUpdated, onReviewDeleted, currentUserId, p
       if (response.status === 200) {
         const updatedReviewData = {
           ...response.data,
-          name: response.data.username || 'Anonymous',
+          name: response.data.username,
           review: response.data.comment,
           date: response.data.createdAt,
           avatar: response.data.reviewer?.profilePicture || 'https://via.placeholder.com/40',
@@ -198,14 +202,14 @@ const ReviewCard = ({ review, onReviewUpdated, onReviewDeleted, currentUserId, p
                   style={styles.menuItem}
                   onPress={handleEdit}
                 >
-                  <MaterialIcons name="edit" size={20} color="black"/>
+                  <MaterialIcons name="edit" size={20} color={Colors.primary}/>
                   <Text style={styles.menuItemText}>Edit Review</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={styles.menuItem}
                   onPress={handleDelete}
                 >
-                  <MaterialIcons name="delete" size={20} color="black" />
+                  <MaterialIcons name="delete" size={20} color={Colors.primary} />
                   <Text style={styles.menuItemText}>Delete Review</Text>
                 </TouchableOpacity>
               </>

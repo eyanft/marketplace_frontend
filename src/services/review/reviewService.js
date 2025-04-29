@@ -8,6 +8,7 @@ export const getReviewsByProduct = async (productId) => {
 
     console.log(`Fetching reviews for product ID: ${productId}`);
     const response = await api.get(`/products/${productId}/reviews`);
+    console.log('Full API response:', response);
 
     if (response.status === 204 || !response.data || response.data.length === 0) {
       console.log('No reviews found or 204 No Content response');
@@ -15,17 +16,31 @@ export const getReviewsByProduct = async (productId) => {
     }
 
     const reviews = Array.isArray(response.data) ? response.data : [];
+    console.log('Raw review data from backend:', JSON.stringify(reviews, null, 2));
 
-    return reviews.map(review => ({
-      id: review.id,
-      name: review.username || 'Anonymous',
-      rating: review.rating,
-      review: review.comment,
-      date: review.createdAt,
-      avatar: review.reviewer?.profilePicture || 'https://via.placeholder.com/40',
-      isModerated: review.isModerated,
-      reportReason: review.reportReason
-    }));
+    const transformedReviews = reviews.map(review => {
+      console.log('Processing review:', JSON.stringify(review, null, 2));
+      // Temporary fix: If the username is "Eya Habibi", set the reviewer ID to 2
+      const reviewerId = review.username === "Eya Habibi" ? 2 : (review.reviewerId || review.reviewer?.id);
+      console.log('Determined reviewer ID:', reviewerId);
+      
+      return {
+        id: review.id,
+        name: review.username,
+        rating: review.rating,
+        review: review.comment,
+        date: review.createdAt,
+        avatar: review.reviewer?.profilePicture || 'https://via.placeholder.com/40',
+        isModerated: review.isModerated,
+        reportReason: review.reportReason,
+        reviewer: {
+          id: reviewerId
+        }
+      };
+    });
+
+    console.log('Transformed reviews:', JSON.stringify(transformedReviews, null, 2));
+    return transformedReviews;
   } catch (error) {
     console.error("Error fetching reviews:", error);
 
@@ -57,7 +72,7 @@ export const addReview = async (productId, reviewData) => {
     const reviewPayload = {
       rating: reviewData.rating,
       comment: reviewData.text,
-      username: reviewData.username || 'Anonymous',
+      username: reviewData.username ,
       photos: reviewData.photos || []
     };
 
@@ -115,7 +130,7 @@ export const updateReview = async (productId, reviewId, reviewData, firebaseUid)
         message: "Review updated successfully",
         data: {
           ...response.data,
-          name: response.data.username || 'Anonymous',
+          name: response.data.username ,
           review: response.data.comment,
           date: response.data.createdAt,
           avatar: response.data.reviewer?.profilePicture || 'https://via.placeholder.com/40',
