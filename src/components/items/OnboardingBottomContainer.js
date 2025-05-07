@@ -1,7 +1,7 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import OnboardingPagination from "../pagination/OnboardingPagination";
-import NavigationButtons from "../buttons/NavigationButtons";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import OnboardingPagination from '../pagination/OnboardingPagination';
+import NavigationButtons from '../buttons/NavigationButtons';
 
 export default function OnboardingBottomContainer({
   currentIndex,
@@ -24,10 +24,6 @@ export default function OnboardingBottomContainer({
 
 const styles = StyleSheet.create({
   bottomContainer: {
-    position: "absolute",
-    bottom: 50,
-    left: 0,
-    right: 0,
-    alignItems: "center",
+    alignItems: 'center',
   },
 });

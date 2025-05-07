@@ -153,6 +153,7 @@ const RatingReviews = () => {
           onDeleteReview={handleDeleteReview}
           refreshing={refreshing || isRefetching}
           onRefresh={handleRefresh}
+          showWriteReviewButton={!showWriteReview} // Pass this prop to control button visibility
         />
       </View>
     );

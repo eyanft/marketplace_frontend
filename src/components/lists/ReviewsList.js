@@ -23,7 +23,8 @@ const ReviewsList = ({
   onUpdateReview,
   onDeleteReview,
   refreshing,
-  onRefresh
+  onRefresh,
+  showWriteReviewButton = true // Add this prop with default value of true
 }) => {
   const renderEmptyState = () => {
     return (
@@ -82,23 +83,26 @@ const ReviewsList = ({
               renderEmptyState()
             )}
           </View>
-                    <View style={styles.bottomSpacer} />
+          <View style={styles.bottomSpacer} />
         </ScrollView>
       </View>
       
-      <View style={styles.buttonOverlayContainer}>
-        <View style={styles.overlayGradient} />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.writeReviewButton}
-            onPress={onWriteReview}
-            activeOpacity={0.8}
-          >
-            <AntDesign name="edit" size={18} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.writeReviewText}>WRITE A REVIEW</Text>
-          </TouchableOpacity>
+      {/* Only render the button overlay container when showWriteReviewButton is true */}
+      {showWriteReviewButton && (
+        <View style={styles.buttonOverlayContainer}>
+          <View style={styles.overlayGradient} />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.writeReviewButton}
+              onPress={onWriteReview}
+              activeOpacity={0.8}
+            >
+              <AntDesign name="edit" size={18} color="#fff" style={styles.buttonIcon} />
+              <Text style={styles.writeReviewText}>WRITE A REVIEW</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
+      )}
       
       <StatusBar style="auto" />
     </KeyboardAvoidingView>

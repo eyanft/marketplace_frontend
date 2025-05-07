@@ -1,10 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, ScrollView, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  Platform,
+} from "react-native";
 import { Colors } from "../../config/colors";
 import OnboardingSlide from "../components/slides/OnboardingSlide";
 import OnboardingBottomContainer from "../components/items/OnboardingBottomContainer";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const ONBOARDING_DATA = [
   {
@@ -31,9 +35,14 @@ const ONBOARDING_DATA = [
 ];
 
 export default function OnboardingScreen({ onFinish }) {
+  const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = useWindowDimensions();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
   const isScrolling = useRef(false);
+
+  // Calculate responsive dimensions
+  const imageHeight = Math.min(SCREEN_HEIGHT * 0.45, 300); // Cap at 300px or 45% of height
+  const contentPadding = Math.min(SCREEN_WIDTH * 0.08, 30); // Cap at 30px or 8% of width
 
   const onNext = () => {
     if (currentIndex < ONBOARDING_DATA.length - 1) {
@@ -57,7 +66,7 @@ export default function OnboardingScreen({ onFinish }) {
         animated: true,
       });
     }
-  }, [currentIndex]);
+  }, [currentIndex, SCREEN_WIDTH]);
 
   const handleMomentumScrollEnd = () => {
     isScrolling.current = false;
@@ -92,16 +101,21 @@ export default function OnboardingScreen({ onFinish }) {
             title={item.title}
             description={item.description}
             image={item.image}
+            width={SCREEN_WIDTH}
+            imageHeight={imageHeight}
+            contentPadding={contentPadding}
           />
         ))}
       </ScrollView>
 
-      <OnboardingBottomContainer
-        currentIndex={currentIndex}
-        totalSlides={ONBOARDING_DATA.length}
-        onNext={onNext}
-        onPrevious={onPrevious}
-      />
+      <View style={styles.bottomContainer}>
+        <OnboardingBottomContainer
+          currentIndex={currentIndex}
+          totalSlides={ONBOARDING_DATA.length}
+          onNext={onNext}
+          onPrevious={onPrevious}
+        />
+      </View>
     </View>
   );
 }
@@ -110,5 +124,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  bottomContainer: {
+    position: "absolute",
+    bottom: Platform.OS === 'ios' ? 50 : 40,
+    left: 0,
+    right: 0,
+    alignItems: "center",
   },
 });

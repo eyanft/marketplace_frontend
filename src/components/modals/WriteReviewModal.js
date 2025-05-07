@@ -140,9 +140,11 @@ const WriteReviewModal = ({ visible, onClose, product, onSubmit }) => {
             <TextInput
               multiline
               placeholder="Your review"
+              placeholderTextColor="#999"
               value={reviewText}
               onChangeText={handleReviewTextChange}
               style={styles.reviewTextInput}
+              textAlignVertical="top"
             />
           </View>
 
@@ -253,6 +255,7 @@ const styles = StyleSheet.create({
     padding: 15,
     minHeight: 150,
     fontSize: 16,
+    textAlignVertical: 'top',
   },
   photoUploadSection: {
     marginBottom: 20,
