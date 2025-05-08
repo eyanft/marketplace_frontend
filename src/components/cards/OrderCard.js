@@ -4,7 +4,7 @@ import { Pressable, Text, View } from "react-native";
 
 export default function OrderCard() {
   const navigateToDetails = () => {
-    router.push("/myorders/[id]", { id: 1 });
+    router.navigate("/myorders/[id]", { id: 1 });
   };
   return (
     <View className="bg-white p-4 rounded-lg shadow-md mb-4">

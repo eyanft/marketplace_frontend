@@ -8,14 +8,15 @@ import {
 } from "react-native";
 import ProductCard from "../cards/HomeCard";
 import { useRouter } from "expo-router";
+import { useZustandStore } from "../../store/zustand";
 
 const ProductList = ({ category, products, description }) => {
   const router = useRouter();
-
+  const { setFilters } = useZustandStore();
   const onViewAllPress = (category) => {
+    setFilters({ selectedCategory: category });
     router.push({
       pathname: `product`,
-      params: { category: category },
     });
   };
   return (

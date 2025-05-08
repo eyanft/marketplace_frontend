@@ -8,8 +8,8 @@ export default function AddressCard({ editable, defaultAddress, ...props }) {
   const [isChecked, setChecked] = useState(false);
   const onAddressChange = () => {
     editable
-      ? router.push("/(profile)/AddressList")
-      : router.push("/(profile)/AddressList");
+      ? router.navigate("/(profile)/AddressList")
+      : router.navigate("/(profile)/AddressList");
   };
   return (
     <View className="p-4 w-full h-46 bg-white shadow-xl rounded-lg">

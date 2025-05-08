@@ -7,7 +7,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 export default function AddressList() {
   const onAddAddress = () => {
-    router.push("/(profile)/AddAddress");
+    router.navigate("/(profile)/AddAddress");
   };
   return (
     <>

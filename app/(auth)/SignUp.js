@@ -10,17 +10,24 @@ import { useMutation } from "@tanstack/react-query"; // Import the correct hook
 import { register } from "../../src/services/auth/authService"; // Assuming this is your registration API function
 
 export default function SignUp() {
-  const { control, handleSubmit, setError } = useForm();
+  const { control, handleSubmit, setError, setValue } = useForm();
 
   const mutation = useMutation({
     mutationFn: async (data) => {
       await register(data);
     },
     onError: (err) => {
+      console.log(err.response.data);
       if (err.response?.data.includes("EMAIL_EXISTS")) {
         setError("email", {
           type: "manual",
           message: "Email already in use.",
+        });
+      }
+      if (err.response?.data.includes("PHONE_NUMBER_EXISTS")) {
+        setError("phoneNumber", {
+          type: "manual",
+          message: "Phone number already in use.",
         });
       }
     },
@@ -30,6 +37,7 @@ export default function SignUp() {
   });
 
   const onSubmit = (data) => {
+    console.log(data);
     mutation.mutate(data);
   };
 
@@ -48,6 +56,24 @@ export default function SignUp() {
         name="lastname"
         control={control}
         rules={{ required: "Last Name is required" }}
+      />
+      <Input
+        placeholder="Phone number"
+        name="phoneNumber"
+        control={control}
+        keyboardType="numeric"
+        rules={{
+          required: "Phone number is required",
+          pattern: {
+            value: /^\+216\d+$/,
+            message: "Phone number must contain only numbers",
+          },
+        }}
+        onChangeText={(text) => {
+          if (text.startsWith("+216")) {
+            setValue("phoneNumber", text);
+          }
+        }}
       />
       <Input
         name="email"
@@ -83,7 +109,7 @@ export default function SignUp() {
         }}
       />
 
-      <Link push href="/Login">
+      <Link push href="/login">
         <View className="flex-row justify-end items-center gap-3 w-full">
           <Text className="text-gray-700 font-medium text-lg">
             Already have an account?

@@ -4,10 +4,18 @@ import ItemCard from "../../src/components/cards/ItemCart";
 import SectionTitle from "../../src/components/text/CustomText";
 import CheckoutButton from "../../src/components/buttons/FilledButton";
 import { router } from "expo-router";
+import { useZustandStore } from "../../src/store/zustand";
 
 export default function Index() {
+  const { cart, updateQuantity, removeFromCart } = useZustandStore();
+
+  const totalAmount = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+
   const onConfirm = () => {
-    router.push("/(payment)/Checkout");
+    router.replace("/(tabs)/home");
   };
   return (
     <View className="pt-24 p-2 gap-2">
@@ -17,19 +25,30 @@ export default function Index() {
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-4">
-          <ItemCard edit={true} />
-          <ItemCard edit={true} />
-          <ItemCard edit={true} />
-          <ItemCard edit={true} />
-          <ItemCard edit={true} />
-          <ItemCard edit={true} />
+          {cart?.map((item, idx) => (
+            <ItemCard
+              key={idx}
+              edit={true}
+              product={item}
+              onIncrease={() => updateQuantity(item.id, item.quantity + 1)}
+              onDecrease={() => {
+                if (item.quantity > 1) {
+                  updateQuantity(item.id, item.quantity - 1);
+                } else {
+                  removeFromCart(item.id);
+                }
+              }}
+            />
+          ))}
         </View>
       </ScrollView>
       <View className="flex flex-row justify-between w-full mt-4">
         <SectionTitle className="text-xl font-semibold opacity-50">
           Total Amount:
         </SectionTitle>
-        <SectionTitle className="text-xl font-semibold ">124 DT</SectionTitle>
+        <SectionTitle className="text-xl font-semibold ">
+          {totalAmount} DT
+        </SectionTitle>
       </View>
       <CheckoutButton onPress={onConfirm}>CHECK OUT</CheckoutButton>
     </View>
