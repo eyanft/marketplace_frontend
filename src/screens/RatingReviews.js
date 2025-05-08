@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import {
+  StyleSheet,
+  View,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+  RefreshControl,
+  Alert,
+} from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import Header from '../components/items/TopReviews';
 import ProductHeader from '../components/items/ProductHeader';
@@ -8,68 +17,157 @@ import RatingSummary from '../components/items/RatingSummary';
 import ReviewsList from '../components/lists/ReviewsList';
 import WriteReviewModal from '../components/modals/WriteReviewModal';
 
+import { getReviewsByProduct, addReview, updateReview, deleteReview } from '../services/review/reviewService';
+import { Colors } from '../../config/colors';
+import { useZustandStore } from '../store/zustand';
+
 const RatingReviews = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const product = typeof params.product === 'string' ? JSON.parse(params.product) : params.product;
+  const queryClient = useQueryClient();
+  const { user } = useZustandStore();
+
+  const product = useMemo(() => {
+    try {
+      return typeof params.product === 'string'
+        ? JSON.parse(params.product)
+        : params.product || { id: '', name: 'Unknown Product', rating: 0 };
+    } catch (error) {
+      console.error("Failed to parse product data:", error);
+      return { id: '', name: 'Unknown Product', rating: 0 };
+    }
+  }, [params.product]);
+
   const [showWriteReview, setShowWriteReview] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const reviewsData = [
-    {
-      id: 1,
-      name: 'Helene Moore',
-      rating: 4,
-      date: 'June 5, 2023',
-      review: 'The dress is great! Very classy and comfortable. The material feels premium and the fit is perfect. Would definitely recommend!',
-      helpful: 10,
-      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
-    },
-    {
-      id: 2,
-      name: 'Kate Doe',
-      rating: 5,
-      date: 'July 10, 2023',
-      review: 'Absolutely stunning dress! The color is true to the pictures and the sizing is accurate. I received many compliments when I wore it.',
-      helpful: 8,
-      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      id: 3,
-      name: 'Jennifer Smith',
-      rating: 3,
-      date: 'August 14, 2023',
-      review: 'Nice design but the fabric is thinner than I expected. Still a good purchase for the price.',
-      helpful: 3,
-      avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-    },
-  ];
+  const {
+    data: reviewsData = [],
+    error,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useQuery({
+    queryKey: ['reviews', product.id],
+    queryFn: () => getReviewsByProduct(product.id),
+    enabled: !!product.id,
+  });
 
-  const handleSubmitReview = (reviewData) => {
-    console.log('Submitting review:', reviewData);
-    // Ici vous pourriez ajouter le nouvel avis à votre liste d'avis ou l'envoyer à une API
+  const addMutation = useMutation({
+    mutationFn: (reviewData) => addReview(product.id, reviewData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['reviews', product.id]);
+      Alert.alert('Success', 'Your review has been submitted!');
+      setShowWriteReview(false);
+    },
+    onError: (error) => {
+      console.error('Error submitting review:', error);
+      Alert.alert('Error', error.message || 'Failed to submit review');
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ reviewId, reviewData }) => 
+      updateReview(product.id, reviewId, reviewData, user?.firebaseUid),
+    onSuccess: (response) => {
+      queryClient.setQueryData(['reviews', product.id], (oldData) => {
+        return oldData.map(review => 
+          review.id === response.data.id ? {
+            ...review,
+            rating: response.data.rating,
+            review: response.data.comment,
+            date: response.data.createdAt
+          } : review
+        );
+      });
+      Alert.alert('Success', 'Review updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Error updating review:', error);
+      Alert.alert('Error', error.message || 'Failed to update review');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (reviewId) => 
+      deleteReview(product.id, reviewId, user?.firebaseUid),
+    onSuccess: (_, reviewId) => {
+      queryClient.setQueryData(['reviews', product.id], (oldData) => {
+        return oldData.filter(review => review.id !== reviewId);
+      });
+      Alert.alert('Success', 'Review deleted successfully!');
+    },
+    onError: (error) => {
+      console.error('Error deleting review:', error);
+      Alert.alert('Error', error.message || 'Failed to delete review');
+    },
+  });
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  };
+
+  const handleUpdateReview = (reviewId, reviewData) => {
+    updateMutation.mutate({ reviewId, reviewData });
+  };
+
+  const handleDeleteReview = (reviewId) => {
+    deleteMutation.mutate(reviewId);
+  };
+
+  const renderContent = () => {
+    if (isLoading && !refreshing) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading reviews...</Text>
+        </View>
+      );
+    }
+
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>
+            {error.message || 'Failed to load reviews'}
+          </Text>
+          <TouchableOpacity style={styles.retryButton} onPress={refetch}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.contentContainer}>
+        <ProductHeader product={product} />
+        <RatingSummary product={product} reviewsData={reviewsData} />
+        <ReviewsList
+          reviewsData={reviewsData}
+          onWriteReview={() => setShowWriteReview(true)}
+          productId={product.id}
+          currentUserId={user?.id}
+          onUpdateReview={handleUpdateReview}
+          onDeleteReview={handleDeleteReview}
+          refreshing={refreshing || isRefetching}
+          onRefresh={handleRefresh}
+          showWriteReviewButton={!showWriteReview} // Pass this prop to control button visibility
+        />
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Header 
-        title="Ratings & Reviews" 
-        onBack={() => router.back()} 
-      />
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <ProductHeader product={product} />
-        <RatingSummary product={product} reviewsData={reviewsData} />
-        <ReviewsList 
-          reviewsData={reviewsData} 
-          onWriteReview={() => setShowWriteReview(true)} 
-        />
-      </ScrollView>
-
-      <WriteReviewModal 
+      <Header title="Ratings & Reviews" onBack={() => router.back()} />
+      {renderContent()}
+      <WriteReviewModal
         visible={showWriteReview}
         onClose={() => setShowWriteReview(false)}
         product={product}
-        onSubmit={handleSubmitReview}
+        onSubmit={(data) => addMutation.mutate(data)}
       />
     </View>
   );
@@ -78,7 +176,45 @@ const RatingReviews = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: Colors.gray,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: Colors.error,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25,
+    elevation: 2,
+  },
+  retryButtonText: {
+    color: Colors.white,
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
 

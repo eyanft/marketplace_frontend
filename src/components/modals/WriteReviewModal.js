@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  TouchableOpacity, 
-  ScrollView, 
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
   TextInput,
   KeyboardAvoidingView,
   Platform,
   Image,
-  Dimensions
+  Dimensions,
+  ActivityIndicator
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import StarRating from '../items/StarReviews';
 import { Colors } from "../../../config/colors";
+import * as ImagePicker from 'expo-image-picker';
 
 const { height } = Dimensions.get('window');
 
@@ -21,32 +23,84 @@ const WriteReviewModal = ({ visible, onClose, product, onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [photos, setPhotos] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleRating = (selectedRating) => {
     setRating(selectedRating);
+    setErrorMessage('');
   };
 
   const handleReviewTextChange = (text) => {
     setReviewText(text);
+    setErrorMessage('');
   };
 
-  const handleAddPhoto = () => {
-    setPhotos([...photos, 'https://via.placeholder.com/150']);
+  const handleAddPhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return;
+      }
+      
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setPhotos([...photos, result.assets[0].uri]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      alert('Failed to select image. Please try again.');
+    }
   };
 
-  const handleSubmitReview = () => {
-    onSubmit({
-      product: product.name,
-      rating,
-      reviewText,
-      photos,
-    });
+  const handleRemovePhoto = (index) => {
+    const updatedPhotos = [...photos];
+    updatedPhotos.splice(index, 1);
+    setPhotos(updatedPhotos);
+  };
+
+  const handleSubmitReview = async () => {
+    if (rating === 0) {
+      setErrorMessage("Please select a rating before submitting");
+      return;
+    }
     
-    // Reset form
-    setRating(0);
-    setReviewText('');
-    setPhotos([]);
-    onClose();
+    if (reviewText.trim() === '') {
+      setErrorMessage("Please write your review before submitting");
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMessage('');
+
+    try {
+      const reviewData = {
+        productId: product.id,
+        rating,
+        text: reviewText,
+        photos: photos,
+        date: new Date().toISOString()
+      };
+      
+      await onSubmit(reviewData);
+      
+      setRating(0);
+      setReviewText('');
+      setPhotos([]);
+      onClose();
+    } catch (error) {
+      setErrorMessage(error.message || 'Failed to submit review. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!visible) return null;
@@ -56,23 +110,23 @@ const WriteReviewModal = ({ visible, onClose, product, onSubmit }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.keyboardAvoidingView}
     >
+      <TouchableOpacity 
+        style={styles.overlay} 
+        activeOpacity={1} 
+        onPress={onClose}
+      />
       <View style={styles.modalContainer}>
         <View style={styles.modalHandle} />
-        
+
         <ScrollView contentContainerStyle={styles.modalContent}>
-          {/* Close Button */}
-          <TouchableOpacity 
-            style={styles.closeButton}
-            onPress={onClose}
-          >
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <AntDesign name="close" size={24} color="#666" />
           </TouchableOpacity>
 
-          {/* Rating Section */}
           <View style={styles.ratingSection}>
             <Text style={styles.ratingLabel}>What is your rate?</Text>
-            <StarRating 
-              rating={rating} 
+            <StarRating
+              rating={rating}
               size={30}
               activeColor="#FFD700"
               inactiveColor="#ccc"
@@ -81,15 +135,16 @@ const WriteReviewModal = ({ visible, onClose, product, onSubmit }) => {
             />
           </View>
 
-          {/* Review Text Section */}
           <View style={styles.reviewTextSection}>
             <Text style={styles.reviewTextLabel}>Please share your opinion about the product</Text>
             <TextInput
               multiline
               placeholder="Your review"
+              placeholderTextColor="#999"
               value={reviewText}
               onChangeText={handleReviewTextChange}
               style={styles.reviewTextInput}
+              textAlignVertical="top"
             />
           </View>
 
@@ -103,16 +158,34 @@ const WriteReviewModal = ({ visible, onClose, product, onSubmit }) => {
             </TouchableOpacity>
           </View>
 
-          {/* Photos Preview */}
           <View style={styles.photosPreview}>
             {photos.map((photo, index) => (
-              <Image key={index} source={{ uri: photo }} style={styles.photoPreview} />
+              <View key={index} style={styles.photoContainer}>
+                <Image source={{ uri: photo }} style={styles.photoPreview} />
+                <TouchableOpacity 
+                  style={styles.removePhotoButton}
+                  onPress={() => handleRemovePhoto(index)}
+                >
+                  <AntDesign name="closecircle" size={20} color="#fff" />
+                </TouchableOpacity>
+              </View>
             ))}
           </View>
 
-          {/* Submit Button */}
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmitReview}>
-            <Text style={styles.submitButtonText}>SEND REVIEW</Text>
+          {errorMessage ? (
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+          ) : null}
+
+          <TouchableOpacity 
+            style={[styles.submitButton, submitting ? styles.submitButtonDisabled : null]} 
+            onPress={handleSubmitReview}
+            disabled={submitting}
+          >
+            {submitting ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.submitButtonText}>SEND REVIEW</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -125,8 +198,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'flex-end',
+  },
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContainer: {
     backgroundColor: '#fff',
@@ -177,6 +255,7 @@ const styles = StyleSheet.create({
     padding: 15,
     minHeight: 150,
     fontSize: 16,
+    textAlignVertical: 'top',
   },
   photoUploadSection: {
     marginBottom: 20,
@@ -204,11 +283,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 20,
   },
+  photoContainer: {
+    position: 'relative',
+    margin: 8,
+  },
   photoPreview: {
     width: 80,
     height: 80,
     borderRadius: 8,
-    margin: 8,
+  },
+  removePhotoButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 10,
+  },
+  errorMessage: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 10,
   },
   submitButton: {
     backgroundColor: Colors.primary,
@@ -218,6 +312,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 10,
     marginBottom: 20,
+  },
+  submitButtonDisabled: {
+    backgroundColor: Colors.primary + '80', 
   },
   submitButtonText: {
     color: '#fff',

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { getCategories } from "../../services/category/categoryService";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "expo-router";
 
 // const categories = [
 //   { name: "Clothing", icon: require("../../../assets/images/clothing.png") },
@@ -39,6 +40,7 @@ const CategoryItem = ({ name, icon }) => {
 };
 
 const CategoryList = () => {
+  const router = useRouter();
   const {
     data: categories,
     isLoading,
@@ -55,11 +57,12 @@ const CategoryList = () => {
   if (error) {
     return <Text>Something went wrong!</Text>;
   }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Category</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push("/categories")}>
           <Text style={styles.seeAll}>View All</Text>
         </TouchableOpacity>
       </View>
