@@ -1,16 +1,19 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import { ShoppingBag, Star, X } from "lucide-react-native";
+import { Heart, ShoppingBag, Star, X } from "lucide-react-native";
 import { Card, CardContent } from "../ui/Card";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 import { Colors } from "../../../config/colors";
 import { useRouter } from "expo-router";
+import { getTimeAgo } from "../../utils/shimmer/dateUtils";
+import { TouchableOpacity } from "react-native";
 
 const ProductCard = ({ product }) => {
   const router = useRouter();
-  const ProcceedToItemDetails = () => {
-    router.push({
+
+  const proceedToItemDetails = () => {
+    router.navigate({
       pathname: `/product/${product.id}`,
       params: { product: JSON.stringify(product) },
     });
@@ -21,32 +24,39 @@ const ProductCard = ({ product }) => {
       <CardContent>
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: product.imageUrls[0] }}
+            source={{ uri: product.imageUrls?.[0] }}
             style={styles.productImage}
           />
 
-          {/* <Button variant="ghost" size="icon" style={styles.closeButton}>
-            <X size={20} color="black" />
-          </Button> */}
-
+          <TouchableOpacity style={styles.heartButton}>
+            <Heart size={20} color="#bd643c" />
+          </TouchableOpacity>
+          {/* Bag Button (Proceed to Item Details) */}
           {!product.isSoldOut && (
-            <Button onPress={ProcceedToItemDetails} style={styles.bagButton}>
+            <Button
+              onPress={proceedToItemDetails}
+              style={styles.bagButton}
+              accessibilityLabel="Add to cart"
+            >
               <ShoppingBag size={16} color="white" />
             </Button>
           )}
 
+          {/* Badge for "New" items */}
           {product.isNew && (
             <Badge style={styles.newBadge}>
               <Text style={styles.badgeText}>NEW</Text>
             </Badge>
           )}
 
+          {/* Discount Badge */}
           {product.discount && (
             <Badge variant="destructive" style={styles.discountBadge}>
               <Text style={styles.badgeText}>{product.discount}</Text>
             </Badge>
           )}
 
+          {/* Sold Out Overlay */}
           {product.isSoldOut && (
             <View style={styles.soldOutOverlay}>
               <View style={styles.soldOutBackground} />
@@ -57,6 +67,7 @@ const ProductCard = ({ product }) => {
           )}
         </View>
 
+        {/* Rating Section */}
         <View style={styles.ratingContainer}>
           {[...Array(5)].map((_, i) => (
             <Star
@@ -69,24 +80,12 @@ const ProductCard = ({ product }) => {
           <Text style={styles.reviewCount}>({product.reviewCount})</Text>
         </View>
 
-        <Text style={styles.brandText}>{product.name}</Text>
+        {/* Product Details */}
+        <Text style={styles.brandText}>{getTimeAgo(product.createdAt)}</Text>
         <Text style={styles.nameText}>{product.name}</Text>
 
-        {/* <View style={styles.detailsRow}>
-          <Text style={styles.detailText}>
-            <Text style={styles.grayText}>Color: </Text>
-            {product.color}
-          </Text>
-          <Text style={[styles.detailText, { marginLeft: 10 }]}>
-            <Text style={styles.grayText}>Size: </Text>
-            {product.size}
-          </Text>
-        </View> */}
-
         <View style={styles.priceContainer}>
-          {/* {product.originalPrice && (
-            <Text style={styles.originalPrice}>{product.originalPrice}</Text>
-          )} */}
+          {/* Displaying the price */}
           <Text
             style={[styles.price, product.discount && styles.discountPrice]}
           >
@@ -99,6 +98,12 @@ const ProductCard = ({ product }) => {
 };
 
 const styles = StyleSheet.create({
+  heartButton: {
+    position: "absolute",
+    top: 4,
+    right: 4,
+    padding: 4,
+  },
   productCard: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -113,12 +118,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 184,
     borderRadius: 8,
-  },
-  closeButton: {
-    position: "absolute",
-    top: 4,
-    right: 4,
-    padding: 4,
   },
   bagButton: {
     position: "absolute",
@@ -194,28 +193,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: 6,
   },
-  detailsRow: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    marginTop: 8,
-  },
-  detailText: {
-    fontSize: 11,
-  },
-  grayText: {
-    color: "#9b9b9b",
-  },
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 8,
     marginLeft: 6,
-  },
-  originalPrice: {
-    fontSize: 14,
-    color: "#9b9b9b",
-    textDecorationLine: "line-through",
-    marginRight: 4,
   },
   price: {
     fontSize: 14,

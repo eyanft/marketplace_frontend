@@ -15,9 +15,9 @@ const FilterTags = ({ tags, onRemoveFilter }) => {
       style={styles.scrollView}
     >
       <View style={styles.filterTagsContainer}>
-        {tags.map((tag) => (
-          <Pressable onPress={() => handleRemoveFilter(tag)}>
-            <Badge key={tag.id} style={styles.filterTag}>
+        {tags.map((tag, idx) => (
+          <Pressable key={idx} onPress={() => handleRemoveFilter(tag)}>
+            <Badge style={styles.filterTag}>
               <Text
                 style={styles.filterTagText}
                 numberOfLines={1}
@@ -35,7 +35,7 @@ const FilterTags = ({ tags, onRemoveFilter }) => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    maxHeight: 40,
+    minHeight: 60,
     paddingVertical: 4,
   },
   scrollContainer: {

@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 
 export default function Reviews({ rating, reviewCount, onPress }) {
   const renderStars = (rating) => {
@@ -9,9 +9,9 @@ export default function Reviews({ rating, reviewCount, onPress }) {
       stars.push(
         <AntDesign
           key={i}
-          name={i <= rating ? 'star' : 'staro'}
+          name={i <= rating ? "star" : "staro"}
           size={14}
-          color={i <= rating ? '#FFD700' : '#666'}
+          color={i <= rating ? "#FFD700" : "#666"}
         />
       );
     }
@@ -28,16 +28,16 @@ export default function Reviews({ rating, reviewCount, onPress }) {
 
 const styles = StyleSheet.create({
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   stars: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginRight: 4,
   },
   reviews: {
     fontSize: 12,
-    color: '#666',
+    color: "#666",
   },
 });

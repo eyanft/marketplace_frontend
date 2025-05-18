@@ -9,7 +9,7 @@ import AddressCard from "../../src/components/cards/AddressCard";
 import { router } from "expo-router";
 export default function Checkout() {
   const submitOrder = () => {
-    router.push("/(payment)/SuccessPurchase");
+    router.navigate("/(payment)/SuccessPurchase");
   };
   return (
     <>

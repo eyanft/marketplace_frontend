@@ -1,21 +1,23 @@
-import { Stack } from 'expo-router';
-import '../config/global.css';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Colors } from '../config/colors';
-
+import { Slot, Stack } from "expo-router";
+import "../config/global.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CartCard from "../src/components/cards/CartCard";
+import { useZustandStore } from "../src/store/zustand";
+import { Colors } from "../config/colors";
 export default function RootLayout() {
   const queryClient = new QueryClient();
-
+  const { cart } = useZustandStore();
   return (
     <QueryClientProvider client={queryClient}>
+      <CartCard cartItemCount={cart.length} />
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: "#fff",
           },
-          headerTintColor: 'black',
+          headerTintColor: "black",
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: "bold",
           },
         }}
       >
@@ -34,7 +36,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="categories"
           options={{
-            title: 'Categories',
+            title: "Categories",
           }}
         />
         <Stack.Screen
@@ -74,7 +76,7 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
-        
+
         <Stack.Screen
           name="product/[id]"
           options={{

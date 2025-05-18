@@ -5,8 +5,8 @@ import Reviews from "../items/Reviews";
 export default function ProductInfo({ product, onRatingPress }) {
   return (
     <View style={styles.productInfo}>
-      <Text style={styles.brand}>{product.brand}</Text>
-      <Text style={styles.name}>{product.name}</Text>
+      <Text style={styles.brand}>{product.name}</Text>
+      <Text style={styles.name}>{product.seller.name}</Text>
       <Reviews
         rating={product.rating}
         reviewCount={product.reviewCount || product.reviews}

@@ -12,9 +12,12 @@ export default function MyProfile() {
   const user = useZustandStore((state) => state.user);
   const loadUser = useZustandStore((state) => state.loadUser);
   const clearUser = useZustandStore((state) => state.logout);
+  const clearCart = useZustandStore((state) => state.clearCart);
+
   const onLogoutPress = async () => {
     await logout();
-    await clearUser();
+    clearUser();
+    clearCart();
     router.replace("(auth)/login");
   };
   useEffect(() => {
@@ -53,11 +56,16 @@ export default function MyProfile() {
           subtitle={"3 addresses"}
           link="(profile)/AddressList"
         />
-        <SectionCard
+        {/* <SectionCard
           title={"Payment methods"}
           subtitle={"Visa  **34"}
           link=""
-        />
+        /> */}
+        {/* <SectionCard
+          title={"Cart"}
+          subtitle={"You have " + cart.length + " items in your cart"}
+          link="/cart"
+        /> */}
         <SectionCard
           title={"Settings"}
           subtitle={"Notifications, password"}

@@ -85,7 +85,19 @@ export default function Login() {
         secureTextEntry
         rules={{ required: "Password is required" }}
       />
-
+      <Link push href="/SignUp">
+        <View className="flex-row justify-end items-center gap-3 w-full">
+          <Text className="text-gray-700 font-medium text-lg">
+            No account? Sign up
+          </Text>
+          <FontAwesome
+            name="long-arrow-right"
+            size={20}
+            color="#FF5C00"
+            className="mt-1"
+          />
+        </View>
+      </Link>
       <Link push href="/PasswordReset">
         <View className="flex-row justify-end items-center gap-3 w-full">
           <Text className="text-gray-700 font-medium text-lg">

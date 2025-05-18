@@ -43,7 +43,7 @@ const ProductCard = ({ product }) => {
     //   // originalPrice: product.originalPrice
     // };
 
-    router.push({
+    router.navigate({
       pathname: `/product/${product.id}`,
       params: { product: JSON.stringify(product) },
     });

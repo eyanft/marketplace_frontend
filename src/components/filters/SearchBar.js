@@ -1,9 +1,9 @@
-import React, { useState } from 'react'; 
-import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
-import { Search, SlidersHorizontal, Camera } from 'lucide-react-native';
-import { Colors } from '../../../config/colors';   
-import VisualSearch from '../filters/VisualSearch';
-import FilterModal from './FilterModal';
+import React, { useState } from "react";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Search, SlidersHorizontal, Camera } from "lucide-react-native";
+import { Colors } from "../../../config/colors";
+import VisualSearch from "../filters/VisualSearch";
+import FilterModal from "./FilterModal";
 
 export default function SearchBar() {
   const [visualSearchVisible, setVisualSearchVisible] = useState(false);
@@ -19,14 +19,14 @@ export default function SearchBar() {
             placeholder="Search"
             placeholderTextColor="#999"
           />
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.cameraButton}
             onPress={() => setVisualSearchVisible(true)}
           >
             <Camera size={20} color="#999" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.filterButton}
           onPress={() => setFilterVisible(true)}
         >
@@ -34,7 +34,7 @@ export default function SearchBar() {
         </TouchableOpacity>
       </View>
 
-      <VisualSearch 
+      <VisualSearch
         visible={visualSearchVisible}
         onClose={() => setVisualSearchVisible(false)}
       />
@@ -49,21 +49,21 @@ export default function SearchBar() {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 10,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 15,
   },
   searchContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
     borderRadius: 25,
     paddingHorizontal: 10,
     height: 40,
-    borderWidth: 1, 
-    borderColor: '#ddd', 
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   searchIcon: {
     marginRight: 10,
@@ -71,8 +71,8 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
-    height: '100%',
+    color: "#333",
+    height: "100%",
   },
   cameraButton: {
     padding: 5,
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 25,
     backgroundColor: Colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginLeft: 10,
   },
 });

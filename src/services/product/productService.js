@@ -2,9 +2,6 @@ import { useZustandStore } from "../../store/zustand";
 import api from "../api/axios";
 
 export const getProductsGroupedByCategory = async (userId) => {
-  console.log(userId);
-  console.log("userId", userId);
-  console.log("userId", userId);
   try {
     const response = await api.get("products/groupedByCategory", {
       params: { userId },
@@ -30,10 +27,26 @@ export const uploadProduct = async (formData) => {
     throw error;
   }
 };
-export const getfilteredProduct = async (filter) => {
+export const getfilteredProduct = async (filter, sortBy, ascending) => {
   try {
     const response = await api.get("products/filter", {
-      params: filter,
+      params: {
+        ...filter,
+        sortBy: sortBy,
+        ascending: ascending,
+      },
+    });
+
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+export const getSortedProducts = async (sortBy, ascending) => {
+  try {
+    const response = await api.get("products/sort", {
+      params: { sortBy, ascending },
     });
 
     return response.data;
