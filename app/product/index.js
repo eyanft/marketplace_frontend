@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import { useSearchParams } from "expo-router/build/hooks";
+import { useLocalSearchParams, useSearchParams } from "expo-router/build/hooks";
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   View,
@@ -14,14 +14,16 @@ import FilterTags from "../../src/components/filters/FilterTags";
 import FilterControls from "../../src/components/filters/FilterControls";
 import ProductCard from "../../src/components/cards/ProductCard";
 import { getfilteredProduct } from "../../src/services/product/productService";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ShimmerProductCard from "../../src/components/shimmer/ProductShimmer";
 import { getSortedProducts } from "../../src/services/product/productService";
 import { useZustandStore } from "../../src/store/zustand";
 
 export default function Products() {
+  const { type } = useLocalSearchParams();
+  console.log(type);
   const router = useRouter();
-  const { filters, setFilters, resetFilters } = useZustandStore();
+  const { filters, setFilters, resetFilters, user } = useZustandStore();
   const { selectedCategory, minPrice, maxPrice, rating } = filters;
   const [sortCriteria, setSortCriteria] = useState({
     sortBy: "price",
@@ -34,9 +36,10 @@ export default function Products() {
       minPrice: minPrice || "",
       maxPrice: maxPrice || "",
       minRating: rating || "",
+      sellerFUID: type === "listed" ? user?.firebaseID : "",
     };
-  }, [selectedCategory, minPrice, maxPrice, rating]);
-
+  }, [selectedCategory, minPrice, maxPrice, rating, type]);
+  const queryClient = useQueryClient();
   const {
     data: products,
     isLoading,
@@ -54,6 +57,9 @@ export default function Products() {
   };
   useFocusEffect(
     useCallback(() => {
+      queryClient.invalidateQueries({
+        queryKey: ["products"],
+      });
       return () => {
         resetFilters();
       };
@@ -92,7 +98,11 @@ export default function Products() {
       <FlatList
         data={isLoading ? [1, 2, 3, 4, 6, 8] : products}
         renderItem={({ item }) =>
-          isLoading ? <ShimmerProductCard /> : <ProductCard product={item} />
+          isLoading ? (
+            <ShimmerProductCard />
+          ) : (
+            <ProductCard product={item} edit={type ? true : false} />
+          )
         }
         numColumns={2}
         columnWrapperStyle={styles.productRow}

@@ -52,12 +52,12 @@ export default function ProductImageGallery({
         scrollEventThrottle={16}
         style={styles.imageContainer}
       >
-        {images.map((image, index) => (
+        {images?.map((image, index) => (
           <Image key={index} source={{ uri: image }} style={styles.image} />
         ))}
       </ScrollView>
       <View style={styles.pagination}>
-        {images.map((_, index) => (
+        {images?.map((_, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => {

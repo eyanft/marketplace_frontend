@@ -1,12 +1,23 @@
-import { Slot, Stack } from "expo-router";
+import { Slot, Stack, useRouter } from "expo-router";
 import "../config/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
 import { useZustandStore } from "../src/store/zustand";
-import { Colors } from "../config/colors";
+
+import { useEffect } from "react";
+import { registerForPushNotificationsAsync } from "../src/utils/notifications";
+
 export default function RootLayout() {
   const queryClient = new QueryClient();
   const { cart } = useZustandStore();
+
+  useEffect(() => {
+    (async () => {
+      const token = await registerForPushNotificationsAsync();
+      console.log("Expo Push Token:", token);
+    })();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <CartCard cartItemCount={cart.length} />
@@ -57,7 +68,6 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
-
         <Stack.Screen
           name="(reviews)/rating-reviews"
           options={{
@@ -76,7 +86,6 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
-
         <Stack.Screen
           name="product/[id]"
           options={{

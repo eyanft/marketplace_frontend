@@ -28,6 +28,7 @@ export default function Login() {
       router.replace("(tabs)/home");
     },
     onError: (error) => {
+      console.log(error);
       switch (error.code) {
         case "auth/invalid-credential":
         case "auth/wrong-password":

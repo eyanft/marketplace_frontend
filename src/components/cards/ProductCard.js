@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-import { Heart, ShoppingBag, Star, X } from "lucide-react-native";
+import { Heart, ShoppingBag, Star, X, Pencil } from "lucide-react-native";
 import { Card, CardContent } from "../ui/Card";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
@@ -9,16 +9,21 @@ import { useRouter } from "expo-router";
 import { getTimeAgo } from "../../utils/shimmer/dateUtils";
 import { TouchableOpacity } from "react-native";
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, edit }) => {
   const router = useRouter();
-
+  console.log(product);
   const proceedToItemDetails = () => {
     router.navigate({
       pathname: `/product/${product.id}`,
       params: { product: JSON.stringify(product) },
     });
   };
-
+  const proceedToEditItem = () => {
+    router.navigate({
+      pathname: `/(tabs)/plus`,
+      params: { product: JSON.stringify(product) },
+    });
+  };
   return (
     <Card style={styles.productCard}>
       <CardContent>
@@ -28,11 +33,13 @@ const ProductCard = ({ product }) => {
             style={styles.productImage}
           />
 
-          <TouchableOpacity style={styles.heartButton}>
-            <Heart size={20} color="#bd643c" />
-          </TouchableOpacity>
+          {!edit && (
+            <TouchableOpacity style={styles.heartButton}>
+              <Heart size={20} color="#bd643c" />
+            </TouchableOpacity>
+          )}
           {/* Bag Button (Proceed to Item Details) */}
-          {!product.isSoldOut && (
+          {product.stock === 0 && !edit && (
             <Button
               onPress={proceedToItemDetails}
               style={styles.bagButton}
@@ -41,23 +48,25 @@ const ProductCard = ({ product }) => {
               <ShoppingBag size={16} color="white" />
             </Button>
           )}
-
+          {edit && (
+            <Button onPress={proceedToEditItem} style={styles.bagButton}>
+              <Pencil size={16} color="white" />
+            </Button>
+          )}
           {/* Badge for "New" items */}
           {product.isNew && (
             <Badge style={styles.newBadge}>
               <Text style={styles.badgeText}>NEW</Text>
             </Badge>
           )}
-
           {/* Discount Badge */}
           {product.discount && (
             <Badge variant="destructive" style={styles.discountBadge}>
               <Text style={styles.badgeText}>{product.discount}</Text>
             </Badge>
           )}
-
           {/* Sold Out Overlay */}
-          {product.isSoldOut && (
+          {product.stock === 0 && !edit && (
             <View style={styles.soldOutOverlay}>
               <View style={styles.soldOutBackground} />
               <Text style={styles.soldOutText}>
@@ -82,7 +91,7 @@ const ProductCard = ({ product }) => {
 
         {/* Product Details */}
         <Text style={styles.brandText}>{getTimeAgo(product.createdAt)}</Text>
-        <Text style={styles.nameText}>{product.name}</Text>
+        <Text style={styles.nameText}>{product?.name}</Text>
 
         <View style={styles.priceContainer}>
           {/* Displaying the price */}

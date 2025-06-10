@@ -41,10 +41,24 @@ const transactionTypes = [
   { label: "Ramasser", value: "1" },
 ];
 
-export default function ProductForm({ onSubmit, onCancel }) {
+export default function ProductForm({ onSubmit, onCancel, product }) {
   const router = useNavigation();
   const queryClient = useQueryClient();
-
+  const [formData, setFormData] = useState({
+    id: product?.id || "",
+    name: product?.name || "",
+    description: product?.description || "",
+    price: product?.price ? product?.price.toString() : "",
+    stock: product?.stock ? product?.stock.toString() : "",
+    category: product?.category?.id || "",
+    images: product?.imageUrls || [],
+    brand: product?.brand || "",
+    model: product?.model || "",
+    year: product?.year || "",
+    transactionType: product?.deliveryMethod.toString() || "",
+  });
+  const [errors, setErrors] = useState({});
+  const [currentStep, setCurrentStep] = useState(0);
   const {
     mutate: submitProduct,
     isPending,
@@ -52,11 +66,11 @@ export default function ProductForm({ onSubmit, onCancel }) {
     error: mutationError,
   } = useMutation({
     mutationFn: uploadProduct,
-    onSuccess: () => {
-      router.navigate("home");
-      queryClient.invalidateQueries({
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
         queryKey: ["products"],
       });
+      router.navigate("home");
 
       ToastAndroid.show(
         "Product Added Successfully",
@@ -92,20 +106,7 @@ export default function ProductForm({ onSubmit, onCancel }) {
   if (error) {
     return <Text>Something went wrong!</Text>;
   }
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: "",
-    stock: "",
-    category: "",
-    images: [],
-    brand: "",
-    model: "",
-    year: "",
-    transactionType: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [currentStep, setCurrentStep] = useState(0);
+
   const validateCurrentStep = () => {
     let isValid = true;
 
@@ -210,13 +211,14 @@ export default function ProductForm({ onSubmit, onCancel }) {
     const form = new FormData();
 
     const product = {
+      id: formData?.id,
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price || "0"),
       stock: parseInt(formData.stock || "0"),
 
       category: {
-        id: formData.category?.id,
+        id: formData.category?.id || formData.category,
         name: formData.category?.name,
       },
       deliveryMethod: formData.transactionType,

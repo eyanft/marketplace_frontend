@@ -72,8 +72,8 @@ export default function ProductDetailScreen() {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Check out this ${product.name} by ${product.brand}!`,
-        url: product.imageUrl,
+        message: `Check out this ${product?.name} by ${product?.brand}!`,
+        url: product?.imageUrl,
       });
     } catch (error) {
       console.error(error);
@@ -94,14 +94,14 @@ export default function ProductDetailScreen() {
     });
   };
   const handlePhoneCall = () => {
-    const phoneNumber = "tel:" + product.seller.phoneNumber;
+    const phoneNumber = "tel:" + product?.seller.phoneNumber;
 
     Linking.openURL(phoneNumber);
   };
 
   const handleChat = () => {
     const currentUserId = user.firebaseID;
-    const sellerId = product.seller.id;
+    const sellerId = product?.seller.id;
     const chatId = [currentUserId, sellerId].sort().join("_");
     router.navigate({
       pathname: "/chat",
@@ -109,8 +109,8 @@ export default function ProductDetailScreen() {
         chatId: chatId,
         userUID: user.firebaseID,
         username: user.firstname + " " + user.lastname,
-        receiverId: product.seller.id,
-        receiverName: product.seller.name,
+        receiverId: product?.seller.id,
+        receiverName: product?.seller.name,
       },
     });
 
@@ -142,14 +142,14 @@ export default function ProductDetailScreen() {
   return (
     <View style={styles.container}>
       <ProductHeader
-        productName={product.name}
+        productName={product?.name}
         onBack={() => router.back()}
         onShare={handleShare}
       />
 
       <ScrollView>
         <ProductImageGallery
-          images={product.imageUrls}
+          images={product?.imageUrls}
           activeIndex={activeImageIndex}
           setActiveIndex={setActiveImageIndex}
         />
@@ -163,8 +163,8 @@ export default function ProductDetailScreen() {
 
           <ProductInfo product={product} onRatingPress={handleRatingPress} />
 
-          {product.deliveryMethod === 1 ? (
-            cart.filter((item) => item.id === product.id).length === 0 ? (
+          {product?.deliveryMethod === 1 ? (
+            cart.filter((item) => item.id === product?.id).length === 0 ? (
               <AddToCartButton onPress={handleCartPress} />
             ) : (
               <View className="flex-row justify-center  gap-4 w-full">

@@ -6,6 +6,7 @@ export default function CartCard({ cartItemCount }) {
   const router = useRouter();
   const displayCount = cartItemCount > 9 ? "9+" : cartItemCount.toString();
   const translateX = useRef(new Animated.Value(-150)).current;
+
   useEffect(() => {
     Animated.timing(translateX, {
       toValue: cartItemCount > 0 ? 0 : -150,
@@ -18,15 +19,15 @@ export default function CartCard({ cartItemCount }) {
       style={{
         transform: [{ translateX }],
         position: "absolute",
-        top: 160,
+        top: 250,
         left: 0,
+        zIndex: 9999,
       }}
       onTouchStart={() => {
         router.navigate({
           pathname: "/cart",
         });
       }}
-      className="absolute top-40 left-0"
     >
       <View className="flex-row items-center bg-orange-600 rounded-r-full p-3 relative">
         <View>

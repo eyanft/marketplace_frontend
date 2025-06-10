@@ -7,6 +7,8 @@ import { useZustandStore } from "../../src/store/zustand";
 import Button from "../../src/components/buttons/FilledButton";
 import { logout } from "../../src/services/auth/authService";
 import { useRouter } from "expo-router";
+import { getOrderCount } from "../../src/services/order/orderService";
+import { useQuery } from "@tanstack/react-query";
 export default function MyProfile() {
   const router = useRouter();
   const user = useZustandStore((state) => state.user);
@@ -14,6 +16,11 @@ export default function MyProfile() {
   const clearUser = useZustandStore((state) => state.logout);
   const clearCart = useZustandStore((state) => state.clearCart);
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["orderCount", user.firebaseID],
+    queryFn: () => getOrderCount(user.firebaseID),
+    enabled: !!user,
+  });
   const onLogoutPress = async () => {
     await logout();
     clearUser();
@@ -45,17 +52,29 @@ export default function MyProfile() {
         <SectionCard
           title={"My orders"}
           subtitle={
-            user?.orders?.length
-              ? `Already have ${user.orders.length} orders`
-              : "No orders yet"
+            data && !isLoading ? `Already have ${data} orders` : "No orders yet"
           }
-          link="myorders"
+          link={"myorders"}
         />
         <SectionCard
+          title={"My listed items"}
+          subtitle={
+            data && !isLoading ? `You have ${data} items` : "No orders yet"
+          }
+          link={`product?type=listed`}
+        />
+        <SectionCard
+          title={"My listed orders"}
+          subtitle={
+            data && !isLoading ? `You have ${data} items` : "No orders yet"
+          }
+          link={"myorders?type=seller"}
+        />
+        {/* <SectionCard
           title={"Shipping addresses"}
           subtitle={"3 addresses"}
           link="(profile)/AddressList"
-        />
+        /> */}
         {/* <SectionCard
           title={"Payment methods"}
           subtitle={"Visa  **34"}

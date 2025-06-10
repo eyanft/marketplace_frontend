@@ -3,19 +3,47 @@ import { ScrollView, View } from "react-native";
 import ItemCard from "../../src/components/cards/ItemCart";
 import SectionTitle from "../../src/components/text/CustomText";
 import CheckoutButton from "../../src/components/buttons/FilledButton";
+import { passOrder } from "../../src/services/order/orderService";
 import { router } from "expo-router";
 import { useZustandStore } from "../../src/store/zustand";
+import { useMutation } from "@tanstack/react-query";
+import { Alert } from "react-native";
+import { getAuth } from "firebase/auth";
 
 export default function Index() {
-  const { cart, updateQuantity, removeFromCart } = useZustandStore();
+  const { cart, updateQuantity, removeFromCart, clearCart } = useZustandStore();
 
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-
+  const { mutate: submitOrder, isLoading } = useMutation({
+    mutationFn: passOrder,
+    onSuccess: (data) => {
+      Alert.alert("Success", "Your order has been placed.");
+      clearCart();
+      router.replace("/(tabs)/home");
+    },
+    onError: (error) => {
+      Alert.alert("Error", error.response?.data?.message || "Order failed");
+    },
+  });
   const onConfirm = () => {
-    router.replace("/(tabs)/home");
+    const firebaseID = getAuth().currentUser?.uid;
+    if (!firebaseID) {
+      Alert.alert("Error", "You must be logged in to place an order.");
+      return;
+    }
+    const payload = {
+      buyer: { firebaseID },
+      status: "PENDING",
+      orderItems: cart.map((item) => ({
+        product: { id: item.id },
+        quantity: item.quantity,
+      })),
+    };
+
+    submitOrder(payload);
   };
   return (
     <View className="pt-24 p-2 gap-2">

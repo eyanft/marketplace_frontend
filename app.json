@@ -17,11 +17,16 @@
       "supportsTablet": true
     },
     "android": {
+      "googleServicesFile": "./android/app/google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.marketplacefrontend"
+      "package": "com.anonymous.marketplacefrontend",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -29,12 +34,23 @@
     },
     "plugins": [
       "expo-router",
+      "expo-notifications",
+      "expo-dev-client",
       [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to search for products."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "b786c547-e0e0-4d33-b800-75deac2b6752"
+      }
+    },
+    "owner": "spawn005"
   }
 }

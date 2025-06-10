@@ -12,17 +12,20 @@ export default function ItemCart({
   onDecrease,
   ...props
 }) {
-  const totalAmount = product.price * product.quantity;
+  console.log(product);
+  const totalAmount = product?.price * product?.quantity;
   return (
     <View className="flex flex-row w-full h-36 bg-white rounded-lg">
       <Image
         contentFit="cover"
         style={{ width: "35%", height: "100%", borderRadius: 10 }}
-        source={product.imageUrls[0]}
+        source={product?.imageUrls[0]}
       />
       <View className="p-2 w-1/2">
         <View>
-          <ItemText className="text-2xl font-semibold">{product.name}</ItemText>
+          <ItemText className="text-2xl font-semibold">
+            {product?.name}
+          </ItemText>
           {/* <View className="flex flex-row gap-2">
             <ItemText className="text-lg opacity-25">Color:</ItemText>
             <ItemText className="text-lg ">Black</ItemText>
@@ -35,7 +38,7 @@ export default function ItemCart({
                 onPress={onDecrease}
                 className="bg-white rounded-full p-1 shadow-2xl"
               >
-                {product.quantity > 1 ? (
+                {product?.quantity > 1 ? (
                   <AntDesign
                     className="opacity-25"
                     name="minus"
@@ -51,24 +54,24 @@ export default function ItemCart({
                   />
                 )}
               </Pressable>
-              <ItemText className="text-xl">{product.quantity}</ItemText>
+              <ItemText className="text-xl">{product?.quantity}</ItemText>
               <Pressable
                 onPress={onIncrease}
-                disabled={product.quantity >= product.stock}
+                disabled={product?.quantity >= product?.stock}
                 className="bg-white rounded-full p-1 shadow-2xl  "
               >
                 <AntDesign
                   className="opacity-25"
                   name="plus"
                   size={24}
-                  color={product.quantity >= product.stock ? "gray" : "black"}
+                  color={product?.quantity >= product?.stock ? "gray" : "black"}
                 />
               </Pressable>
             </View>
           ) : (
             <View className="flex flex-row gap-2 mt-8">
               <ItemText className="text-lg opacity-25">Units:</ItemText>
-              <ItemText className="text-lg ">{product.quantity}</ItemText>
+              <ItemText className="text-lg ">{product?.quantity}</ItemText>
             </View>
           )}
         </View>
