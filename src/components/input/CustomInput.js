@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, useEffect } from "react";
-import { View, TextInput, Animated } from "react-native";
+import { View, TextInput, Animated, StyleSheet } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome6";
 import { Controller } from "react-hook-form";
 import Text from "../text/CustomText";
@@ -10,6 +10,7 @@ export default function CustomInput({
   rules,
   placeholder,
   defaultValue = false,
+  style,
   ...rest
 }) {
   const [isFocused, setIsFocused] = useState(defaultValue ? true : false);
@@ -17,6 +18,7 @@ export default function CustomInput({
     new Animated.Value(defaultValue ? 5 : 20)
   );
   const [errorOpacity] = useState(new Animated.Value(0));
+
   const handleFocus = () => {
     setIsFocused(true);
     Animated.timing(placeholderPosition, {
@@ -48,14 +50,14 @@ export default function CustomInput({
         fieldState: { error },
       }) => (
         <>
-          <View className="relative">
-            <View
-              className={`flex-row bg-white items-center rounded-md p-3 px-3 ${
-                error ? " border border-red-500" : ""
-              }`}
-            >
+          <View style={styles.container}>
+            <View style={[
+              styles.inputContainer,
+              error && styles.inputError,
+              style
+            ]}>
               <TextInput
-                className="flex-1 text-lg text-gray-800 mt-2"
+                style={styles.input}
                 value={value}
                 onChangeText={onChange}
                 onBlur={() => handleBlur(value, onBlur)}
@@ -71,20 +73,61 @@ export default function CustomInput({
             </View>
 
             <Animated.Text
-              className={`absolute left-4 mt-1 text-gray-700 ${
-                isFocused ? " text-gray-500" : "text-xl"
-              }`}
-              style={{ top: placeholderPosition }}
+              style={[
+                styles.placeholder,
+                isFocused && styles.placeholderFocused,
+                { top: placeholderPosition }
+              ]}
             >
               {placeholder}
             </Animated.Text>
           </View>
 
           {error && (
-            <Text className="text-red-500 ml-1 mt-1">{error.message}</Text>
+            <Text style={styles.errorText}>{error.message}</Text>
           )}
         </>
       )}
     />
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'relative',
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    alignItems: 'center',
+    borderRadius: 6,
+    padding: 12,
+    paddingHorizontal: 12,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: 'red',
+  },
+  input: {
+    flex: 1,
+    fontSize: 18,
+    color: '#1f2937',
+    marginTop: 8,
+  },
+  placeholder: {
+    position: 'absolute',
+    left: 16,
+    marginTop: 4,
+    fontSize: 20,
+    color: '#374151',
+  },
+  placeholderFocused: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  errorText: {
+    color: '#ef4444',
+    marginLeft: 4,
+    marginTop: 4,
+  },
+});
