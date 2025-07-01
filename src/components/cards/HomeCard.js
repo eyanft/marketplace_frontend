@@ -28,21 +28,6 @@ const ProductCard = ({ product }) => {
   const router = useRouter();
 
   const handleProductPress = () => {
-    // const productData = {
-    //   id: product.id,
-    //   name: product.name,
-    //   // brand: product.brand,
-    //   price: product.salePrice.replace("$", "DT"),
-    //   imageUrl: product.imageUrl,
-    //   // rating: product.rating,
-    //   // reviewCount: product.reviews,
-    //   description: product.description,
-    //   // colors: product.colors,
-    //   // sizes: product.sizes,
-    //   // discount: product.discount,
-    //   // originalPrice: product.originalPrice
-    // };
-
     router.navigate({
       pathname: `/product/${product.id}`,
       params: { product: JSON.stringify(product) },
@@ -56,15 +41,14 @@ const ProductCard = ({ product }) => {
         {/* <View style={styles.badgeContainer}>
           <Text style={styles.badge}>{product.discount}</Text>
         </View> */}
-        <TouchableOpacity style={styles.heartButton}>
-          <Heart size={20} color="#bd643c" />
-        </TouchableOpacity>
         <RatingStars rating={product.rating} reviews={product.reviewCount} />
         <Text style={styles.brand}>{product.name}</Text>
         <Text style={styles.name}>{product.name}</Text>
-        <View style={styles.priceContainer}>
-          {/* <Text style={styles.originalPrice}>{product.price}</Text> */}
+        <View style={styles.priceRow}>
           <Text style={styles.salePrice}>{product.price} DT</Text>
+          <TouchableOpacity>
+            <Heart size={24} color="#bd643c" />
+          </TouchableOpacity>
         </View>
       </View>
     </TouchableOpacity>
@@ -82,6 +66,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+    paddingBottom: 10,
+    marginBottom: 4,
+    minHeight: 220,
   },
   image: {
     width: "100%",
@@ -102,11 +89,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "bold",
   },
-  heartButton: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-  },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -126,19 +108,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
-  priceContainer: {
+  priceRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 4,
-  },
-  originalPrice: {
-    textDecorationLine: "line-through",
-    color: "#888",
-    marginRight: 8,
+    justifyContent: "space-between",
+    marginTop: 8,
   },
   salePrice: {
     color: "brown",
     fontWeight: "bold",
+    fontSize: 16,
   },
 });
 
