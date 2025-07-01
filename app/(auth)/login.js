@@ -15,6 +15,7 @@ import { signIn } from "../../src/services/auth/authService";
 import { getUserDetails } from "../../src/services/user/userService";
 import { useZustandStore } from "../../src/store/zustand";
 import { Controller } from "react-hook-form";
+import { auth } from "../../src/services/firebaseConfig";
 
 export default function Login() {
   const router = useRouter();
@@ -30,8 +31,22 @@ export default function Login() {
       return userData.user.uid;
     },
     onSuccess: async () => {
-      const user = await getUserDetails();
-      setUser(user);
+      try {
+        const user = await getUserDetails();
+        setUser(user);
+      } catch (error) {
+        console.log("Failed to get user details from API:", error);
+        // If API fails, we can still proceed with Firebase auth
+        // Set a basic user object with Firebase data
+        const firebaseUser = auth.currentUser;
+        if (firebaseUser) {
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            // Add other default fields as needed
+          });
+        }
+      }
       router.replace("(tabs)/home");
     },
     onError: (error) => {

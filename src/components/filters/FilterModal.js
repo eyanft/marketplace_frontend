@@ -127,7 +127,7 @@ const FilterModal = ({ visible, onClose }) => {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Category</Text>
               <View style={styles.categoryContainer}>
-                {!isLoading ? (
+                {!isLoading && categories && categories.length > 0 ? (
                   categories.map((category) => (
                     <TouchableOpacity
                       key={category.id}

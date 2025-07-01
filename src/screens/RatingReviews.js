@@ -6,10 +6,10 @@ import {
   Text,
   TouchableOpacity,
   RefreshControl,
-  Alert,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 import Header from '../components/items/TopReviews';
 import ProductHeader from '../components/items/ProductHeader';
@@ -20,6 +20,65 @@ import WriteReviewModal from '../components/modals/WriteReviewModal';
 import { getReviewsByProduct, addReview, updateReview, deleteReview } from '../services/review/reviewService';
 import { Colors } from '../../config/colors';
 import { useZustandStore } from '../store/zustand';
+
+const toastConfig = {
+  success: (props) => (
+    <BaseToast
+      {...props}
+      style={{
+        borderLeftColor: Colors.primary,
+        borderLeftWidth: 4,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginHorizontal: 16,
+        marginTop: 40,
+        elevation: 4,
+        shadowColor: Colors.primary,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 16,
+        fontWeight: '600',
+        color: Colors.primary,
+      }}
+      text2Style={{
+        fontSize: 14,
+        color: '#666',
+      }}
+    />
+  ),
+  error: (props) => (
+    <ErrorToast
+      {...props}
+      style={{
+        borderLeftColor: Colors.destructive,
+        borderLeftWidth: 4,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        marginHorizontal: 16,
+        marginTop: 40,
+        elevation: 4,
+        shadowColor: Colors.destructive,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      }}
+      contentContainerStyle={{ paddingHorizontal: 15 }}
+      text1Style={{
+        fontSize: 16,
+        fontWeight: '600',
+        color: Colors.destructive,
+      }}
+      text2Style={{
+        fontSize: 14,
+        color: '#666',
+      }}
+    />
+  ),
+};
 
 const RatingReviews = () => {
   const router = useRouter();
@@ -57,12 +116,20 @@ const RatingReviews = () => {
     mutationFn: (reviewData) => addReview(product.id, reviewData),
     onSuccess: () => {
       queryClient.invalidateQueries(['reviews', product.id]);
-      Alert.alert('Success', 'Your review has been submitted!');
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Your review has been submitted!'
+      });
       setShowWriteReview(false);
     },
     onError: (error) => {
       console.error('Error submitting review:', error);
-      Alert.alert('Error', error.message || 'Failed to submit review');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to submit review'
+      });
     },
   });
 
@@ -80,11 +147,19 @@ const RatingReviews = () => {
           } : review
         );
       });
-      Alert.alert('Success', 'Review updated successfully!');
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Review updated successfully!'
+      });
     },
     onError: (error) => {
       console.error('Error updating review:', error);
-      Alert.alert('Error', error.message || 'Failed to update review');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to update review'
+      });
     },
   });
 
@@ -95,11 +170,19 @@ const RatingReviews = () => {
       queryClient.setQueryData(['reviews', product.id], (oldData) => {
         return oldData.filter(review => review.id !== reviewId);
       });
-      Alert.alert('Success', 'Review deleted successfully!');
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Review deleted successfully!'
+      });
     },
     onError: (error) => {
       console.error('Error deleting review:', error);
-      Alert.alert('Error', error.message || 'Failed to delete review');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error.message || 'Failed to delete review'
+      });
     },
   });
 
@@ -153,7 +236,7 @@ const RatingReviews = () => {
           onDeleteReview={handleDeleteReview}
           refreshing={refreshing || isRefetching}
           onRefresh={handleRefresh}
-          showWriteReviewButton={!showWriteReview} // Pass this prop to control button visibility
+          showWriteReviewButton={!showWriteReview} 
         />
       </View>
     );
@@ -169,6 +252,7 @@ const RatingReviews = () => {
         product={product}
         onSubmit={(data) => addMutation.mutate(data)}
       />
+      <Toast config={toastConfig} />
     </View>
   );
 };

@@ -65,10 +65,8 @@ export default function CustomInput({
                 placeholderTextColor="transparent"
                 {...rest}
               />
-              {error ? (
+              {error && (
                 <FontAwesome name="xmark" size={20} color="red" />
-              ) : (
-                <FontAwesome name="check" size={20} color="green" />
               )}
             </View>
 
