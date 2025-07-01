@@ -90,6 +90,12 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="product/index"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </QueryClientProvider>
   );

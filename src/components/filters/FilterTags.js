@@ -1,12 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView, Pressable } from "react-native";
-import Badge from "../ui/Badge";
+import { X } from "lucide-react-native";
+import { Colors } from "../../../config/colors";
 
 const FilterTags = ({ tags, onRemoveFilter }) => {
-  const handleRemoveFilter = (tag) => {
-    onRemoveFilter(tag);
-  };
-
   return (
     <ScrollView
       horizontal
@@ -16,17 +13,18 @@ const FilterTags = ({ tags, onRemoveFilter }) => {
     >
       <View style={styles.filterTagsContainer}>
         {tags.map((tag, idx) => (
-          <Pressable key={idx} onPress={() => handleRemoveFilter(tag)}>
-            <Badge style={styles.filterTag}>
-              <Text
-                style={styles.filterTagText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {tag} X
-              </Text>
-            </Badge>
-          </Pressable>
+          <View key={idx} style={styles.filterTag}>
+            <Text style={styles.filterTagText} numberOfLines={1} ellipsizeMode="tail">
+              {tag}
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.closeBtn, pressed && styles.closeBtnPressed]}
+              onPress={() => onRemoveFilter(tag)}
+              hitSlop={10}
+            >
+              <X size={16} color={Colors.primary} />
+            </Pressable>
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -35,7 +33,7 @@ const FilterTags = ({ tags, onRemoveFilter }) => {
 
 const styles = StyleSheet.create({
   scrollView: {
-    minHeight: 60,
+    minHeight: 48,
     paddingVertical: 4,
   },
   scrollContainer: {
@@ -47,22 +45,35 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   filterTag: {
-    backgroundColor: "black",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 29,
-    minWidth: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    minWidth: 48,
     height: 32,
-    justifyContent: "center",
-    alignItems: "center",
-    flexShrink: 1,
+    marginRight: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
   },
   filterTagText: {
-    color: "white",
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: "500",
-    includeFontPadding: false,
-    textAlignVertical: "center",
+    marginRight: 4,
+  },
+  closeBtn: {
+    padding: 2,
+    borderRadius: 10,
+  },
+  closeBtnPressed: {
+    backgroundColor: Colors.primary + '11',
   },
 });
 

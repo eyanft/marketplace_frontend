@@ -81,7 +81,7 @@ export default function Products() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Favorites" />
+      <Header title="Favorites" showBack onBack={() => router.back()} />
 
       {selectedCategory && (
         <ScrollView
