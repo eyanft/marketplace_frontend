@@ -5,7 +5,6 @@ import Reviews from "../items/Reviews";
 export default function ProductInfo({ product, onRatingPress }) {
   return (
     <View style={styles.productInfo}>
-      <Text style={styles.brand}>{product?.name}</Text>
       <Text style={styles.name}>{product?.seller.name}</Text>
       <Reviews
         rating={product?.rating}
@@ -23,10 +22,6 @@ export default function ProductInfo({ product, onRatingPress }) {
 const styles = StyleSheet.create({
   productInfo: {
     marginBottom: 16,
-  },
-  brand: {
-    fontSize: 20,
-    marginBottom: 2,
   },
   name: {
     fontSize: 14,
