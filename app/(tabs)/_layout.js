@@ -1,9 +1,11 @@
 import { Tabs } from "expo-router";
-import { Home, ShoppingCart, Plus, Heart, User } from "lucide-react-native";
+import { Home, MessageCircle, Plus, Heart, User } from "lucide-react-native";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Colors } from "../../config/colors";
+import { auth } from "../../src/services/firebaseConfig";
 
 export default function TabLayout() {
+  console.log(auth.currentUser);
   return (
     <Tabs
       screenOptions={{
@@ -28,11 +30,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="shop"
+        name="chats"
         options={{
-          title: "Shop",
+          title: "Chat",
           tabBarIcon: ({ color, size }) => (
-            <ShoppingCart color={color} size={size} />
+            <MessageCircle color={color} size={size} />
           ),
         }}
       />

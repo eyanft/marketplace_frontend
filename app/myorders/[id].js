@@ -12,11 +12,11 @@ import SectionText from "../../src/components/text/CustomText";
 import OrderItem from "../../src/components/cards/ItemCart";
 import { ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
+import { getOrderById } from "../../src/services/order/orderService";
 import {
-  cancelOrder,
-  confirmOrder,
-  getOrderById,
-} from "../../src/services/order/orderService";
+  cancelPayment,
+  confirmPayment,
+} from "../../src/services/payment/paymentService";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDateDMY } from "../../src/utils/shimmer/dateUtils";
 import { Alert } from "react-native";
@@ -33,9 +33,9 @@ export default function OrderDetail() {
     queryFn: () => getOrderById(id),
   });
   const queryClient = useQueryClient();
-
+  console.log(order);
   const { mutate: cancel, isLoading: isCancelling } = useMutation({
-    mutationFn: cancelOrder,
+    mutationFn: cancelPayment,
     onSuccess: () => {
       queryClient.invalidateQueries(["userOrders"]);
       queryClient.invalidateQueries(["order", id]);
@@ -46,7 +46,7 @@ export default function OrderDetail() {
     },
   });
   const { mutate: confirm, isLoading: isConfirming } = useMutation({
-    mutationFn: confirmOrder,
+    mutationFn: confirmPayment,
     onSuccess: () => {
       queryClient.invalidateQueries(["userOrders"]);
       queryClient.invalidateQueries(["order", id]);
@@ -59,17 +59,6 @@ export default function OrderDetail() {
 
   return (
     <>
-      <SafeAreaView className="bg-white shadow-xl">
-        <View className="flex-row items-center justify-between p-4">
-          <TouchableOpacity>
-            <FontAwesome6 name="chevron-left" size={16} color="black" />
-          </TouchableOpacity>
-          <SectionText className="text-xl font-semibold ">
-            Order Details
-          </SectionText>
-          <View className="w-6" />
-        </View>
-      </SafeAreaView>
       <View className="p-2 mt-4">
         <View className="flex-row justify-between items-center">
           <Text className="text-lg font-semibold">Order №{id}</Text>
@@ -108,7 +97,7 @@ export default function OrderDetail() {
         {order?.status === "PENDING" ? (
           <View className="flex flex-row justify-between w-full mt-4 h-12 px-4 ">
             <Pressable
-              onPress={() => cancel(order?.id)}
+              onPress={() => cancel(order)}
               disabled={isCancelling}
               className=" w-48 text-center border border-black rounded-full items-center justify-center"
             >
@@ -117,7 +106,7 @@ export default function OrderDetail() {
 
             {user.id === order?.orderItems[0]?.sellerId ? (
               <Pressable
-                onPress={() => confirm(order?.id)}
+                onPress={() => confirm(order)}
                 disabled={isCancelling}
                 className=" w-48  bg-orange-600 rounded-full items-center justify-center shadow-xl"
               >

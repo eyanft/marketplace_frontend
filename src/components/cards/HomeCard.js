@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Heart, Star } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { useZustandStore } from "../../store/zustand";
+import { Ionicons } from "@expo/vector-icons";
 
 const RatingStars = ({ rating, reviews }) => {
   const fullStars = Math.floor(rating);
@@ -11,8 +13,13 @@ const RatingStars = ({ rating, reviews }) => {
     <View style={styles.ratingContainer}>
       {rating ? (
         <>
-          {[...Array(fullStars)].map((_, index) => (
-            <Star key={index} size={12} color="#FFD700" fill="#FFD700" />
+          {[...Array(5)].map((_, index) => (
+            <Star
+              key={index}
+              size={12}
+              fill={index < fullStars ? "#FFBA49" : "transparent"}
+              color={index < fullStars ? "#FFBA49" : "#9b9b9b"}
+            />
           ))}
           {hasHalfStar && <Star size={12} color="#FFD700" />}
           <Text style={styles.reviewText}>({reviews})</Text>
@@ -26,7 +33,8 @@ const RatingStars = ({ rating, reviews }) => {
 
 const ProductCard = ({ product }) => {
   const router = useRouter();
-
+  const { toggleFavorite, favorites } = useZustandStore();
+  const isFavorit = favorites.some((f) => f.id === product.id);
   const handleProductPress = () => {
     // const productData = {
     //   id: product.id,
@@ -56,8 +64,15 @@ const ProductCard = ({ product }) => {
         {/* <View style={styles.badgeContainer}>
           <Text style={styles.badge}>{product.discount}</Text>
         </View> */}
-        <TouchableOpacity style={styles.heartButton}>
-          <Heart size={20} color="#bd643c" />
+        <TouchableOpacity
+          onPress={() => toggleFavorite(product)}
+          style={styles.heartButton}
+        >
+          <Ionicons
+            name={isFavorit ? "heart" : "heart-outline"}
+            size={24}
+            color={isFavorit ? "red" : "gray"}
+          />
         </TouchableOpacity>
         <RatingStars rating={product.rating} reviews={product.reviewCount} />
         <Text style={styles.brand}>{product.name}</Text>

@@ -18,7 +18,7 @@ export default function Checkout() {
           <TouchableOpacity>
             <FontAwesome6 name="chevron-left" size={16} color="black" />
           </TouchableOpacity>
-          <SectionText className="text-xl font-semibold ">Checkout</SectionText>
+          <SectionText className="text-xl font-semibold ">Purchase</SectionText>
           <View className="w-6" />
         </View>
       </SafeAreaView>

@@ -18,7 +18,7 @@ export default function MyProfile() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["orderCount", user.firebaseID],
-    queryFn: () => getOrderCount(user.firebaseID),
+    queryFn: () => getOrderCount(),
     enabled: !!user,
   });
   const onLogoutPress = async () => {
@@ -59,14 +59,16 @@ export default function MyProfile() {
         <SectionCard
           title={"My listed items"}
           subtitle={
-            data && !isLoading ? `You have ${data} items` : "No orders yet"
+            data && !isLoading ? `You have ${data} items` : "No items yet"
           }
           link={`product?type=listed`}
         />
         <SectionCard
           title={"My listed orders"}
           subtitle={
-            data && !isLoading ? `You have ${data} items` : "No orders yet"
+            data && !isLoading
+              ? `You have ${data} listed orders`
+              : "No listed orders yet"
           }
           link={"myorders?type=seller"}
         />

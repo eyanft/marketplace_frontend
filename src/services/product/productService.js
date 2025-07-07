@@ -55,3 +55,29 @@ export const getSortedProducts = async (sortBy, ascending) => {
     throw err;
   }
 };
+export const getDetectedObjects = async (img) => {
+  try {
+    const response = await api.post("detect-object", img, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+export const getRecommendedItems = async (products) => {
+  try {
+    const response = await api.post("recommendations", {
+      product_ids: products,
+    });
+    console.log("Recommended items response:", response.data);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};

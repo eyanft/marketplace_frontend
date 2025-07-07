@@ -24,7 +24,14 @@ export default function Products() {
   console.log(type);
   const router = useRouter();
   const { filters, setFilters, resetFilters, user } = useZustandStore();
-  const { selectedCategory, minPrice, maxPrice, rating } = filters;
+  const {
+    selectedCategory,
+    minPrice,
+    maxPrice,
+    rating,
+    keyword = [],
+  } = filters;
+  console.log("test", keyword);
   const [sortCriteria, setSortCriteria] = useState({
     sortBy: "price",
     ascending: true,
@@ -32,13 +39,14 @@ export default function Products() {
 
   const filter = useMemo(() => {
     return {
+      keyword: keyword?.join(",") || "",
       categoryName: selectedCategory || "",
       minPrice: minPrice || "",
       maxPrice: maxPrice || "",
       minRating: rating || "",
       sellerFUID: type === "listed" ? user?.firebaseID : "",
     };
-  }, [selectedCategory, minPrice, maxPrice, rating, type]);
+  }, [selectedCategory, minPrice, maxPrice, rating, type, keyword]);
   const queryClient = useQueryClient();
   const {
     data: products,
@@ -53,6 +61,10 @@ export default function Products() {
   const removeFilter = (tag) => {
     if (selectedCategory === tag) {
       setFilters({ selectedCategory: "" });
+    }
+
+    if (keyword?.includes(tag)) {
+      setFilters({ keyword: keyword.filter((k) => k !== tag) });
     }
   };
   useFocusEffect(
@@ -81,15 +93,19 @@ export default function Products() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Favorites" />
-
-      {selectedCategory && (
+      {(selectedCategory || keyword?.length > 0) && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           style={styles.scrollArea}
         >
-          <FilterTags tags={[selectedCategory]} onRemoveFilter={removeFilter} />
+          <FilterTags
+            tags={[
+              ...(selectedCategory ? [selectedCategory] : []),
+              ...(keyword || []),
+            ]}
+            onRemoveFilter={removeFilter}
+          />
         </ScrollView>
       )}
 

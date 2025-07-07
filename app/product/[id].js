@@ -20,11 +20,8 @@ import RelatedProducts from "../../src/components/items/RelatedProducts";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { useZustandStore } from "../../src/store/zustand";
 import ConfirmationModal from "../../src/components/modals/ConfirmationModal";
-const PRODUCT_IMAGES = [
-  "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1983&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446",
-  "https://images.unsplash.com/photo-1550639525-c97d455acf70",
-];
+import { getRecommendedItems } from "../../src/services/product/productService";
+import { useQuery } from "@tanstack/react-query";
 
 const SAMPLE_PRODUCTS = [
   {
@@ -89,7 +86,7 @@ export default function ProductDetailScreen() {
 
   const handleProductPress = (item) => {
     router.navigate({
-      pathname: "/product-details",
+      pathname: `/product/${product.id}`,
       params: { product: JSON.stringify(item) },
     });
   };
@@ -139,6 +136,19 @@ export default function ProductDetailScreen() {
     setShowModal(false);
     setCart([product]);
   };
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["recommendedProducts", [product?.id]],
+    queryFn: () => getRecommendedItems([product?.id]),
+    enabled: !!product?.id,
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
+    retry: 3,
+  });
   return (
     <View style={styles.container}>
       <ProductHeader
@@ -197,7 +207,7 @@ export default function ProductDetailScreen() {
           /> */}
 
           <RelatedProducts
-            products={SAMPLE_PRODUCTS}
+            products={products}
             onProductPress={handleProductPress}
           />
           <ConfirmationModal

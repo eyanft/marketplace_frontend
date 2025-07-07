@@ -10,9 +10,9 @@ export const passOrder = async (order) => {
     throw err;
   }
 };
-export const getOrderCount = async (fuid) => {
+export const getOrderCount = async () => {
   try {
-    const response = await api.get("orders/count/user/" + fuid);
+    const response = await api.get("orders/count/user");
 
     return response.data;
   } catch (err) {

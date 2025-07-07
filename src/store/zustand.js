@@ -4,11 +4,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const useZustandStore = create((set, get) => ({
   user: null,
   cart: [],
+  favorites: [],
   filters: {
     minPrice: "",
     maxPrice: "",
     selectedCategory: "",
     rating: "",
+    keyword: [],
   },
 
   setCart: (cartItems) =>
@@ -79,4 +81,33 @@ export const useZustandStore = create((set, get) => ({
     await AsyncStorage.removeItem("user");
     set({ user: null });
   },
+
+  toggleFavorite: (product) => {
+    set((state) => {
+      const isFavorite = state.favorites.some((item) => item.id === product.id);
+      if (isFavorite) {
+        return {
+          favorites: state.favorites.filter((item) => item.id !== product.id),
+        };
+      } else {
+        return {
+          favorites: [...state.favorites, product],
+        };
+      }
+    });
+  },
+
+  setFavorites: (items) => set({ favorites: items }),
+  clearFavorites: () => set({ favorites: [] }),
+
+  loadFavorites: async () => {
+    const saved = await AsyncStorage.getItem("favorites");
+    if (saved) {
+      set({ favorites: JSON.parse(saved) });
+    }
+  },
+  // saveFavorites: async () => {
+  //   const { favorites } = get();
+  //   await AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+  // },
 }));

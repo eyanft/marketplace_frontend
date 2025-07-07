@@ -5,13 +5,16 @@ import { Card, CardContent } from "../ui/Card";
 import Badge from "../ui/Badge";
 import Button from "../ui/Button";
 import { Colors } from "../../../config/colors";
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 import { getTimeAgo } from "../../utils/shimmer/dateUtils";
 import { TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useZustandStore } from "../../store/zustand";
 
 const ProductCard = ({ product, edit }) => {
   const router = useRouter();
-  console.log(product);
+  const { toggleFavorite } = useZustandStore();
+
   const proceedToItemDetails = () => {
     router.navigate({
       pathname: `/product/${product.id}`,
@@ -33,11 +36,14 @@ const ProductCard = ({ product, edit }) => {
             style={styles.productImage}
           />
 
-          {!edit && (
-            <TouchableOpacity style={styles.heartButton}>
-              <Heart size={20} color="#bd643c" />
+          {
+            <TouchableOpacity
+              onPress={() => toggleFavorite(product)}
+              style={styles.heartButton}
+            >
+              <Ionicons name={"heart"} size={24} color={"red"} />
             </TouchableOpacity>
-          )}
+          }
           {/* Bag Button (Proceed to Item Details) */}
           {product.stock === 0 && !edit && (
             <Button
@@ -112,6 +118,7 @@ const styles = StyleSheet.create({
     top: 4,
     right: 4,
     padding: 4,
+    zIndex: 3,
   },
   productCard: {
     shadowColor: "#000",

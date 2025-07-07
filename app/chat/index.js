@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect } from "react";
-import { Bubble, GiftedChat, Send } from "react-native-gifted-chat";
+import React, { useCallback, useEffect, useState } from "react";
+import { View } from "react-native";
+import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
 import {
   collection,
   query,
@@ -9,175 +10,185 @@ import {
   serverTimestamp,
   doc,
   updateDoc,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { firestore } from "../../src/services/firebaseConfig";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Colors } from "../../config/colors";
+import { useLocalSearchParams } from "expo-router";
+import { useMutation } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { Colors } from "../../config/colors";
 
-const fetchMessages = async (chatId) => {
-  return new Promise((resolve, reject) => {
-    const messagesRef = collection(firestore, "chats", chatId, "messages");
-    const q = query(messagesRef, orderBy("timestamp", "desc"));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const messages = querySnapshot.docs.map((doc) => {
-          const firebaseData = doc.data();
-          const timestamp = firebaseData.timestamp
-            ? new Date(firebaseData.timestamp.toMillis())
-            : new Date();
-
-          return {
-            _id: doc.id,
-            text: firebaseData.text || "",
-            createdAt: timestamp,
-            user: {
-              _id: firebaseData.senderId,
-              name: firebaseData.senderName || "User",
-            },
-            receiverId: firebaseData.receiverId,
-            receiverName: firebaseData.receiverName,
-            readAt: firebaseData.readAt
-              ? new Date(firebaseData.readAt.toMillis())
-              : null,
-          };
-        });
-        resolve(messages);
-      },
-      (error) => reject(error)
-    );
-
-    return unsubscribe;
-  });
-};
 const renderBubble = (props) => {
-  const { currentMessage } = props;
-  const isSeen = currentMessage.readAt !== null;
-  console.log(isSeen);
+  const isSeen = props.currentMessage.readAt !== null;
+
   return (
     <Bubble
       {...props}
       wrapperStyle={{
-        left: {
-          backgroundColor: Colors.secondary,
-        },
-        right: {
-          backgroundColor: Colors.primary,
-        },
+        left: { backgroundColor: Colors.secondary },
+        right: { backgroundColor: Colors.primary },
       }}
       textStyle={{
-        right: {
-          color: "white",
-          fontFamily: "Montserrat-Light",
-          fontSize: 14,
-        },
+        right: { color: "white", fontFamily: "Montserrat-Light", fontSize: 14 },
         left: {
           color: Colors.primary,
           fontFamily: "Montserrat-Light",
           fontSize: 14,
         },
       }}
-      // renderTicks={() => {
-      //   return isSeen ? (
-      //     <Ionicons name="checkmark-done" size={16} color={"white"} />
-      //   ) : null;
-      // }}
+      renderTicks={() =>
+        isSeen ? (
+          <Ionicons name="checkmark-done" size={16} color="white" />
+        ) : null
+      }
     />
   );
 };
 
-const renderSendButton = (props) => {
-  return (
-    <Send
-      {...props}
-      containerStyle={{
-        justifyContent: "center",
-        alignItems: "center",
-        marginRight: 15,
-      }}
-    >
-      <Ionicons name="send" size={24} color={Colors.primary} />
-    </Send>
-  );
-};
+const renderSendButton = (props) => (
+  <Send
+    {...props}
+    containerStyle={{
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 15,
+    }}
+  >
+    <Ionicons name="send" size={24} color={Colors.primary} />
+  </Send>
+);
+
 export default function Chat() {
   const { chatId, username, userUID, receiverId, receiverName } =
     useLocalSearchParams();
+  console.log("xxxxxxxxxxxxxxxxxxx");
+  const [messages, setMessages] = useState([]);
+  const createChatIfMissing = async (
+    chatId,
+    userUID,
+    receiverId,
+    username,
+    receiverName
+  ) => {
+    const chatRef = doc(firestore, "chats", chatId);
+    console.log("chatRef", chatRef.id);
+    const chatSnap = await getDoc(chatRef);
+    console.log(!chatSnap.exists());
+    if (!chatSnap.exists()) {
+      await setDoc(chatRef, {
+        participants: [userUID, receiverId],
+        participantNames: [username, receiverName],
+        createdAt: serverTimestamp(),
+        lastMessage: "",
+        lastMessageTime: null,
+        lastSenderId: null,
+      });
+    }
+  };
+  const generateChatId = (userA, userB) => {
+    return [userA, userB].sort().join("_"); // e.g., user1_user2
+  };
 
-  const { data: messages = [], refetch } = useQuery({
-    queryKey: ["messages", chatId],
-    queryFn: () => fetchMessages(chatId),
-    refetchInterval: 5000,
-    enabled: !!chatId,
-  });
-  const markMessageAsSeen = useMutation({
-    mutationFn: (messageId) => updateSeenAt(messageId),
-    onSuccess: () => {
-      console.log("Mutation successful");
-    },
-    onError: (error) => {
-      console.error("Mutation failed:", error);
-    },
-  });
-  const onSend = useCallback(
-    async (newMessages = []) => {
-      try {
-        const { text } = newMessages[0];
+  // ✅ Real-time message listener
+  useEffect(() => {
+    if (!chatId) return;
 
-        await addDoc(collection(firestore, "chats", chatId, "messages"), {
-          text,
-          timestamp: serverTimestamp(),
-          senderId: userUID,
-          senderName: username,
-          receiverId: receiverId,
-          receiverName: receiverName,
-          sentAt: serverTimestamp(),
-          readAt: null,
-        });
+    const messagesRef = collection(firestore, "chats", chatId, "messages");
+    const q = query(messagesRef, orderBy("timestamp", "desc"));
 
-        await refetch();
-      } catch (error) {
-        console.error("Error sending message:", error);
-      }
-    },
-    [chatId, userUID, username, receiverId, receiverName, refetch]
-  );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const fetchedMessages = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          _id: doc.id,
+          text: data.text || "",
+          createdAt: data.timestamp?.toDate() || new Date(),
+          user: {
+            _id: data.senderId,
+            name: data.senderName || "User",
+          },
+          receiverId: data.receiverId,
+          receiverName: data.receiverName,
+          readAt: data.readAt?.toDate() || null,
+        };
+      });
+      setMessages(fetchedMessages);
+    });
+
+    return () => unsubscribe();
+  }, [chatId]);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const lastMessage = messages[0];
+    if (lastMessage.user._id !== userUID && !lastMessage.readAt) {
+      markMessageAsSeen.mutate(lastMessage._id);
+    }
+  }, [messages]);
+
   const updateSeenAt = async (messageId) => {
-    console.log(messageId);
     const messageRef = doc(firestore, "chats", chatId, "messages", messageId);
     await updateDoc(messageRef, {
       readAt: serverTimestamp(),
     });
   };
-  const onChatOpen = () => {
-    if (messages.length > 0) {
-      const lastMessage = messages[0];
-      console.log(userUID, lastMessage?.user?._id);
-      if (lastMessage?.user?._id !== userUID && !lastMessage.readAt) {
-        console.log("test", lastMessage._id);
-        markMessageAsSeen.mutate(lastMessage._id);
-      }
-    }
-  };
+
+  const markMessageAsSeen = useMutation({
+    mutationFn: updateSeenAt,
+    onSuccess: () => console.log("Message marked as seen"),
+    onError: (err) => console.error("Seen update failed:", err),
+  });
+
+  const onSend = useCallback(
+    async (newMessages = []) => {
+      const { text } = newMessages[0];
+      const chatIdFinal = generateChatId(userUID, receiverId);
+      console.log(chatIdFinal);
+      await createChatIfMissing(
+        chatIdFinal,
+        userUID,
+        receiverId,
+        username,
+        receiverName
+      );
+
+      const messageData = {
+        text,
+        timestamp: serverTimestamp(),
+        senderId: userUID,
+        senderName: username,
+        receiverId,
+        receiverName,
+        sentAt: serverTimestamp(),
+        readAt: null,
+      };
+
+      const messagesRef = collection(firestore, "chats", chatId, "messages");
+      await addDoc(messagesRef, messageData);
+
+      const chatRef = doc(firestore, "chats", chatId);
+      console.log(chatRef);
+      await updateDoc(chatRef, {
+        lastMessage: text,
+        lastMessageTime: serverTimestamp(),
+        lastSenderId: userUID,
+      });
+    },
+    [chatId, userUID, username, receiverId, receiverName]
+  );
 
   return (
-    <View className="flex-1 bg-orange-600/20 ">
+    <View className="flex-1 bg-orange-600/20">
       <GiftedChat
         messages={messages}
-        onSend={(messages) => onSend(messages)}
-        user={{
-          _id: userUID,
-          name: username,
-        }}
+        onSend={(msgs) => onSend(msgs)}
+        user={{ _id: userUID, name: username }}
         renderUsernameOnMessage={true}
         alwaysShowSend
         renderAvatarOnTop
-        inverted={true}
-        // isTyping={true}
+        inverted
         scrollToBottom
         infiniteScroll
         renderBubble={renderBubble}

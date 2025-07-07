@@ -5,9 +5,10 @@ import OnboardingScreen from "../src/screens/OnboardingScreen";
 import { useZustandStore } from "../src/store/zustand";
 
 export default function Index() {
-  const { user, loadUser } = useZustandStore();
+  const { user, loadUser, loadFavorites } = useZustandStore();
   useEffect(() => {
     loadUser();
+    loadFavorites();
   }, []);
   return (
     <View style={{ flex: 1 }}>
