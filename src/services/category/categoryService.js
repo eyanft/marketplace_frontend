@@ -1,10 +1,11 @@
 import api from "../api/axios";
 export const getCategories = async () => {
   try {
-    response = await api.get("category");
+    const response = await api.get("category");
     return response.data;
   } catch (err) {
-    console.log(err);
-    throw err;
+    console.log("Error fetching categories:", err);
+    // Return empty array instead of throwing to prevent crashes
+    return [];
   }
 };

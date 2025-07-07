@@ -1,22 +1,21 @@
 import { Slot, Stack, useRouter } from "expo-router";
+import { useEffect } from "react";
 import "../config/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
 import { useZustandStore } from "../src/store/zustand";
 import { STRIPE_PUBLISHABLE_KEY } from "@env";
-import { useEffect } from "react";
+
 import { registerForPushNotificationsAsync } from "../src/utils/notifications";
 import { StripeProvider } from "@stripe/stripe-react-native";
 
 export default function RootLayout() {
   const queryClient = new QueryClient();
   const { cart } = useZustandStore();
+  const router = useRouter();
 
   useEffect(() => {
-    (async () => {
-      const token = await registerForPushNotificationsAsync();
-      console.log("Expo Push Token:", token);
-    })();
+    registerForPushNotificationsAsync();
   }, []);
 
   return (

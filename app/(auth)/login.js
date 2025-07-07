@@ -1,20 +1,29 @@
-import React from "react";
-import { Pressable, View } from "react-native";
-import Text from "../../src/components/text/CustomText";
-import Input from "../../src/components/input/CustomInput";
-import { Link, useRouter } from "expo-router";
-import { FontAwesome } from "@expo/vector-icons";
-import Button from "../../src/components/buttons/FilledButton";
-import { useForm } from "react-hook-form";
+import React, { useState } from "react";
+import { Image, Pressable, StatusBar, View, StyleSheet, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
+import { Link, useRouter } from "expo-router";
+import { useForm } from "react-hook-form";
+import { Colors } from "../../config/colors";
+import Button from "../../src/components/ui/Button";
+import { Card, CardContent } from "../../src/components/ui/Card";
+import { Input } from "../../src/components/input/Input";
+import Text from "../../src/components/text/CustomText";
+import Checkbox from "../../src/components/buttons/Checkbox";
 import { signIn } from "../../src/services/auth/authService";
-import { useZustandStore } from "../../src/store/zustand";
 import { getUserDetails } from "../../src/services/user/userService";
+import { useZustandStore } from "../../src/store/zustand";
+import { Controller } from "react-hook-form";
+import { auth } from "../../src/services/firebaseConfig";
 
 export default function Login() {
   const router = useRouter();
   const setUser = useZustandStore((state) => state.setUser);
   const { control, handleSubmit, setError } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [focusedInput, setFocusedInput] = useState(null);
 
   const mutation = useMutation({
     mutationFn: async ({ email, password }) => {
@@ -22,9 +31,22 @@ export default function Login() {
       return userData.user.uid;
     },
     onSuccess: async () => {
-      const user = await getUserDetails();
-
-      setUser(user);
+      try {
+        const user = await getUserDetails();
+        setUser(user);
+      } catch (error) {
+        console.log("Failed to get user details from API:", error);
+        // If API fails, we can still proceed with Firebase auth
+        // Set a basic user object with Firebase data
+        const firebaseUser = auth.currentUser;
+        if (firebaseUser) {
+          setUser({
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            // Add other default fields as needed
+          });
+        }
+      }
       router.replace("(tabs)/home");
     },
     onError: (error) => {
@@ -60,81 +82,323 @@ export default function Login() {
   });
 
   const onSubmit = (data) => {
-    mutation.mutate(data);
+    console.log('Form data being submitted:', data);
+    if (!data.email || !data.password) {
+      console.log('Email or password is missing from form data');
+      return;
+    }
+    mutation.mutate({
+      email: data.email.trim(),
+      password: data.password
+    });
   };
 
   return (
-    <View className="flex flex-col p-6 pt-20 h-screen gap-5 bg-gray-100">
-      <Text className="text-4xl font-bold text-gray-700 mb-16">Login</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollViewContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <Image
+          source={require("../../assets/images/Vector 2.png")}
+          style={styles.backgroundImage}
+          resizeMode="cover"
+        />
+        <View style={styles.contentContainer}>
+          {/* Sign in heading */}
+          <Text style={styles.headingText}>Sign in</Text>
+          <View style={styles.headingLine} />
 
-      <Input
-        name="email"
-        control={control}
-        placeholder="Email"
-        rules={{
-          required: "Email is required",
-          pattern: {
-            value: /^\S+@\S+$/i,
-            message: "Invalid email address",
-          },
-        }}
-      />
-      <Input
-        name="password"
-        control={control}
-        placeholder="Password"
-        secureTextEntry
-        rules={{ required: "Password is required" }}
-      />
-      <Link push href="/SignUp">
-        <View className="flex-row justify-end items-center gap-3 w-full">
-          <Text className="text-gray-700 font-medium text-lg">
-            No account? Sign up
-          </Text>
-          <FontAwesome
-            name="long-arrow-right"
-            size={20}
-            color="#FF5C00"
-            className="mt-1"
-          />
-        </View>
-      </Link>
-      <Link push href="/PasswordReset">
-        <View className="flex-row justify-end items-center gap-3 w-full">
-          <Text className="text-gray-700 font-medium text-lg">
-            Forgot your password?
-          </Text>
-          <FontAwesome
-            name="long-arrow-right"
-            size={20}
-            color="#FF5C00"
-            className="mt-1"
-          />
-        </View>
-      </Link>
+          {/* Email input */}
+          <View style={styles.inputBlock}>
+            <Text style={styles.inputLabel}>Email</Text>
+            <View style={styles.inputRow}>
+              <Feather name="mail" size={16} color="#616161" />
+              <Controller
+                control={control}
+                name="email"
+                rules={{
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Invalid email address",
+                  },
+                }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="user@email.com"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    onFocus={() => setFocusedInput('email')}
+                  />
+                )}
+              />
+            </View>
+            <View style={[styles.inputBottomLine, focusedInput === 'email' && styles.inputBottomLineActive]} />
+          </View>
 
-      <Button onPress={handleSubmit(onSubmit)} disabled={mutation.isLoading}>
-        {mutation.isLoading ? "Logging in..." : "LOGIN"}
-      </Button>
+          {/* Password input */}
+          <View style={styles.inputBlock}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.inputRow}>
+              <Feather name="lock" size={16} color="#616161" />
+              <Controller
+                control={control}
+                name="password"
+                rules={{ required: "Password is required" }}
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Enter your password"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    onFocus={() => setFocusedInput('password')}
+                    secureTextEntry={!showPassword}
+                  />
+                )}
+              />
+              <Pressable onPress={() => setShowPassword(!showPassword)}>
+                <Feather
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={16}
+                  color="#616161"
+                />
+              </Pressable>
+            </View>
+            <View style={[styles.inputBottomLine, focusedInput === 'password' && styles.inputBottomLineActive]} />
+          </View>
 
-      <View className="flex flex-col self-center w-64 h-16 mt-10">
-        <Text className="text-gray-700 text-center text-lg font-medium">
-          Or sign up with a social account
-        </Text>
-        <View className="flex flex-row justify-center gap-5 mt-5">
-          <Pressable className="bg-white w-1/2 h-20 items-center justify-center p-2 rounded-full">
-            <FontAwesome
-              onPress={() => console.log("Google button pressed")}
-              name="google"
-              size={24}
-              color="black"
+          {/* Remember Me and Forgot Password */}
+          <View style={styles.rowBetween}>
+            <Checkbox
+              checked={rememberMe}
+              onChange={setRememberMe}
+              label="Remember Me"
+              style={styles.checkbox}
             />
-          </Pressable>
-          <Pressable className="bg-white w-1/2 items-center justify-center p-2 rounded-full">
-            <FontAwesome name="facebook" size={24} color="blue" />
-          </Pressable>
+            <Pressable onPress={() => router.push('/PasswordReset')}>
+              <Text style={styles.forgotPassword}>Forgot Password?</Text>
+            </Pressable>
+          </View>
+
+          {/* Login button */}
+          <Button
+            variant="default"
+            style={styles.loginButton}
+            onPress={handleSubmit(onSubmit)}
+            disabled={mutation.isLoading}
+          >
+            <Text style={styles.loginButtonText}>
+              {mutation.isLoading ? "Logging in..." : "Login"}
+            </Text>
+          </Button>
+
+          <View style={styles.orContainer}>
+            <View style={styles.orLine} />
+            <Text style={styles.orText}>Or login with</Text>
+            <View style={styles.orLine} />
+          </View>
+
+          <View style={styles.socialButtonsContainer}>
+            <Button
+              variant="outline"
+              style={styles.socialButton}
+              onPress={() => console.log("Email login")}
+            >
+              <Feather name="mail" size={20} color="#616161" style={styles.socialButtonIcon} />
+              <Text style={styles.socialButtonText}>Email</Text>
+            </Button>
+            <Button
+              variant="outline"
+              style={styles.socialButton}
+              onPress={() => console.log("Facebook login")}
+            >
+              <Feather name="facebook" size={20} color="#1877F2" style={styles.socialButtonIcon} />
+              <Text style={styles.socialButtonText}>Facebook</Text>
+            </Button>
+          </View>
+
+          {/* Sign up text */}
+          <View style={styles.signUpContainer}>
+            <Text style={styles.signUpText}>Don't have an Account? </Text>
+            <Link href="/SignUp">
+              <Text style={styles.signUpLink}>Sign up</Text>
+            </Link>
+          </View>
         </View>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: 600,
+    top: -240,
+  },
+  contentContainer: {
+    marginTop: 170,
+    backgroundColor: 'transparent',
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 32,
+    zIndex: 1,
+  },
+  headingText: {
+    color: '#212121',
+    fontSize: 32,
+    fontWeight: '700',
+    fontFamily: 'Rubik',
+    marginBottom: 2,
+  },
+  headingLine: {
+    width: 80,
+    height: 2.5,
+    backgroundColor: Colors.primary,
+    marginBottom: 32,
+    borderRadius: 2,
+  },
+  inputBlock: {
+    marginBottom: 20,
+    backgroundColor: 'transparent',
+  },
+  inputLabel: {
+    color: '#212121',
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    minHeight: 48,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 0,
+    padding: 0,
+    color: '#212121',
+    fontSize: 15,
+    marginLeft: 8,
+    backgroundColor: 'transparent',
+    height: 40,
+  },
+  inputBottomLine: {
+    height: 2,
+    width: '100%',
+    backgroundColor: '#e0e0e0',
+    borderRadius: 1,
+    marginTop: 2,
+  },
+  inputBottomLineActive: {
+    backgroundColor: Colors.primary,
+  },
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  checkbox: {
+    paddingVertical: 4,
+  },
+  forgotPassword: {
+    color:Colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  loginButton: {
+    width: '100%',
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginBottom: 32,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  signUpContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+  },
+  signUpText: {
+    color: '#9e9e9e',
+    fontSize: 14,
+  },
+  signUpLink: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 4,
+  },
+  orContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 24,
+  },
+  orLine: {
+    height: 1,
+    flex: 1,
+    backgroundColor: '#e0e0e0',
+  },
+  orText: {
+    color: 'black',
+    fontSize: 14,
+    marginHorizontal: 8,
+  },
+  socialButtonsContainer: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    marginBottom: 32,
+  },
+  socialButton: {
+    flex: 1,
+    borderColor: '#e0e0e0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 4,
+  },
+  socialButtonIcon: {
+    marginRight: 8,
+  },
+  socialButtonText: {
+    color: '#616161',
+    fontSize: 14,
+  },
+});

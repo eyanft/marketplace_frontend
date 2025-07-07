@@ -2,17 +2,10 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 
-export default function ProductSelectors({ onSizePress, onColorPress, onFavoritePress }) {
+export default function ProductSelectors({ productName, onFavoritePress }) {
   return (
     <View style={styles.selectionRow}>
-      <TouchableOpacity style={styles.dropdown} onPress={onSizePress}>
-        <Text style={styles.dropdownText}>Size</Text>
-        <AntDesign name="down" size={14} color="black" />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.dropdown} onPress={onColorPress}>
-        <Text style={styles.dropdownText}>Black</Text>
-        <AntDesign name="down" size={14} color="black" />
-      </TouchableOpacity>
+      <Text style={styles.productName}>{productName}</Text>
       <TouchableOpacity style={styles.favoriteButton} onPress={onFavoritePress}>
         <AntDesign name="hearto" size={20} color="black" />
       </TouchableOpacity>
@@ -27,19 +20,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    width: '38%',
-  },
-  dropdownText: {
-    fontSize: 14,
+  productName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+    flex: 1,
+    marginRight: 16,
   },
   favoriteButton: {
     width: 32,

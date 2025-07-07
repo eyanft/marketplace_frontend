@@ -25,7 +25,7 @@ export default function HomeScreen() {
           <CategoryList />
         </View>
         <View className="mt-6 mx-4">
-          <ProductScreen />
+          <ProductScreen embedded={true} />
         </View>
       </ScrollView>
     </View>
