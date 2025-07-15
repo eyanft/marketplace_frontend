@@ -6,6 +6,7 @@ import { auth } from "../../src/services/firebaseConfig";
 
 export default function TabLayout() {
   console.log(auth.currentUser);
+
   return (
     <Tabs
       screenOptions={{

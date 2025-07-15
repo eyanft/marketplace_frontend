@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { Image, Pressable, StatusBar, View, StyleSheet, ScrollView } from "react-native";
+import {
+  Image,
+  Pressable,
+  StatusBar,
+  View,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { Colors } from "../../config/colors";
 import Button from "../../src/components/ui/Button";
 import { Input } from "../../src/components/input/Input";
@@ -13,13 +20,18 @@ import { register } from "../../src/services/auth/authService";
 
 export default function SignUp() {
   const router = useRouter();
-  const { control, handleSubmit, setError, setValue, watch } = useForm();
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm();
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
 
   const mutation = useMutation({
     mutationFn: async (data) => {
+      console.log("Submitting registration data:", data); // Check the data
       await register(data);
     },
     onError: (err) => {
@@ -37,11 +49,14 @@ export default function SignUp() {
       }
     },
     onSuccess: () => {
-      console.log("Registration successful");
+      router.replace("/login");
     },
   });
 
   const onSubmit = (data) => {
+    if (data.phoneNumber && !data.phoneNumber.startsWith("+216")) {
+      data.phoneNumber = `+216${data.phoneNumber}`;
+    }
     mutation.mutate(data);
   };
 
@@ -68,17 +83,36 @@ export default function SignUp() {
             <Text style={styles.inputLabel}>First Name</Text>
             <View style={styles.inputRow}>
               <Feather name="user" size={16} color="#616161" />
-              <Input
-                name="firstname"
+              <Controller
                 control={control}
-                placeholder="First Name"
-                style={styles.input}
-                rules={{ required: "First Name is required" }}
-                onFocus={() => setFocusedInput('firstname')}
-                onBlur={() => setFocusedInput(null)}
+                name="firstname"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="First Name"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                )}
+                rules={{
+                  required: "First Name is required",
+                  pattern: {
+                    value: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+                    message: "First Name must only contain letters",
+                  },
+                }}
               />
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'firstname' && styles.inputBottomLineActive]} />
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "firstname" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.firstname && (
+              <Text style={styles.errorText}>{errors.firstname.message}</Text>
+            )}
           </View>
 
           {/* Last Name input */}
@@ -86,17 +120,36 @@ export default function SignUp() {
             <Text style={styles.inputLabel}>Last Name</Text>
             <View style={styles.inputRow}>
               <Feather name="user" size={16} color="#616161" />
-              <Input
-                name="lastname"
+              <Controller
                 control={control}
-                placeholder="Last Name"
-                style={styles.input}
-                rules={{ required: "Last Name is required" }}
-                onFocus={() => setFocusedInput('lastname')}
-                onBlur={() => setFocusedInput(null)}
+                name="lastname"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Last Name"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                )}
+                rules={{
+                  required: "Last Name is required",
+                  pattern: {
+                    value: /^[A-Za-z]+(?: [A-Za-z]+)*$/,
+                    message: "Last Name must only contain letters",
+                  },
+                }}
               />
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'lastname' && styles.inputBottomLineActive]} />
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "lastname" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.lastname && (
+              <Text style={styles.errorText}>{errors.lastname.message}</Text>
+            )}
           </View>
 
           {/* Email input */}
@@ -104,11 +157,18 @@ export default function SignUp() {
             <Text style={styles.inputLabel}>Email</Text>
             <View style={styles.inputRow}>
               <Feather name="mail" size={16} color="#616161" />
-              <Input
-                name="email"
+              <Controller
                 control={control}
-                placeholder="user@email.com"
-                style={styles.input}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="user@email.com"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                  />
+                )}
                 rules={{
                   required: "Email is required",
                   pattern: {
@@ -116,36 +176,55 @@ export default function SignUp() {
                     message: "Invalid email address",
                   },
                 }}
-                onFocus={() => setFocusedInput('email')}
-                onBlur={() => setFocusedInput(null)}
               />
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'email' && styles.inputBottomLineActive]} />
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "email" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email.message}</Text>
+            )}
           </View>
 
-          {/* Phone input */}
+          {/* Phone Number input */}
           <View style={styles.inputBlock}>
             <Text style={styles.inputLabel}>Phone Number</Text>
             <View style={styles.inputRow}>
               <Feather name="phone" size={16} color="#616161" />
-              <Input
-                name="phoneNumber"
+              <Controller
                 control={control}
-                placeholder="+216 00-000-000"
-                style={styles.input}
-                keyboardType="phone-pad"
+                name="phoneNumber"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="+216 00-000-000"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    keyboardType="phone-pad"
+                  />
+                )}
                 rules={{
                   required: "Phone number is required",
                   pattern: {
-                    value: /^\+\d{2}\s?\d{3}-\d{4}-\d{3}$/,
-                    message: "Phone number must be in format +00 000-0000-000",
+                    value: /^\d{8}$/,
+                    message: "Phone number must be 8 digits",
                   },
                 }}
-                onFocus={() => setFocusedInput('phoneNumber')}
-                onBlur={() => setFocusedInput(null)}
               />
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'phoneNumber' && styles.inputBottomLineActive]} />
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "phoneNumber" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.phoneNumber && (
+              <Text style={styles.errorText}>{errors.phoneNumber.message}</Text>
+            )}
           </View>
 
           {/* Password input */}
@@ -153,29 +232,31 @@ export default function SignUp() {
             <Text style={styles.inputLabel}>Password</Text>
             <View style={styles.inputRow}>
               <Feather name="lock" size={16} color="#616161" />
-              <Input
-                name="password"
+              <Controller
                 control={control}
-                placeholder="Enter your password"
-                secureTextEntry={!showPassword}
-                style={styles.input}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Enter your password"
+                    style={styles.input}
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    secureTextEntry={!showPassword}
+                  />
+                )}
                 rules={{
                   required: "Password is required",
                   minLength: {
                     value: 6,
                     message: "Password must be at least 6 characters",
                   },
-                  maxLength: {
-                    value: 20,
-                    message: "Password must be at most 20 characters",
-                  },
                   pattern: {
                     value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/,
-                    message: "Password must include uppercase, lowercase, and a number",
+                    message:
+                      "Password must include uppercase, lowercase, and a number",
                   },
                 }}
-                onFocus={() => setFocusedInput('password')}
-                onBlur={() => setFocusedInput(null)}
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
                 <Feather
@@ -185,10 +266,16 @@ export default function SignUp() {
                 />
               </Pressable>
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'password' && styles.inputBottomLineActive]} />
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "password" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password.message}</Text>
+            )}
           </View>
-
-         
 
           {/* Create Account button */}
           <Button
@@ -218,24 +305,24 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollViewContent: {
     flexGrow: 1,
   },
   backgroundImage: {
-    position: 'absolute',
-    width: '100%',
+    position: "absolute",
+    width: "100%",
     height: 600,
     top: -280,
   },
   contentContainer: {
     marginTop: 130,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 24,
@@ -243,10 +330,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   headingText: {
-    color: '#212121',
+    color: "#212121",
     fontSize: 32,
-    fontWeight: '700',
-    fontFamily: 'Rubik',
+    fontWeight: "700",
+    fontFamily: "Rubik",
     marginBottom: 2,
   },
   headingLine: {
@@ -260,15 +347,15 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   inputLabel: {
-    color: '#212121',
+    color: "#212121",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 6,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -277,14 +364,14 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 0,
     padding: 0,
-    color: '#212121',
+    color: "#212121",
     fontSize: 15,
     marginLeft: 8,
   },
   inputBottomLine: {
     height: 2,
-    width: '100%',
-    backgroundColor: '#e0e0e0',
+    width: "100%",
+    backgroundColor: "#e0e0e0",
     borderRadius: 1,
     marginTop: 2,
   },
@@ -292,32 +379,37 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   loginButton: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     marginBottom: 15,
   },
   loginButtonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   signUpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 8,
   },
   signUpText: {
-    color: '#9e9e9e',
+    color: "#9e9e9e",
     fontSize: 14,
   },
   signUpLink: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     marginLeft: 4,
+  },
+  errorText: {
+    color: Colors.primary,
+    fontSize: 12,
+    marginTop: 4,
   },
 });

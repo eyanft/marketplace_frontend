@@ -1,10 +1,10 @@
 import { useZustandStore } from "../../store/zustand";
 import api from "../api/axios";
 
-export const getProductsGroupedByCategory = async (userId) => {
+export const getProductsGroupedByCategory = async (firebaseID) => {
   try {
     const response = await api.get("products/groupedByCategory", {
-      params: { userId },
+      params: { firebaseID },
     });
 
     console.log("token", response.request._headers.authorization);

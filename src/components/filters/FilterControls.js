@@ -32,9 +32,26 @@ const FilterControls = ({ onSortByPrice }) => {
             onPress={() => handleSort(option.key)}
             activeOpacity={0.8}
           >
-            {option.key === "lowToHigh" && <ArrowUp size={16} color={filterPrice === option.key ? '#fff' : Colors.primary} />}
-            {option.key === "highToLow" && <ArrowDown size={16} color={filterPrice === option.key ? '#fff' : Colors.primary} />}
-            <Text style={[styles.segmentText, filterPrice === option.key && styles.segmentTextActive]}>{option.label}</Text>
+            {option.key === "lowToHigh" && (
+              <ArrowUp
+                size={16}
+                color={filterPrice === option.key ? "#fff" : Colors.primary}
+              />
+            )}
+            {option.key === "highToLow" && (
+              <ArrowDown
+                size={16}
+                color={filterPrice === option.key ? "#fff" : Colors.primary}
+              />
+            )}
+            <Text
+              style={[
+                styles.segmentText,
+                filterPrice === option.key && styles.segmentTextActive,
+              ]}
+            >
+              {option.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -55,15 +72,15 @@ const FilterControls = ({ onSortByPrice }) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 16,
     marginBottom: 8,
     paddingHorizontal: 16,
   },
   segmentedControl: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: Colors.secondary,
     borderRadius: 24,
     padding: 4,
@@ -72,12 +89,12 @@ const styles = StyleSheet.create({
     maxWidth: 320,
   },
   segment: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: Colors.primary,
     marginRight: 2,
@@ -89,11 +106,11 @@ const styles = StyleSheet.create({
   segmentText: {
     color: Colors.primary,
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: "500",
     marginLeft: 6,
   },
   segmentTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   fab: {
     marginLeft: 12,
@@ -101,9 +118,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
     shadowRadius: 4,
