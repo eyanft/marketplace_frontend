@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Search } from "lucide-react-native";
 import { Feather } from "@expo/vector-icons";
 import Button from "../ui/Button";
+import { ArrowLeft } from 'lucide-react-native';
 
 const Header = ({ title, showBack, onBack }) => {
   return (
