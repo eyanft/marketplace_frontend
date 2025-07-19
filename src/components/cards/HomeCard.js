@@ -49,23 +49,21 @@ const ProductCard = ({ product }) => {
         {/* <View style={styles.badgeContainer}>
           <Text style={styles.badge}>{product.discount}</Text>
         </View> */}
-        <TouchableOpacity
-          onPress={() => toggleFavorite(product)}
-          style={styles.heartButton}
-        >
-          <Ionicons
-            name={isFavorit ? "heart" : "heart-outline"}
-            size={24}
-            color={isFavorit ? "red" : "gray"}
-          />
-        </TouchableOpacity>
+
         <RatingStars rating={product.rating} reviews={product.reviewCount} />
         <Text style={styles.brand}>{product.name}</Text>
         <Text style={styles.name}>{product.name}</Text>
         <View style={styles.priceRow}>
           <Text style={styles.salePrice}>{product.price} DT</Text>
-          <TouchableOpacity>
-            <Heart size={24} color="#bd643c" />
+          <TouchableOpacity
+            onPress={() => toggleFavorite(product)}
+            style={styles.heartButton}
+          >
+            <Ionicons
+              name={isFavorit ? "heart" : "heart-outline"}
+              size={24}
+              color={isFavorit ? "red" : "#bd643c"}
+            />
           </TouchableOpacity>
         </View>
       </View>

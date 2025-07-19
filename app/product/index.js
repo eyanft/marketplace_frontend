@@ -145,26 +145,11 @@ const styles = StyleSheet.create({
   productRow: {
     justifyContent: "space-between",
     marginBottom: 15,
-    gap: 16,
+    gap: 10,
   },
   productGrid: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     paddingTop: 12,
     paddingBottom: 20,
-  },
-  skeletonCard: {
-    width: "48%",
-    marginBottom: 15,
-  },
-  skeletonImage: {
-    width: "100%",
-    height: 150,
-    borderRadius: 10,
-  },
-  skeletonText: {
-    width: "80%",
-    height: 10,
-    marginTop: 6,
-    borderRadius: 4,
   },
 });

@@ -13,8 +13,8 @@ import { useZustandStore } from "../../store/zustand";
 
 const ProductCard = ({ product, edit }) => {
   const router = useRouter();
-  const { toggleFavorite } = useZustandStore();
-
+  const { toggleFavorite, favorites } = useZustandStore();
+  const isFavorit = favorites.some((f) => f.id === product.id);
   const proceedToItemDetails = () => {
     router.navigate({
       pathname: `/product/${product.id}`,
@@ -36,16 +36,18 @@ const ProductCard = ({ product, edit }) => {
             style={styles.productImage}
           />
 
-          {
-            <TouchableOpacity
-              onPress={() => toggleFavorite(product)}
-              style={styles.heartButton}
-            >
-              <Ionicons name={"heart"} size={24} color={"red"} />
-            </TouchableOpacity>
-          }
+          <TouchableOpacity
+            onPress={() => toggleFavorite(product)}
+            style={styles.heartButton}
+          >
+            <Ionicons
+              name={isFavorit ? "heart" : "heart-outline"}
+              size={24}
+              color={isFavorit ? "red" : "#bd643c"}
+            />
+          </TouchableOpacity>
           {/* Bag Button (Proceed to Item Details) */}
-          {product.stock === 0 && !edit && (
+          {product.stock != 0 && (
             <Button
               onPress={proceedToItemDetails}
               style={styles.bagButton}
@@ -72,7 +74,7 @@ const ProductCard = ({ product, edit }) => {
             </Badge>
           )}
           {/* Sold Out Overlay */}
-          {product.stock === 0 && !edit && (
+          {product.stock === 0 && (
             <View style={styles.soldOutOverlay}>
               <View style={styles.soldOutBackground} />
               <Text style={styles.soldOutText}>
@@ -121,6 +123,7 @@ const styles = StyleSheet.create({
     zIndex: 3,
   },
   productCard: {
+    width: "49%",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -132,8 +135,9 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "100%",
-    height: 184,
+    height: 150,
     borderRadius: 8,
+    resizeMode: "cover",
   },
   bagButton: {
     position: "absolute",

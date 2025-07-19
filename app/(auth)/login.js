@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Image, Pressable, StatusBar, View, StyleSheet, ScrollView } from "react-native";
+import {
+  Image,
+  Pressable,
+  StatusBar,
+  View,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useMutation } from "@tanstack/react-query";
@@ -20,7 +27,12 @@ import { auth } from "../../src/services/firebaseConfig";
 export default function Login() {
   const router = useRouter();
   const setUser = useZustandStore((state) => state.setUser);
-  const { control, handleSubmit, setError } = useForm();
+  const {
+    control,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
@@ -33,21 +45,25 @@ export default function Login() {
     onSuccess: async () => {
       try {
         const user = await getUserDetails();
+        console.log(user);
         setUser(user);
+        router.replace("(tabs)/home");
       } catch (error) {
-        console.log("Failed to get user details from API:", error);
+        setError("root", {
+          type: "manual",
+          message: "Something went wrong. Please try again.",
+        });
         // If API fails, we can still proceed with Firebase auth
         // Set a basic user object with Firebase data
-        const firebaseUser = auth.currentUser;
-        if (firebaseUser) {
-          setUser({
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            // Add other default fields as needed
-          });
-        }
+        // const firebaseUser = auth.currentUser;
+        // if (firebaseUser) {
+        //   setUser({
+        //     uid: firebaseUser.uid,
+        //     email: firebaseUser.email,
+        //     // Add other default fields as needed
+        //   });
+        // }
       }
-      router.replace("(tabs)/home");
     },
     onError: (error) => {
       console.log(error);
@@ -61,7 +77,7 @@ export default function Login() {
           });
           break;
         case "auth/too-many-requests":
-          setError("email", {
+          setError("root", {
             type: "manual",
             message: "Too many attempts. Please try again later.",
           });
@@ -82,14 +98,14 @@ export default function Login() {
   });
 
   const onSubmit = (data) => {
-    console.log('Form data being submitted:', data);
+    console.log("Form data being submitted:", data);
     if (!data.email || !data.password) {
-      console.log('Email or password is missing from form data');
+      console.log("Email or password is missing from form data");
       return;
     }
     mutation.mutate({
       email: data.email.trim(),
-      password: data.password
+      password: data.password,
     });
   };
 
@@ -134,12 +150,23 @@ export default function Login() {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    onFocus={() => setFocusedInput('email')}
+                    onFocus={() => setFocusedInput("email")}
                   />
                 )}
               />
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'email' && styles.inputBottomLineActive]} />
+
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "email" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.email && (
+              <Text style={{ color: Colors.primary, marginTop: 4 }}>
+                {errors.email.message}
+              </Text>
+            )}
           </View>
 
           {/* Password input */}
@@ -158,7 +185,7 @@ export default function Login() {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    onFocus={() => setFocusedInput('password')}
+                    onFocus={() => setFocusedInput("password")}
                     secureTextEntry={!showPassword}
                   />
                 )}
@@ -171,7 +198,23 @@ export default function Login() {
                 />
               </Pressable>
             </View>
-            <View style={[styles.inputBottomLine, focusedInput === 'password' && styles.inputBottomLineActive]} />
+
+            <View
+              style={[
+                styles.inputBottomLine,
+                focusedInput === "password" && styles.inputBottomLineActive,
+              ]}
+            />
+            {errors.password && (
+              <Text style={{ color: Colors.primary, marginTop: 4 }}>
+                {errors.password.message}
+              </Text>
+            )}
+            {errors.root && (
+              <Text style={{ color: Colors.primary, marginTop: 4 }}>
+                {errors.root.message}
+              </Text>
+            )}
           </View>
 
           {/* Remember Me and Forgot Password */}
@@ -182,7 +225,7 @@ export default function Login() {
               label="Remember Me"
               style={styles.checkbox}
             />
-            <Pressable onPress={() => router.push('/PasswordReset')}>
+            <Pressable onPress={() => router.push("/PasswordReset")}>
               <Text style={styles.forgotPassword}>Forgot Password?</Text>
             </Pressable>
           </View>
@@ -211,7 +254,12 @@ export default function Login() {
               style={styles.socialButton}
               onPress={() => console.log("Email login")}
             >
-              <Feather name="mail" size={20} color="#616161" style={styles.socialButtonIcon} />
+              <Feather
+                name="mail"
+                size={20}
+                color="#616161"
+                style={styles.socialButtonIcon}
+              />
               <Text style={styles.socialButtonText}>Email</Text>
             </Button>
             <Button
@@ -219,7 +267,12 @@ export default function Login() {
               style={styles.socialButton}
               onPress={() => console.log("Facebook login")}
             >
-              <Feather name="facebook" size={20} color="#1877F2" style={styles.socialButtonIcon} />
+              <Feather
+                name="facebook"
+                size={20}
+                color="#1877F2"
+                style={styles.socialButtonIcon}
+              />
               <Text style={styles.socialButtonText}>Facebook</Text>
             </Button>
           </View>
@@ -240,24 +293,24 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   scrollViewContent: {
     flexGrow: 1,
   },
   backgroundImage: {
-    position: 'absolute',
-    width: '100%',
+    position: "absolute",
+    width: "100%",
     height: 600,
     top: -240,
   },
   contentContainer: {
     marginTop: 170,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 24,
@@ -266,10 +319,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   headingText: {
-    color: '#212121',
+    color: "#212121",
     fontSize: 32,
-    fontWeight: '700',
-    fontFamily: 'Rubik',
+    fontWeight: "700",
+    fontFamily: "Rubik",
     marginBottom: 2,
   },
   headingLine: {
@@ -281,18 +334,18 @@ const styles = StyleSheet.create({
   },
   inputBlock: {
     marginBottom: 20,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   inputLabel: {
-    color: '#212121',
+    color: "#212121",
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 8,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -302,16 +355,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 0,
     padding: 0,
-    color: '#212121',
+    color: "#212121",
     fontSize: 15,
     marginLeft: 8,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     height: 40,
   },
   inputBottomLine: {
     height: 2,
-    width: '100%',
-    backgroundColor: '#e0e0e0',
+    width: "100%",
+    backgroundColor: "#e0e0e0",
     borderRadius: 1,
     marginTop: 2,
   },
@@ -319,86 +372,86 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   rowBetween: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 32,
   },
   checkbox: {
     paddingVertical: 4,
   },
   forgotPassword: {
-    color:Colors.primary,
+    color: Colors.primary,
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   loginButton: {
-    width: '100%',
+    width: "100%",
     backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     marginBottom: 32,
   },
   loginButtonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   signUpContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 8,
   },
   signUpText: {
-    color: '#9e9e9e',
+    color: "#9e9e9e",
     fontSize: 14,
   },
   signUpLink: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     marginLeft: 4,
   },
   orContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 16,
     marginBottom: 24,
   },
   orLine: {
     height: 1,
     flex: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
   },
   orText: {
-    color: 'black',
+    color: "black",
     fontSize: 14,
     marginHorizontal: 8,
   },
   socialButtonsContainer: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'center',
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 16,
     marginBottom: 32,
   },
   socialButton: {
     flex: 1,
-    borderColor: '#e0e0e0',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#e0e0e0",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 4,
   },
   socialButtonIcon: {
     marginRight: 8,
   },
   socialButtonText: {
-    color: '#616161',
+    color: "#616161",
     fontSize: 14,
   },
 });

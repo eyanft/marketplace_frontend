@@ -89,8 +89,8 @@ const ProductScreen = ({ embedded = false }) => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["products", user?.id],
-    queryFn: () => getProductsGroupedByCategory(user?.id),
+    queryKey: ["products", user?.firebaseID],
+    queryFn: () => getProductsGroupedByCategory(user?.firebaseID),
   });
 
   if (isLoading) {
@@ -122,9 +122,7 @@ const ProductScreen = ({ embedded = false }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView>
-        {content}
-      </ScrollView>
+      <ScrollView>{content}</ScrollView>
     </SafeAreaView>
   );
 };
