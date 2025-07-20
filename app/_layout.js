@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
 import { useZustandStore } from "../src/store/zustand";
 import { STRIPE_PUBLISHABLE_KEY } from "@env";
-
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { registerForPushNotificationsAsync } from "../src/utils/notifications";
 import { StripeProvider } from "@stripe/stripe-react-native";
 

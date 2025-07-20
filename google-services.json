@@ -14,8 +14,12 @@
       },
       "oauth_client": [
         {
-          "client_id": "1026059711638-htb8v5onkhoer5hlcni2p6qgcne2n58u.apps.googleusercontent.com",
-          "client_type": 3
+          "client_id": "1026059711638-4i1op5tjapqm547ufc1birqiokf0v2uj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wevioo.marketplace",
+            "certificate_hash": "e015d40915dd2c80a38918f9290f8b299fe6faf1"
+          }
         }
       ],
       "api_key": [
@@ -25,12 +29,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "1026059711638-htb8v5onkhoer5hlcni2p6qgcne2n58u.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
