@@ -6,8 +6,8 @@ import { Colors } from "../../../config/colors";
 
 const sortOptions = [
   { key: "none", label: "All" },
-  { key: "lowToHigh", label: "Price ↑" },
-  { key: "highToLow", label: "Price ↓" },
+  { key: "lowToHigh", label: "Price " },
+  { key: "highToLow", label: "Price " },
 ];
 
 const FilterControls = ({ onSortByPrice }) => {

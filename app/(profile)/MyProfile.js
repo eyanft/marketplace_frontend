@@ -138,7 +138,7 @@ export default function MyProfile() {
                   </View>
                   <View>
                     <Title className="text-base font-semibold text-gray-900">
-                      My Listed Items
+                    My Listings
                     </Title>
                     <Title className="text-sm text-gray-600">
                       {data && !isLoading
@@ -160,7 +160,7 @@ export default function MyProfile() {
                   </View>
                   <View>
                     <Title className="text-base font-semibold text-gray-900">
-                      My Listed Orders
+                      My OrdersIn
                     </Title>
                     <Title className="text-sm text-gray-600">
                       {data && !isLoading
