@@ -241,8 +241,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     backgroundColor: 'white',
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
   },
   categoryTouchable: {
     height: '100%',
