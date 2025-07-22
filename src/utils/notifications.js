@@ -15,7 +15,9 @@ export async function registerForPushNotificationsAsync() {
     return;
   }
 
-  const tokenData = await Notifications.getExpoPushTokenAsync();
+  const tokenData = await Notifications.getDevicePushTokenAsync();
+  console.log("firstxxxxx1");
+  console.log(tokenData.data);
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",

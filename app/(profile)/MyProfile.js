@@ -30,7 +30,7 @@ export default function MyProfile() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["orderCount", user.firebaseID],
+    queryKey: ["orderCount", user?.firebaseID],
     queryFn: () => getOrderCount(),
     enabled: !!user,
   });

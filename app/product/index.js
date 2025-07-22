@@ -21,6 +21,7 @@ import { useZustandStore } from "../../src/store/zustand";
 
 export default function Products() {
   const { type } = useLocalSearchParams();
+
   console.log(type);
   const router = useRouter();
   const { filters, setFilters, resetFilters, user } = useZustandStore();
@@ -44,7 +45,7 @@ export default function Products() {
       minPrice: minPrice || "",
       maxPrice: maxPrice || "",
       minRating: rating || "",
-      sellerFUID: type === "listed" ? user?.firebaseID : "",
+      sellerProducts: type === "listed",
     };
   }, [selectedCategory, minPrice, maxPrice, rating, type, keyword]);
   const queryClient = useQueryClient();

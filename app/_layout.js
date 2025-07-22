@@ -5,19 +5,20 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
 import { useZustandStore } from "../src/store/zustand";
 import { STRIPE_PUBLISHABLE_KEY } from "@env";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { registerForPushNotificationsAsync } from "../src/utils/notifications";
 import { StripeProvider } from "@stripe/stripe-react-native";
 
+const queryClient = new QueryClient();
+
 export default function RootLayout() {
-  const queryClient = new QueryClient();
   const { cart } = useZustandStore();
   const router = useRouter();
 
-  useEffect(() => {
-    registerForPushNotificationsAsync();
-  }, []);
-
+  // useEffect(() => {
+  //   if (cart?.length === 0) {
+  //     router.replace("/(tabs)/home");
+  //   }
+  // }, [cart]);
   return (
     <StripeProvider
       publishableKey={STRIPE_PUBLISHABLE_KEY}
@@ -62,6 +63,12 @@ export default function RootLayout() {
             }}
           />
           <Stack.Screen
+            name="cart/index"
+            options={{
+              title: "",
+            }}
+          />
+          <Stack.Screen
             name="(auth)/login"
             options={{
               headerShown: false,
@@ -94,7 +101,8 @@ export default function RootLayout() {
           <Stack.Screen
             name="myorders/index"
             options={{
-              headerShown: false,
+              title: "",
+              headerShown: true,
             }}
           />
           <Stack.Screen

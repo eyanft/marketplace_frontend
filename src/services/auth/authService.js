@@ -5,7 +5,9 @@ import {
   signOut,
   updatePassword,
 } from "firebase/auth";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import api from "../api/axios";
+import { clearToken } from "../token/tokenService";
 export const signIn = async (email, password) => {
   try {
     const response = await signInWithEmailAndPassword(auth, email, password);
@@ -22,8 +24,10 @@ export const register = async (data) => {
 
 export const logout = async () => {
   try {
+    await GoogleSignin.signOut();
+
     await signOut(auth);
-    console.log("User signed out");
+    await clearToken();
   } catch (error) {
     console.error("Sign out error:", error.message);
     throw error;

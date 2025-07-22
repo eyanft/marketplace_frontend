@@ -31,4 +31,5 @@ const auth = initializeAuth(app, {
       ? ""
       : getReactNativePersistence(ReactNativeAsyncStorage),
 });
+
 export { auth, firestore };

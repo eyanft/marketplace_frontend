@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -6,6 +6,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -18,15 +19,161 @@ import { Card, CardContent } from "../../src/components/ui/Card";
 import { Input } from "../../src/components/input/Input";
 import Text from "../../src/components/text/CustomText";
 import Checkbox from "../../src/components/buttons/Checkbox";
-import { signIn } from "../../src/services/auth/authService";
+import { signIn, register } from "../../src/services/auth/authService";
 import { getUserDetails } from "../../src/services/user/userService";
 import { useZustandStore } from "../../src/store/zustand";
 import { Controller } from "react-hook-form";
-import { auth } from "../../src/services/firebaseConfig";
+// import { auth } from "../../src/services/firebaseConfig";
+import { LoginManager, AccessToken } from "react-native-fbsdk-next";
+
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import auth, { FacebookAuthProvider } from "@react-native-firebase/auth";
+import { WEB_CLIENT_ID } from "@env";
+import { registerForPushNotificationsAsync } from "../../src/utils/notifications";
 
 export default function Login() {
   const router = useRouter();
   const setUser = useZustandStore((state) => state.setUser);
+  const [fcmToken, setFcmToken] = useState(null);
+  GoogleSignin.configure({
+    webClientId: WEB_CLIENT_ID,
+  });
+  useEffect(() => {
+    const setupPushNotifications = async () => {
+      try {
+        const token = await registerForPushNotificationsAsync();
+        setFcmToken(token);
+      } catch (error) {
+        console.error("Error setting up push notifications:", error);
+      }
+    };
+
+    setupPushNotifications();
+  }, []);
+  const signInWithGoogle = async () => {
+    try {
+      await GoogleSignin.signOut();
+
+      const response = await GoogleSignin.signIn();
+
+      if (response.type === "cancelled") {
+        console.log("User cancelled Google Sign-In");
+        return;
+      }
+
+      if (!response.data) {
+        console.log("No data received from Google Sign-In");
+        return;
+      }
+      const googleCredential = auth.GoogleAuthProvider.credential(
+        response.data.idToken
+      );
+
+      const userCredential = await auth().signInWithCredential(
+        googleCredential
+      );
+      const firebaseUser = userCredential.user;
+
+      console.log("Firebase authentication successful:", firebaseUser.uid);
+
+      const googleUserData = {
+        firebaseID: firebaseUser.uid,
+        email: firebaseUser.email,
+        firstname: firebaseUser.displayName?.split(" ")[0] || "",
+        lastname: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        emailVerified: firebaseUser.emailVerified,
+        deviceID: fcmToken,
+        signInMethod: "google",
+      };
+
+      const result = await register(googleUserData);
+
+      console.log("Backend response:", result.data);
+
+      if (result.data.isNewUser) {
+        console.log("Welcome new user!");
+        // Optional: Show welcome screen
+      } else {
+        console.log("Welcome back!");
+      }
+
+      // Navigate to main app or set user state
+      // navigation.navigate('Home');
+      setUser(result.data.user);
+      router.replace("/(tabs)/home");
+      return result.data;
+    } catch (error) {
+      console.error("Google Sign-In error:", error);
+
+      if (error.code === "SIGN_IN_CANCELLED") {
+        console.log("User cancelled sign-in");
+      } else if (error.code === "12500") {
+        console.log("Configuration error - check OAuth consent screen");
+      } else {
+        Alert.alert("Error", "Sign-in failed. Please try again.");
+      }
+
+      throw error;
+    }
+  };
+  const handleFacebookSignIn = async () => {
+    try {
+      // Facebook login
+      const result = await LoginManager.logInWithPermissions([
+        "public_profile",
+        "email",
+      ]);
+      if (result.isCancelled) {
+        console.log("User cancelled Facebook Sign-In");
+        return;
+      }
+      // Get access token
+      const data = await AccessToken.getCurrentAccessToken();
+      console.log("Facebook access token:", data.accessToken);
+      const facebookCredential = FacebookAuthProvider.credential(
+        data.accessToken
+      );
+      console.log("azeaazeaee", facebookCredential);
+      const userCredential = await auth().signInWithCredential(
+        facebookCredential
+      );
+      const firebaseUser = userCredential.user;
+      console.log("azeae", firebaseUser);
+      // Same backend call as Google
+      const facebookUserData = {
+        firebaseID: firebaseUser.uid,
+        email: firebaseUser.email,
+        firstname: firebaseUser.displayName?.split(" ")[0] || "",
+        lastname: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        emailVerified: true,
+        deviceID: fcmToken,
+        signInMethod: "facebook",
+      };
+      const backendResult = await register(facebookUserData);
+      Alert.alert("Success!", "Logged in with Facebook");
+      navigation.navigate("Home");
+    } catch (error) {
+      // console.error("Facebook Sign-in error:", error.code);
+      if (error.code === "auth/account-exists-with-different-credential") {
+        Alert.alert(
+          "Account Already Exists",
+          "You already have an account with this email. Please use Google Sign-In instead.",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Switch to Google",
+              onPress: () => signInWithGoogle(),
+            },
+          ]
+        );
+      }
+    }
+  };
+
   const {
     control,
     handleSubmit,
@@ -45,7 +192,6 @@ export default function Login() {
     onSuccess: async () => {
       try {
         const user = await getUserDetails();
-        console.log(user);
         setUser(user);
         router.replace("(tabs)/home");
       } catch (error) {
@@ -252,7 +398,7 @@ export default function Login() {
             <Button
               variant="outline"
               style={styles.socialButton}
-              onPress={() => console.log("Email login")}
+              onPress={signInWithGoogle}
             >
               <Feather
                 name="mail"
@@ -265,7 +411,7 @@ export default function Login() {
             <Button
               variant="outline"
               style={styles.socialButton}
-              onPress={() => console.log("Facebook login")}
+              onPress={handleFacebookSignIn}
             >
               <Feather
                 name="facebook"

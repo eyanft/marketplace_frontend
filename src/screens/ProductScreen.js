@@ -83,7 +83,7 @@ import { useZustandStore } from "../store/zustand";
 
 const ProductScreen = ({ embedded = false }) => {
   const { user } = useZustandStore();
-
+  console.log(user);
   const {
     data: products,
     isLoading,

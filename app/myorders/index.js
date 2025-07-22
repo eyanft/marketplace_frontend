@@ -11,7 +11,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 export default function index() {
   const { user } = useZustandStore();
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(1);
   const { type } = useLocalSearchParams();
   console.log(type);
   const {
@@ -40,21 +40,21 @@ export default function index() {
   return (
     <View className="p-8 mt-16 gap-4">
       <Title className="text-5xl font-medium">My Orders</Title>
-      <View className="flex flex-row justify-between mt-4">
+      <View className="flex flex-row justify-between mt-4 bg-white  rounded-full  ">
         <Pressable
-          className={`px-6 h-9  justify-center  rounded-full ${
-            active === 1 ? "bg-black" : "bg-transparent"
+          className={`px-6 h-10 justify-center  rounded-l-full p-2 ${
+            active === 1 ? "bg-orange-400" : "bg-transparent"
           }`}
           onPress={() => handlePress(1)}
         >
-          <Title className={active === 1 ? "text-white" : "text-black"}>
+          <Title className={active === 1 ? "text-white" : "text-orange-200"}>
             Delivered
           </Title>
         </Pressable>
 
         <Pressable
-          className={`px-6 h-9 justify-center rounded-full ${
-            active === 2 ? "bg-black" : "bg-transparent"
+          className={`px-6 h-10 justify-center p-2  ${
+            active === 2 ? "bg-orange-400" : "bg-transparent"
           }`}
           onPress={() => handlePress(2)}
         >
@@ -64,8 +64,8 @@ export default function index() {
         </Pressable>
 
         <Pressable
-          className={`px-6 h-9 justify-center rounded-full ${
-            active === 3 ? "bg-black" : "bg-transparent"
+          className={`px-6 h-10 justify-center rounded-r-full  ${
+            active === 3 ? "bg-orange-400" : "bg-transparent"
           }`}
           onPress={() => handlePress(3)}
         >

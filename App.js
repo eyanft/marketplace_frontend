@@ -9,6 +9,7 @@ import ProductDetail from "./components/ProductDetail";
 import RatingReviews from "./components/RatingReviews";
 
 const Stack = createStackNavigator();
+
 export default function App() {
   return (
     <SafeAreaView style={styles.container}>

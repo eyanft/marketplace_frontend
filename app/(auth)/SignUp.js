@@ -17,6 +17,7 @@ import Button from "../../src/components/ui/Button";
 import { Input } from "../../src/components/input/Input";
 import Text from "../../src/components/text/CustomText";
 import { register } from "../../src/services/auth/authService";
+import { registerForPushNotificationsAsync } from "../../src/utils/notifications";
 
 export default function SignUp() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export default function SignUp() {
   const mutation = useMutation({
     mutationFn: async (data) => {
       console.log("Submitting registration data:", data); // Check the data
+      data.deviceID = await registerForPushNotificationsAsync();
       await register(data);
     },
     onError: (err) => {

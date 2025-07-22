@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import ItemCard from "../../src/components/cards/ItemCart";
 import SectionTitle from "../../src/components/text/CustomText";

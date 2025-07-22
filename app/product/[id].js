@@ -185,7 +185,7 @@ export default function ProductDetailScreen() {
           ) : (
             <View className="flex-row justify-center  gap-4 w-full">
               <Pressable
-                style={{ backgroundColor: '#FF5C00' }}
+                style={{ backgroundColor: "#FF5C00" }}
                 className="w-1/2 h-16 items-center justify-center rounded-full"
                 onPress={handlePhoneCall}
               >
@@ -193,7 +193,7 @@ export default function ProductDetailScreen() {
               </Pressable>
 
               <Pressable
-                style={{ backgroundColor: '#FF5C00' }}
+                style={{ backgroundColor: "#FF5C00" }}
                 className="w-1/2 h-16 items-center justify-center rounded-full"
                 onPress={handleChat}
               >

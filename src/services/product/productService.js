@@ -2,6 +2,7 @@ import { useZustandStore } from "../../store/zustand";
 import api from "../api/axios";
 
 export const getProductsGroupedByCategory = async (firebaseID) => {
+  console.log(firebaseID ? firebaseID : "No Firebase ID provided");
   try {
     const response = await api.get("products/groupedByCategory", {
       params: { firebaseID },
@@ -15,6 +16,7 @@ export const getProductsGroupedByCategory = async (firebaseID) => {
   }
 };
 export const uploadProduct = async (formData) => {
+  console.log(formData);
   try {
     const response = await api.post("products", formData, {
       headers: {

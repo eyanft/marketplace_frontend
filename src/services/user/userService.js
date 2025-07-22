@@ -3,7 +3,7 @@ import { auth } from "../firebaseConfig";
 
 export const getUserDetails = async () => {
   try {
-    const response = await api.get("users");
+    const response = await api.get("users/by-firebase-uid");
     console.log(response.data);
     return response.data;
   } catch (err) {

@@ -8,7 +8,6 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "scheme": "marketplace",
-
     "ios": {
       "supportsTablet": true
     },
@@ -18,7 +17,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.marketplacefrontend",
+      "package": "com.wevioo.marketplace",
+      "versionCode": 1,
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.RECORD_AUDIO"
@@ -30,12 +30,23 @@
     },
     "plugins": [
       "expo-router",
+      "@react-native-firebase/app",
       "expo-notifications",
       "expo-dev-client",
       [
         "expo-camera",
         {
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to search for products."
+        }
+      ],
+      "expo-font",
+      [
+        "react-native-fbsdk-next",
+        {
+          "appID": "1392643338747456",
+          "clientToken": "393daedb479f9f941d5b6228ec0aee5a",
+          "displayName": "marketplace",
+          "scheme": "fb1392643338747456"
         }
       ]
     ],

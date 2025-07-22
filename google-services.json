@@ -14,12 +14,24 @@
       },
       "oauth_client": [
         {
-          "client_id": "1026059711638-4i1op5tjapqm547ufc1birqiokf0v2uj.apps.googleusercontent.com",
+          "client_id": "1026059711638-1oap440mh37smhhvmral7c1qk4erbb0h.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.wevioo.marketplace",
-            "certificate_hash": "e015d40915dd2c80a38918f9290f8b299fe6faf1"
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
+        },
+        {
+          "client_id": "1026059711638-82j38m6de5j14rf7dl90kicovvaragv4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.wevioo.marketplace",
+            "certificate_hash": "ddcd468e89fc0734e75592a255ef92ac387530ab"
+          }
+        },
+        {
+          "client_id": "1026059711638-s2ulqgji4c5fd628r9j51tl6j7btgvg1.apps.googleusercontent.com",
+          "client_type": 3
         }
       ],
       "api_key": [
@@ -29,7 +41,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1026059711638-s2ulqgji4c5fd628r9j51tl6j7btgvg1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1026059711638-ad6k495a3eee9qencq0sl540421up86m.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.wevioo.marketplace"
+              }
+            }
+          ]
         }
       }
     }
