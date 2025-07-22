@@ -9,6 +9,7 @@ import {
   getUserOrders,
 } from "../../src/services/order/orderService";
 import { useLocalSearchParams } from "expo-router";
+import { Colors } from "../../config/colors";
 export default function index() {
   const { user } = useZustandStore();
   const [active, setActive] = useState(1);
@@ -42,34 +43,46 @@ export default function index() {
       <Title className="text-5xl font-medium">My Orders</Title>
       <View className="flex flex-row justify-between mt-4 bg-white  rounded-full  ">
         <Pressable
-          className={`px-6 h-10 justify-center  rounded-l-full p-2 ${
-            active === 1 ? "bg-orange-400" : "bg-transparent"
-          }`}
+          style={{
+            paddingHorizontal: 24,
+            height: 36,
+            justifyContent: "center",
+            borderRadius: 9999,
+            backgroundColor: active === 1 ? Colors.primary : "transparent",
+          }}
           onPress={() => handlePress(1)}
         >
-          <Title className={active === 1 ? "text-white" : "text-orange-200"}>
+          <Title style={{ color: active === 1 ? "#fff" : "#000" }}>
             Delivered
           </Title>
         </Pressable>
 
         <Pressable
-          className={`px-6 h-10 justify-center p-2  ${
-            active === 2 ? "bg-orange-400" : "bg-transparent"
-          }`}
+          style={{
+            paddingHorizontal: 24,
+            height: 36,
+            justifyContent: "center",
+            borderRadius: 9999,
+            backgroundColor: active === 2 ? Colors.primary : "transparent",
+          }}
           onPress={() => handlePress(2)}
         >
-          <Title className={active === 2 ? "text-white" : "text-black"}>
+          <Title style={{ color: active === 2 ? "#fff" : "#000" }}>
             Processing
           </Title>
         </Pressable>
 
         <Pressable
-          className={`px-6 h-10 justify-center rounded-r-full  ${
-            active === 3 ? "bg-orange-400" : "bg-transparent"
-          }`}
+          style={{
+            paddingHorizontal: 24,
+            height: 36,
+            justifyContent: "center",
+            borderRadius: 9999,
+            backgroundColor: active === 3 ? Colors.primary : "transparent",
+          }}
           onPress={() => handlePress(3)}
         >
-          <Title className={active === 3 ? "text-white" : "text-black"}>
+          <Title style={{ color: active === 3 ? "#fff" : "#000" }}>
             Canceled
           </Title>
         </Pressable>

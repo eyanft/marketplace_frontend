@@ -17,6 +17,7 @@ import FilterControls from "../../src/components/filters/FilterControls";
 import ProductCard from "../../src/components/cards/ProductCard";
 import { useZustandStore } from "../../src/store/zustand";
 import { Colors } from "../../config/colors";
+import Title from "../../src/components/text/CustomText";
 const EmptyFavoritesState = () => {
   const router = useRouter();
 
@@ -56,21 +57,35 @@ const FavoritesScreen = () => {
   const { favorites } = useZustandStore();
 
   return (
-    <SafeAreaView style={styles.container}>
-      {favorites.length === 0 ? (
-        <EmptyFavoritesState />
-      ) : (
-        <FlatList
-          data={favorites}
-          renderItem={({ item }) => <ProductCard product={item} />}
-          numColumns={2}
-          columnWrapperStyle={styles.productRow}
-          contentContainerStyle={styles.productGrid}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </SafeAreaView>
+    <View className="flex-1 bg-gray-50">
+      <SafeAreaView style={{ flex: 1 }}>
+        {favorites.length === 0 ? (
+          <EmptyFavoritesState />
+        ) : (
+          <ScrollView style={{ flex: 1 }}>
+            <View className="p-6 pt-16">
+              <View className="mb-6">
+                <Title className="text-4xl font-bold text-gray-900 mb-2">
+                  My Favorites
+                </Title>
+                <Title className="text-base text-gray-600">
+                  All your favorite products in one place
+                </Title>
+              </View>
+              <FlatList
+                data={favorites}
+                renderItem={({ item }) => <ProductCard product={item} />}
+                numColumns={2}
+                columnWrapperStyle={styles.productRow}
+                contentContainerStyle={styles.productGrid}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
+          </ScrollView>
+        )}
+      </SafeAreaView>
+    </View>
   );
 };
 

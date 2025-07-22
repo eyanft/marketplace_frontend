@@ -3,10 +3,37 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Dimensions, 
 import { useQuery } from '@tanstack/react-query';
 import { getCategories } from '../services/category/categoryService';
 import { Colors } from '../../config/colors';
+import Svg, { Path, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
 
-const CategoryListItem = ({ category, isActive, onPress }) => {
+const CATEGORY_COLORS = [
+  '#FF6B6B', 
+  '#FFD93D', 
+  '#4D96FF', 
+  '#845EC2', 
+  '#FFC75F', 
+  '#0081CF', 
+  '#F9F871', 
+];
+
+const CategorySVGIcon = ({ active }) => (
+  <Svg width={28} height={28} viewBox="0 0 28 28" fill="none">
+    <Defs>
+      <LinearGradient id="grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+        <Stop offset="0%" stopColor="#FF6B6B" />
+        <Stop offset="50%" stopColor="#FFD93D" />
+        <Stop offset="100%" stopColor="#4D96FF" />
+      </LinearGradient>
+    </Defs>
+    <Path
+      d="M14 2C7.372 2 2 7.372 2 14s5.372 12 12 12 12-5.372 12-12S20.628 2 14 2zm0 21c-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9-4.029 9-9 9zm0-16a7 7 0 100 14 7 7 0 000-14z"
+      fill={active ? 'url(#grad)' : '#222'}
+    />
+  </Svg>
+);
+
+const CategoryListItem = ({ category, isActive, onPress, index }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const backgroundAnim = useRef(new Animated.Value(0)).current;
 
@@ -38,6 +65,8 @@ const CategoryListItem = ({ category, isActive, onPress }) => {
     ],
   };
 
+  const iconColor = CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+
   return (
     <Animated.View
       style={[
@@ -50,11 +79,31 @@ const CategoryListItem = ({ category, isActive, onPress }) => {
       <Animated.View style={[styles.activeBackground, animatedBackgroundStyle, { opacity: isActive ? 1 : 0 }]} />
       <TouchableOpacity onPress={() => onPress(category)} style={[styles.categoryTouchable, isActive && styles.activeCategoryTouchable]}>
         <View style={styles.contentContainer}>
-          <Image
-            source={{ uri: category.imageUrl }}
-            style={[styles.categoryIcon, isActive && styles.activeCategoryIcon]}
-            resizeMode="contain"
-          />
+          <View style={{ position: 'relative', width: 28, height: 28, marginBottom: 6 }}>
+            <Image
+              source={{ uri: category.imageUrl }}
+              style={[styles.categoryIcon, isActive && styles.activeCategoryIcon]}
+              resizeMode="contain"
+            />
+            {isActive && (
+              <Svg
+                width={28}
+                height={28}
+                style={{ position: 'absolute', top: 0, left: 0, opacity: 0.5 }}
+                viewBox="0 0 28 28"
+                pointerEvents="none"
+              >
+                <Defs>
+                  <LinearGradient id="grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                    <Stop offset="0%" stopColor="#FF6B6B" />
+                    <Stop offset="50%" stopColor="#FFD93D" />
+                    <Stop offset="100%" stopColor="#4D96FF" />
+                  </LinearGradient>
+                </Defs>
+                <Rect x="0" y="0" width="28" height="28" fill="url(#grad)" rx="14" />
+              </Svg>
+            )}
+          </View>
           <Text style={[styles.categoryText, isActive && styles.activeText]} numberOfLines={1} ellipsizeMode="tail">
             {category.name}
           </Text>
@@ -180,8 +229,8 @@ export default function AllCategoriesScreen() {
       <View style={styles.leftPanel}>
         <FlatList
           data={categories}
-          renderItem={({ item }) => (
-            <CategoryListItem category={item} isActive={selectedCategory?.id === item.id} onPress={setSelectedCategory} />
+          renderItem={({ item, index }) => (
+            <CategoryListItem category={item} isActive={selectedCategory?.id === item.id} onPress={setSelectedCategory} index={index} />
           )}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
@@ -241,8 +290,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     backgroundColor: 'white',
-    borderTopRightRadius: 24,
-    borderBottomRightRadius: 24,
   },
   categoryTouchable: {
     height: '100%',
@@ -260,11 +307,11 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     marginBottom: 6,
-    tintColor: '#757575',
+    // tintColor: '#757575',
     opacity: 0.8,
   },
   activeCategoryIcon: {
-    tintColor: Colors.primary,
+    // tintColor: Colors.primary,
     opacity: 1,
   },
   categoryText: {

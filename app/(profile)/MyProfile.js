@@ -100,113 +100,99 @@ export default function MyProfile() {
           </Card>
 
           {/* Menu Sections */}
-          <View className="space-y-6 mb-6">
-            <Card>
-              <CardContent>
-                <TouchableOpacity
-                  className="flex-row items-center justify-between py-2"
-                  onPress={() => router.push("myorders")}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-orange-100 rounded-lg items-center justify-center mr-3">
-                      <Feather
-                        name="shopping-bag"
-                        size={20}
-                        color={Colors.primary}
-                      />
-                    </View>
-                    <View>
-                      <Title className="text-base font-semibold text-gray-900">
-                        My Orders
-                      </Title>
-                      <Title className="text-sm text-gray-600">
-                        {data && !isLoading
-                          ? `${data} orders`
-                          : "No orders yet"}
-                      </Title>
-                    </View>
+          <Card className="mb-6">
+            <CardContent>
+              <TouchableOpacity
+                className="flex-row items-center justify-between py-2"
+                onPress={() => router.push("myorders")}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 bg-orange-100 rounded-lg items-center justify-center mr-3">
+                    <Feather
+                      name="shopping-bag"
+                      size={20}
+                      color={Colors.primary}
+                    />
                   </View>
-                  <Feather name="chevron-right" size={20} color="#9ca3af" />
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent>
-                <TouchableOpacity
-                  className="flex-row items-center justify-between py-2"
-                  onPress={() => router.push("product?type=listed")}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-blue-100 rounded-lg items-center justify-center mr-3">
-                      <Feather name="tag" size={20} color="#3b82f6" />
-                    </View>
-                    <View>
-                      <Title className="text-base font-semibold text-gray-900">
-                        My Listed Items
-                      </Title>
-                      <Title className="text-sm text-gray-600">
-                        {data && !isLoading
-                          ? `${data} items`
-                          : "No items listed"}
-                      </Title>
-                    </View>
+                  <View>
+                    <Title className="text-base font-semibold text-gray-900">
+                      My Orders
+                    </Title>
+                    <Title className="text-sm text-gray-600">
+                      {data && !isLoading
+                        ? `${data} orders`
+                        : "No orders yet"}
+                    </Title>
                   </View>
-                  <Feather name="chevron-right" size={20} color="#9ca3af" />
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent>
-                <TouchableOpacity
-                  className="flex-row items-center justify-between py-2"
-                  onPress={() => router.push("myorders?type=seller")}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-green-100 rounded-lg items-center justify-center mr-3">
-                      <Feather name="truck" size={20} color="#10b981" />
-                    </View>
-                    <View>
-                      <Title className="text-base font-semibold text-gray-900">
-                        My Listed Orders
-                      </Title>
-                      <Title className="text-sm text-gray-600">
-                        {data && !isLoading
-                          ? `${data} orders`
-                          : "No orders yet"}
-                      </Title>
-                    </View>
+                </View>
+                <Feather name="chevron-right" size={20} color="#9ca3af" />
+              </TouchableOpacity>
+              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+              <TouchableOpacity
+                className="flex-row items-center justify-between py-2"
+                onPress={() => router.push("product?type=listed")}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 bg-blue-100 rounded-lg items-center justify-center mr-3">
+                    <Feather name="tag" size={20} color="#3b82f6" />
                   </View>
-                  <Feather name="chevron-right" size={20} color="#9ca3af" />
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent>
-                <TouchableOpacity
-                  className="flex-row items-center justify-between py-2"
-                  onPress={() => router.push("(profile)/Settings")}
-                >
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-purple-100 rounded-lg items-center justify-center mr-3">
-                      <Feather name="settings" size={20} color="#8b5cf6" />
-                    </View>
-                    <View>
-                      <Title className="text-base font-semibold text-gray-900">
-                        Settings
-                      </Title>
-                      <Title className="text-sm text-gray-600">
-                        Notifications, password
-                      </Title>
-                    </View>
+                  <View>
+                    <Title className="text-base font-semibold text-gray-900">
+                    My Listings
+                    </Title>
+                    <Title className="text-sm text-gray-600">
+                      {data && !isLoading
+                        ? `${data} items`
+                        : "No items listed"}
+                    </Title>
                   </View>
-                  <Feather name="chevron-right" size={20} color="#9ca3af" />
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-          </View>
+                </View>
+                <Feather name="chevron-right" size={20} color="#9ca3af" />
+              </TouchableOpacity>
+              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+              <TouchableOpacity
+                className="flex-row items-center justify-between py-2"
+                onPress={() => router.push("myorders?type=seller")}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 bg-green-100 rounded-lg items-center justify-center mr-3">
+                    <Feather name="truck" size={20} color="#10b981" />
+                  </View>
+                  <View>
+                    <Title className="text-base font-semibold text-gray-900">
+                      My OrdersIn
+                    </Title>
+                    <Title className="text-sm text-gray-600">
+                      {data && !isLoading
+                        ? `${data} orders`
+                        : "No orders yet"}
+                    </Title>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={20} color="#9ca3af" />
+              </TouchableOpacity>
+              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+              <TouchableOpacity
+                className="flex-row items-center justify-between py-2"
+                onPress={() => router.push("(profile)/Settings")}
+              >
+                <View className="flex-row items-center">
+                  <View className="w-10 h-10 bg-purple-100 rounded-lg items-center justify-center mr-3">
+                    <Feather name="settings" size={20} color="#8b5cf6" />
+                  </View>
+                  <View>
+                    <Title className="text-base font-semibold text-gray-900">
+                      Settings
+                    </Title>
+                    <Title className="text-sm text-gray-600">
+                      Notifications, password
+                    </Title>
+                  </View>
+                </View>
+                <Feather name="chevron-right" size={20} color="#9ca3af" />
+              </TouchableOpacity>
+            </CardContent>
+          </Card>
 
           {/* Logout Button */}
           <View className="mt-2 mb-6">

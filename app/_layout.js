@@ -125,6 +125,13 @@ export default function RootLayout() {
               headerTitleAlign: "center",
             }}
           />
+            <Stack.Screen
+            name="(categories)/categories"
+            options={{
+              headerShown: true,
+              title: 'Categories',
+            }}
+          />
         </Stack>
       </QueryClientProvider>
     </StripeProvider>
