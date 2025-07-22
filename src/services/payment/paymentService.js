@@ -20,6 +20,7 @@ export const confirmPayment = async (order) => {
   }
 };
 export const cancelPayment = async (order) => {
+  console.log("watis", order);
   try {
     const response = await api.post("payments/cancel", order);
 

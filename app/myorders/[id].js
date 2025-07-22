@@ -41,7 +41,8 @@ export default function OrderDetail() {
       queryClient.invalidateQueries(["order", id]);
       router.back();
     },
-    onError: () => {
+    onError: (e) => {
+      console.log(e);
       Alert.alert("Failed to cancel order");
     },
   });
@@ -107,7 +108,7 @@ export default function OrderDetail() {
             {user.id === order?.orderItems[0]?.sellerId ? (
               <Pressable
                 onPress={() => confirm(order)}
-                disabled={isCancelling}
+                disabled={isConfirming}
                 className=" w-48  bg-orange-600 rounded-full items-center justify-center shadow-xl"
               >
                 <Text className="text-white text-center">Confirm Order</Text>

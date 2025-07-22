@@ -28,7 +28,7 @@ import { LoginManager, AccessToken } from "react-native-fbsdk-next";
 
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import auth, { FacebookAuthProvider } from "@react-native-firebase/auth";
-import { WEB_CLIENT_ID } from "@env";
+import { WEB_CLIENT_ID, API_BASE_URL } from "@env";
 import { registerForPushNotificationsAsync } from "../../src/utils/notifications";
 
 export default function Login() {
@@ -38,18 +38,18 @@ export default function Login() {
   GoogleSignin.configure({
     webClientId: WEB_CLIENT_ID,
   });
-  useEffect(() => {
-    const setupPushNotifications = async () => {
-      try {
-        const token = await registerForPushNotificationsAsync();
-        setFcmToken(token);
-      } catch (error) {
-        console.error("Error setting up push notifications:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const setupPushNotifications = async () => {
+  //     try {
+  //       const token = await registerForPushNotificationsAsync();
+  //       setFcmToken(token);
+  //     } catch (error) {
+  //       console.error("Error setting up push notifications:", error);
+  //     }
+  //   };
 
-    setupPushNotifications();
-  }, []);
+  //   setupPushNotifications();
+  // }, []);
   const signInWithGoogle = async () => {
     try {
       await GoogleSignin.signOut();

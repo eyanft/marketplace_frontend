@@ -55,8 +55,9 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
     brand: product?.brand || "",
     model: product?.model || "",
     year: product?.year || "",
-    transactionType: product?.deliveryMethod.toString() || "",
+    // stock: product?.quantity || "",
   });
+
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(0);
   const {
@@ -118,7 +119,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
     } else if (currentStep === 1) {
       isValid =
         validateField("price", formData.price) &
-        validateField("transactionType", formData.transactionType);
+        validateField("stock", formData.stock);
     } else if (currentStep === 2) {
       if (!formData.images || formData.images.length === 0) {
         ToastAndroid.show(
@@ -136,20 +137,19 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
     let error = "";
     switch (name) {
       case "name":
-        if (!value) error = "Le nom est requis";
-        else if (value.length < 3)
-          error = "Le nom doit contenir au moins 3 caractères";
+        if (!value) error = "name is required";
+        else if (value.length < 3) error = "name must be at least 3 characters";
         break;
       case "description":
-        if (!value) error = "La description est requise";
+        if (!value) error = "description is required";
         break;
       case "price":
-        if (!value) error = "Le prix est requis";
+        if (!value) error = "price is required";
         else if (isNaN(value) || parseFloat(value) <= 0)
-          error = "Le prix doit être un nombre positif";
+          error = "price must be a positive number";
         break;
       case "category":
-        if (!value) error = "La catégorie est requise";
+        if (!value) error = "category is required";
         break;
       // case "brand":
       //   if (!value) error = "La marque est requise";
@@ -160,8 +160,10 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
       // case "year":
       //   if (!value) error = "L'année est requise";
       //   break;
-      case "transactionType":
-        if (!value) error = "Le type de transaction est requis";
+      case "stock":
+        if (!value) error = "quantity is required";
+        else if (isNaN(value) || parseFloat(value) <= 0)
+          error = "quantity must be a positive number";
         break;
     }
     setErrors((prev) => ({ ...prev, [name]: error }));
@@ -215,7 +217,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price || "0"),
-      stock: parseInt(formData.stock || "0"),
+      stock: parseInt(formData.stock || "1"),
 
       category: {
         id: formData.category?.id || formData.category,
@@ -250,7 +252,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
   };
 
   // Step Indicator Labels
-  const labels = ["Informations", "Détails", "Critères"];
+  const labels = ["Informations", "Details", "Criteria"];
   const customStyles = {
     stepIndicatorSize: 25,
     currentStepIndicatorSize: 30,
@@ -293,10 +295,10 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
       {currentStep === 0 && (
         <>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Titre de l'annonce</Text>
+            <Text style={styles.label}>Title</Text>
             <TextInput
               style={styles.input}
-              placeholder="Entrez le titre de l'annonce"
+              placeholder="Enter title"
               value={formData.name}
               onChangeText={(value) => handleChange("name", value)}
             />
@@ -306,7 +308,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             <Text style={styles.label}>Description</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="Décrivez votre annonce"
+              placeholder="Describe your product"
               multiline
               numberOfLines={4}
               value={formData.description}
@@ -317,17 +319,14 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             )}
           </View>
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Catégorie</Text>
+            <Text style={styles.label}>Category</Text>
             <View style={styles.pickerContainer}>
               <Picker
                 selectedValue={formData.category}
                 onValueChange={(value) => handleChange("category", value)}
                 style={styles.picker}
               >
-                <Picker.Item
-                  label="Choisir la catégorie de l'annonce"
-                  value=""
-                />
+                <Picker.Item label="Select a category" value="" />
                 {categories.map((category) => (
                   <Picker.Item
                     key={category.id}
@@ -397,7 +396,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             </View>
             {errors.year && <Text style={styles.error}>{errors.year}</Text>}
           </View> */}
-          <View style={styles.formGroup}>
+          {/* <View style={styles.formGroup}>
             <Text style={styles.label}>Type de livraison</Text>
             <View style={styles.pickerContainer}>
               <Picker
@@ -419,6 +418,21 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             </View>
             {errors.transactionType && (
               <Text style={styles.error}>{errors.transactionType}</Text>
+            )}
+          </View> */}
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>Quantity</Text>
+            <View style={styles.priceContainer}>
+              <TextInput
+                style={styles.priceInput}
+                placeholder="0"
+                keyboardType="decimal-pad"
+                value={formData.stock}
+                onChangeText={(value) => handleChange("stock", value)}
+              />
+            </View>
+            {errors.description && (
+              <Text style={styles.error}>{errors.stock}</Text>
             )}
           </View>
           <View style={styles.formGroup}>

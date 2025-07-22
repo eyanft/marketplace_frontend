@@ -10,6 +10,7 @@ import {
 import { getCategories } from "../../services/category/categoryService";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
+import { useZustandStore } from "../../store/zustand";
 
 // const categories = [
 //   { name: "Clothing", icon: require("../../../assets/images/clothing.png") },
@@ -25,8 +26,20 @@ import { useRouter } from "expo-router";
 // ];
 
 const CategoryItem = ({ name, icon }) => {
+  const router = useRouter();
+  const { setFilters } = useZustandStore();
+
+  const onCategorySelect = () => {
+    setFilters({ selectedCategory: name });
+    router.push({
+      pathname: `/product`,
+    });
+  };
   return (
-    <TouchableOpacity style={styles.categoryContainer}>
+    <TouchableOpacity
+      onPress={onCategorySelect}
+      style={styles.categoryContainer}
+    >
       <View style={styles.iconContainer}>
         <Image
           source={{ uri: icon }}

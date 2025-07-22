@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   View,
   Text,
@@ -16,9 +16,13 @@ const ProductList = ({ category, products, description }) => {
   const onViewAllPress = (category) => {
     setFilters({ selectedCategory: category });
     router.push({
-      pathname: `product`,
+      pathname: `/product`,
     });
   };
+  const renderItem = useCallback(
+    ({ item }) => <ProductCard product={item} />,
+    []
+  );
   return (
     <View style={styles.section}>
       <View style={styles.titleContainer}>
@@ -30,9 +34,17 @@ const ProductList = ({ category, products, description }) => {
       <Text style={styles.marketingText}>{description}</Text>
       <FlatList
         horizontal
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={2} // Lower for horizontal
+        initialNumToRender={2} // Start small
+        windowSize={3} // Smaller window for horizontal
+        updateCellsBatchingPeriod={100}
+        scrollEventThrottle={16}
+        decelerationRate="fast"
+        bounces={false}
         data={products}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <ProductCard product={item} />}
+        renderItem={renderItem}
         contentContainerStyle={styles.list}
         showsHorizontalScrollIndicator={false}
       />

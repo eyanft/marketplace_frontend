@@ -7,7 +7,11 @@ import {
 } from "firebase/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import api from "../api/axios";
+import { WEB_CLIENT_ID } from "@env";
 import { clearToken } from "../token/tokenService";
+GoogleSignin.configure({
+  webClientId: WEB_CLIENT_ID,
+});
 export const signIn = async (email, password) => {
   try {
     const response = await signInWithEmailAndPassword(auth, email, password);

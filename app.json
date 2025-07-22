@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "marketplace-frontend",
-    "slug": "marketplace-frontend",
+    "name": "Mercx",
+    "slug": "mercs-marketplace",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -4,10 +4,31 @@ import { Search, SlidersHorizontal, Camera } from "lucide-react-native";
 import { Colors } from "../../../config/colors";
 import VisualSearch from "../filters/VisualSearch";
 import FilterModal from "./FilterModal";
+import { useZustandStore } from "../../store/zustand";
+import { useRouter } from "expo-router";
 
 export default function SearchBar() {
   const [visualSearchVisible, setVisualSearchVisible] = useState(false);
   const [filterVisible, setFilterVisible] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  const { setFilters } = useZustandStore();
+  const router = useRouter();
+
+  const handleSearch = (searchKeyword) => {
+    if (!searchKeyword?.trim()) return;
+
+    console.log("Search keyword:", searchKeyword);
+
+    setFilters({
+      keyword: [searchKeyword.trim()],
+    });
+
+    router.push({
+      pathname: `/product`,
+    });
+    setSearchText("");
+  };
 
   return (
     <>
@@ -18,6 +39,13 @@ export default function SearchBar() {
             style={styles.input}
             placeholder="Search"
             placeholderTextColor="#999"
+            value={searchText}
+            onChangeText={setSearchText}
+            onSubmitEditing={() => handleSearch(searchText)}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing" // iOS only
           />
           <TouchableOpacity
             style={styles.cameraButton}

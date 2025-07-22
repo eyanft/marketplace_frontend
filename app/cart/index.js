@@ -16,15 +16,16 @@ import {
 } from "@stripe/stripe-react-native";
 
 export default function Index() {
-  const { cart, updateQuantity, removeFromCart, clearCart } = useZustandStore();
+  const { cart, updateQuantity, removeFromCart, clearCart, user } =
+    useZustandStore();
   const [processing, setProcessing] = useState(false);
-
+  console.log("Cart items:", user);
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const firebaseID = getAuth().currentUser?.uid;
-  const email = getAuth().currentUser?.email;
+  const firebaseID = user.firebaseID;
+  const email = user?.email;
   const payload = {
     buyer: { firebaseID, email },
     totalAmount,
@@ -37,13 +38,17 @@ export default function Index() {
   const { mutate: submitOrder, isLoading } = useMutation({
     mutationFn: createPayment,
     onSuccess: async (data) => {
+      // data.data now contains { clientSecret: "...", paymentIntentId: "..." }
       await initPaymentSheet({
-        paymentIntentClientSecret: data.data,
+        paymentIntentClientSecret: data.data.clientSecret,
         merchantDisplayName: "Mercs",
       });
+
       const { error } = await presentPaymentSheet();
-      payload.stripePaymentIntentId = data.data;
-      console.log(payload);
+
+      // Store the clean PaymentIntent ID
+      payload.stripePaymentIntentId = data.data.paymentIntentId;
+      console.log("Payload with PaymentIntent ID:", payload);
 
       if (!error) {
         await passOrder(payload);

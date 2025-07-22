@@ -165,25 +165,25 @@ export default function ProductDetailScreen() {
         />
 
         <View style={styles.infoContainer}>
-          <ProductSelectors
+          {/* <ProductSelectors
             productName={product?.name}
             onFavoritePress={() => console.log("Favorite pressed")}
-          />
-
-          <ProductInfo product={product} onRatingPress={handleRatingPress} />
-
-          {product?.deliveryMethod === 1 ? (
-            cart.filter((item) => item.id === product?.id).length === 0 ? (
+          /> */}
+          <ProductInfo product={product} onRatingPress={handleRatingPress} />(
+          <View className="w-full gap-4">
+            {/* Cart Section */}
+            {cart.filter((item) => item.id === product?.id).length === 0 ? (
               <AddToCartButton onPress={handleCartPress} />
             ) : (
-              <View className="flex-row justify-center  gap-4 w-full">
+              <View className="w-full items-center py-4">
                 <Text className="text-center text-gray-500 text-lg font-semibold">
                   Product already in cart.
                 </Text>
               </View>
-            )
-          ) : (
-            <View className="flex-row justify-center  gap-4 w-full">
+            )}
+
+            {/* Contact Buttons Row */}
+            <View className="flex-row justify-center gap-4 w-full">
               <Pressable
                 style={{ backgroundColor: "#FF5C00" }}
                 className="w-1/2 h-16 items-center justify-center rounded-full"
@@ -200,13 +200,12 @@ export default function ProductDetailScreen() {
                 <FontAwesome name="wechat" size={24} color="white" />
               </Pressable>
             </View>
-          )}
-
+          </View>
+          )
           {/* <AdditionalInfo
             onShippingPress={() => console.log("Shipping info pressed")}
             onSupportPress={() => console.log("Support pressed")}
           /> */}
-
           <RelatedProducts
             products={products}
             onProductPress={handleProductPress}

@@ -1,13 +1,17 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
+import React from "react";
+import { StyleSheet, View, Text, Image } from "react-native";
 
 const ProductHeader = ({ product }) => {
+  console.log(product);
   return (
     <View style={styles.productSection}>
-      <Image source={{ uri: product.imageUrl }} style={styles.productImage} />
+      <Image
+        source={{ uri: product?.imageUrls[0] }}
+        style={styles.productImage}
+      />
       <View style={styles.productInfo}>
         <Text style={styles.productName}>{product.name}</Text>
-        <Text style={styles.productBrand}>{product.brand}</Text>
+        <Text style={styles.productBrand}>{product.description}</Text>
       </View>
     </View>
   );
@@ -15,11 +19,11 @@ const ProductHeader = ({ product }) => {
 
 const styles = StyleSheet.create({
   productSection: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   productImage: {
     width: 70,
@@ -32,12 +36,12 @@ const styles = StyleSheet.create({
   },
   productName: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 4,
   },
   productBrand: {
     fontSize: 14,
-    color: '#777',
+    color: "#777",
   },
 });
 

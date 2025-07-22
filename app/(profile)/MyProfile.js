@@ -17,6 +17,8 @@ import { Card, CardContent } from "../../src/components/ui/Card";
 import { logout } from "../../src/services/auth/authService";
 import { useRouter } from "expo-router";
 import { getOrderCount } from "../../src/services/order/orderService";
+import { getProductCountByUser } from "../../src/services/product/productService";
+
 import { useQuery } from "@tanstack/react-query";
 import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "../../config/colors";
@@ -29,9 +31,25 @@ export default function MyProfile() {
   const clearCart = useZustandStore((state) => state.clearCart);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
+  // Get order counts (buyer and seller)
+  const {
+    data: orderCounts,
+    isLoading: isLoadingOrders,
+    error: orderError,
+  } = useQuery({
     queryKey: ["orderCount", user?.firebaseID],
     queryFn: () => getOrderCount(),
+    enabled: !!user,
+  });
+
+  // Get product count (seller's listed products)
+  const {
+    data: productCount,
+    isLoading: isLoadingProducts,
+    error: productError,
+  } = useQuery({
+    queryKey: ["productCount", user?.firebaseID],
+    queryFn: () => getProductCountByUser(),
     enabled: !!user,
   });
 
@@ -54,6 +72,13 @@ export default function MyProfile() {
   useEffect(() => {
     loadUser();
   }, []);
+
+  // Helper function to safely get count values
+  const getDisplayText = (count, isLoading, singular, plural) => {
+    if (isLoading) return "Loading...";
+    if (!count || count === 0) return `No ${plural} yet`;
+    return `${count} ${count === 1 ? singular : plural}`;
+  };
 
   return (
     <View className="flex-1 bg-gray-50">
@@ -102,6 +127,7 @@ export default function MyProfile() {
           {/* Menu Sections */}
           <Card className="mb-6">
             <CardContent>
+              {/* My Orders (as buyer) */}
               <TouchableOpacity
                 className="flex-row items-center justify-between py-2"
                 onPress={() => router.push("myorders")}
@@ -119,15 +145,27 @@ export default function MyProfile() {
                       My Orders
                     </Title>
                     <Title className="text-sm text-gray-600">
-                      {data && !isLoading
-                        ? `${data} orders`
-                        : "No orders yet"}
+                      {getDisplayText(
+                        orderCounts?.buyer,
+                        isLoadingOrders,
+                        "order",
+                        "orders"
+                      )}
                     </Title>
                   </View>
                 </View>
                 <Feather name="chevron-right" size={20} color="#9ca3af" />
               </TouchableOpacity>
-              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: "#e5e7eb",
+                  marginVertical: 4,
+                }}
+              />
+
+              {/* My Listings */}
               <TouchableOpacity
                 className="flex-row items-center justify-between py-2"
                 onPress={() => router.push("product?type=listed")}
@@ -138,18 +176,30 @@ export default function MyProfile() {
                   </View>
                   <View>
                     <Title className="text-base font-semibold text-gray-900">
-                    My Listings
+                      My Listings
                     </Title>
                     <Title className="text-sm text-gray-600">
-                      {data && !isLoading
-                        ? `${data} items`
-                        : "No items listed"}
+                      {getDisplayText(
+                        productCount,
+                        isLoadingProducts,
+                        "item",
+                        "items"
+                      )}
                     </Title>
                   </View>
                 </View>
                 <Feather name="chevron-right" size={20} color="#9ca3af" />
               </TouchableOpacity>
-              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: "#e5e7eb",
+                  marginVertical: 4,
+                }}
+              />
+
+              {/* My Orders (as seller) */}
               <TouchableOpacity
                 className="flex-row items-center justify-between py-2"
                 onPress={() => router.push("myorders?type=seller")}
@@ -160,18 +210,30 @@ export default function MyProfile() {
                   </View>
                   <View>
                     <Title className="text-base font-semibold text-gray-900">
-                      My OrdersIn
+                      Orders Received
                     </Title>
                     <Title className="text-sm text-gray-600">
-                      {data && !isLoading
-                        ? `${data} orders`
-                        : "No orders yet"}
+                      {getDisplayText(
+                        orderCounts?.seller,
+                        isLoadingOrders,
+                        "order",
+                        "orders"
+                      )}
                     </Title>
                   </View>
                 </View>
                 <Feather name="chevron-right" size={20} color="#9ca3af" />
               </TouchableOpacity>
-              <View style={{ height: 1, backgroundColor: '#e5e7eb', marginVertical: 4 }} />
+
+              <View
+                style={{
+                  height: 1,
+                  backgroundColor: "#e5e7eb",
+                  marginVertical: 4,
+                }}
+              />
+
+              {/* Settings */}
               <TouchableOpacity
                 className="flex-row items-center justify-between py-2"
                 onPress={() => router.push("(profile)/Settings")}

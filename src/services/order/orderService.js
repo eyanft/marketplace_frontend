@@ -13,7 +13,8 @@ export const passOrder = async (order) => {
 export const getOrderCount = async () => {
   try {
     const response = await api.get("orders/count/user");
-
+    console.log("response.data");
+    console.log(response.data);
     return response.data;
   } catch (err) {
     console.log(err);

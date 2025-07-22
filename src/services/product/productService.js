@@ -83,3 +83,13 @@ export const getRecommendedItems = async (products) => {
     throw err;
   }
 };
+export const getProductCountByUser = async () => {
+  try {
+    const response = await api.get("products/productCountBySeller");
+    console.log("Recommended items response:ee", response.data);
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};

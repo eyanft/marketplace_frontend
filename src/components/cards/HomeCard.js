@@ -45,7 +45,13 @@ const ProductCard = ({ product }) => {
   return (
     <TouchableOpacity onPress={handleProductPress}>
       <View style={styles.card}>
-        <Image source={{ uri: product.imageUrls[0] }} style={styles.image} />
+        <Image
+          resizeMode="cover"
+          fadeDuration={0}
+          progressiveRenderingEnabled={true}
+          source={{ uri: product?.imageUrls[0] }}
+          style={styles.image}
+        />
         {/* <View style={styles.badgeContainer}>
           <Text style={styles.badge}>{product.discount}</Text>
         </View> */}
