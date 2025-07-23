@@ -30,6 +30,11 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import auth, { FacebookAuthProvider } from "@react-native-firebase/auth";
 import { WEB_CLIENT_ID, API_BASE_URL } from "@env";
 import { registerForPushNotificationsAsync } from "../../src/utils/notifications";
+import {
+  clearToken,
+  isAuthenticated,
+  saveIdToken,
+} from "../../src/services/token/tokenService";
 
 export default function Login() {
   const router = useRouter();
@@ -50,12 +55,12 @@ export default function Login() {
 
   //   setupPushNotifications();
   // }, []);
+
   const signInWithGoogle = async () => {
     try {
       await GoogleSignin.signOut();
 
       const response = await GoogleSignin.signIn();
-
       if (response.type === "cancelled") {
         console.log("User cancelled Google Sign-In");
         return;
@@ -65,6 +70,7 @@ export default function Login() {
         console.log("No data received from Google Sign-In");
         return;
       }
+
       const googleCredential = auth.GoogleAuthProvider.credential(
         response.data.idToken
       );
@@ -74,7 +80,12 @@ export default function Login() {
       );
       const firebaseUser = userCredential.user;
 
-      console.log("Firebase authentication successful:", firebaseUser.uid);
+      console.log("Firebase authentication successful:", googleCredential);
+
+      // Get and save the Firebase ID token
+      const firebaseIdToken = await firebaseUser.getIdToken();
+      await saveIdToken(firebaseIdToken);
+      console.log("Firebase ID token saved for Google sign-in");
 
       const googleUserData = {
         firebaseID: firebaseUser.uid,
@@ -100,7 +111,6 @@ export default function Login() {
       }
 
       // Navigate to main app or set user state
-      // navigation.navigate('Home');
       setUser(result.data.user);
       router.replace("/(tabs)/home");
       return result.data;
@@ -187,6 +197,8 @@ export default function Login() {
   const mutation = useMutation({
     mutationFn: async ({ email, password }) => {
       const userData = await signIn(email, password);
+
+      await saveIdToken(userData._tokenResponse.idToken);
       return userData.user.uid;
     },
     onSuccess: async () => {
@@ -244,6 +256,7 @@ export default function Login() {
   });
 
   const onSubmit = (data) => {
+    console.log("first");
     console.log("Form data being submitted:", data);
     if (!data.email || !data.password) {
       console.log("Email or password is missing from form data");

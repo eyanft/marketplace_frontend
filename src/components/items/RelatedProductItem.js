@@ -2,13 +2,31 @@ import React from "react";
 import { TouchableOpacity, View, Image, Text, StyleSheet } from "react-native";
 
 export default function RelatedProductItem({ item, onPress }) {
+  // Add safety check for null items
+  if (!item) return null;
+
+  const handlePress = () => {
+    if (onPress && item) {
+      onPress(item);
+    }
+  };
+
   return (
-    <TouchableOpacity style={styles.relatedItem} onPress={() => onPress(item)}>
-      <Image source={{ uri: item.imageUrls[0] }} style={styles.relatedImage} />
+    <TouchableOpacity style={styles.relatedItem} onPress={handlePress}>
+      <Image
+        source={{
+          uri: item.imageUrls?.[0] || "https://via.placeholder.com/150",
+        }}
+        style={styles.relatedImage}
+      />
       <View style={styles.relatedInfo}>
-        <Text style={styles.relatedBrand}>{item.name}</Text>
-        <Text style={styles.relatedName}>{item.name}</Text>
-        <Text style={styles.relatedPrice}>${item.price}</Text>
+        <Text style={styles.relatedBrand}>
+          {item.category || "Unknown Category"}
+        </Text>
+        <Text style={styles.relatedName} numberOfLines={2}>
+          {item.name || "Unknown Product"}
+        </Text>
+        <Text style={styles.relatedPrice}>${item.price || 0}</Text>
       </View>
     </TouchableOpacity>
   );

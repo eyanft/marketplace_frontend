@@ -14,7 +14,7 @@ export default function RelatedProducts({ products, onProductPress }) {
         showsHorizontalScrollIndicator={false}
         style={styles.relatedProducts}
       >
-        {products.map((item) => (
+        {products?.map((item) => (
           <RelatedProductItem
             key={item.id}
             item={item}

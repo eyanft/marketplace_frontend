@@ -57,7 +57,7 @@ const ProductCard = ({ product }) => {
         </View> */}
 
         <RatingStars rating={product.rating} reviews={product.reviewCount} />
-        <Text style={styles.brand}>{product.name}</Text>
+        {/* <Text style={styles.brand}>{product.name}</Text> */}
         <Text style={styles.name}>{product.name}</Text>
         <View style={styles.priceRow}>
           <Text style={styles.salePrice}>{product.price} DT</Text>
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     paddingBottom: 10,
     marginBottom: 4,
-    minHeight: 220,
+    height: 260,
   },
   image: {
     width: "100%",
@@ -127,8 +127,12 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   name: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
+    lineHeight: 15,
+    flex: 1,
+    textAlignVertical: "top",
+    marginVertical: 2,
   },
   priceRow: {
     flexDirection: "row",

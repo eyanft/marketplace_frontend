@@ -86,19 +86,19 @@ export default function ProductDetailScreen() {
 
   const handleProductPress = (item) => {
     router.navigate({
-      pathname: `/product/${product.id}`,
+      pathname: `/product/${item.id}`,
       params: { product: JSON.stringify(item) },
     });
   };
-  const handlePhoneCall = () => {
-    const phoneNumber = "tel:" + product?.seller.phoneNumber;
 
+  const handlePhoneCall = () => {
+    const phoneNumber = "tel:" + product?.seller?.phoneNumber;
     Linking.openURL(phoneNumber);
   };
 
   const handleChat = () => {
     const currentUserId = user.firebaseID;
-    const sellerId = product?.seller.id;
+    const sellerId = product?.seller?.id;
     const chatId = [currentUserId, sellerId].sort().join("_");
     router.navigate({
       pathname: "/chat",
@@ -106,49 +106,48 @@ export default function ProductDetailScreen() {
         chatId: chatId,
         userUID: user.firebaseID,
         username: user.firstname + " " + user.lastname,
-        receiverId: product?.seller.id,
-        receiverName: product?.seller.name,
+        receiverId: product?.seller?.id,
+        receiverName: product?.seller?.name,
       },
     });
-
-    // const chatUrl = "whatsapp://send?phone=+1234567890"; // Replace with chat URL, e.g., WhatsApp link
-    // Linking.openURL(chatUrl).catch((err) =>
-    //   console.log("Error opening chat", err)
-    // );
   };
+
   const handleCartPress = () => {
     if (
       cart.filter((item) => item?.seller?.id !== product?.seller?.id).length > 0
     ) {
       setShowModal(true);
     } else {
-      product.quantity = 1;
-
-      setCart([product]);
+      const productWithQuantity = { ...product, quantity: 1 };
+      setCart([productWithQuantity]);
     }
   };
+
   const rejectAction = () => {
     setShowModal(false);
   };
+
   const clearItems = () => {
     clearCart();
-
     setShowModal(false);
-    setCart([product]);
+    const productWithQuantity = { ...product, quantity: 1 };
+    setCart([productWithQuantity]);
   };
+
   const {
     data: products = [],
     isLoading,
     isError,
     error,
   } = useQuery({
-    queryKey: ["recommendedProducts", [product?.id]],
+    queryKey: ["recommendedProducts", product?.id],
     queryFn: () => getRecommendedItems([product?.id]),
     enabled: !!product?.id,
     staleTime: 5 * 60 * 1000,
     cacheTime: 10 * 60 * 1000,
     retry: 3,
   });
+
   return (
     <View style={styles.container}>
       <ProductHeader
@@ -165,11 +164,8 @@ export default function ProductDetailScreen() {
         />
 
         <View style={styles.infoContainer}>
-          {/* <ProductSelectors
-            productName={product?.name}
-            onFavoritePress={() => console.log("Favorite pressed")}
-          /> */}
-          <ProductInfo product={product} onRatingPress={handleRatingPress} />(
+          <ProductInfo product={product} onRatingPress={handleRatingPress} />
+
           <View className="w-full gap-4">
             {/* Cart Section */}
             {cart.filter((item) => item.id === product?.id).length === 0 ? (
@@ -201,21 +197,18 @@ export default function ProductDetailScreen() {
               </Pressable>
             </View>
           </View>
-          )
-          {/* <AdditionalInfo
-            onShippingPress={() => console.log("Shipping info pressed")}
-            onSupportPress={() => console.log("Support pressed")}
-          /> */}
+
           <RelatedProducts
             products={products}
             onProductPress={handleProductPress}
           />
+
           <ConfirmationModal
             visible={showModal}
-            onClose={rejectAction} // Close modal on cancel
-            onConfirm={clearItems} // Clear cart on confirmation
+            onClose={rejectAction}
+            onConfirm={clearItems}
             title="Add To Cart"
-            message="Other products are already added in your cart from another user.Do you want to clear your cart and add this product?"
+            message="Other products are already added in your cart from another user. Do you want to clear your cart and add this product?"
           />
         </View>
       </ScrollView>

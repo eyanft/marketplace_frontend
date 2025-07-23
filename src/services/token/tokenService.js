@@ -4,6 +4,7 @@ import auth from "@react-native-firebase/auth";
 const TOKEN_KEY = "firebase_id_token";
 
 export const saveIdToken = async (token) => {
+  console.log("Saving token:", token);
   try {
     await AsyncStorage.setItem(TOKEN_KEY, token);
     console.log("Token saved successfully");
@@ -15,29 +16,8 @@ export const saveIdToken = async (token) => {
 export const getIdToken = async () => {
   try {
     const storedToken = await AsyncStorage.getItem(TOKEN_KEY);
-
     if (storedToken) {
-      try {
-        const currentUser = auth().currentUser;
-        if (currentUser) {
-          const freshToken = await currentUser.getIdToken(true);
-          if (freshToken !== storedToken) {
-            await saveIdToken(freshToken);
-            return freshToken;
-          }
-        }
-        return storedToken;
-      } catch (error) {
-        console.log("Stored token invalid, getting fresh token");
-      }
-    }
-
-    const currentUser = auth().currentUser;
-
-    if (currentUser) {
-      const token = await currentUser.getIdToken();
-      await saveIdToken(token);
-      return token;
+      return storedToken;
     }
 
     console.log("No token available");
