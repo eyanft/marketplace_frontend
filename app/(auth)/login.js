@@ -20,7 +20,10 @@ import { Input } from "../../src/components/input/Input";
 import Text from "../../src/components/text/CustomText";
 import Checkbox from "../../src/components/buttons/Checkbox";
 import { signIn, register } from "../../src/services/auth/authService";
-import { getUserDetails } from "../../src/services/user/userService";
+import {
+  getUserDetails,
+  setDeviceID,
+} from "../../src/services/user/userService";
 import { useZustandStore } from "../../src/store/zustand";
 import { Controller } from "react-hook-form";
 // import { auth } from "../../src/services/firebaseConfig";
@@ -43,18 +46,19 @@ export default function Login() {
   GoogleSignin.configure({
     webClientId: WEB_CLIENT_ID,
   });
-  // useEffect(() => {
-  //   const setupPushNotifications = async () => {
-  //     try {
-  //       const token = await registerForPushNotificationsAsync();
-  //       setFcmToken(token);
-  //     } catch (error) {
-  //       console.error("Error setting up push notifications:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const setupPushNotifications = async () => {
+      try {
+        const token = await registerForPushNotificationsAsync();
+        console.log("firste");
+        setFcmToken(token);
+      } catch (error) {
+        console.error("Error setting up push notifications:", error);
+      }
+    };
 
-  //   setupPushNotifications();
-  // }, []);
+    setupPushNotifications();
+  }, []);
 
   const signInWithGoogle = async () => {
     try {
@@ -110,8 +114,8 @@ export default function Login() {
         console.log("Welcome back!");
       }
 
-      // Navigate to main app or set user state
       setUser(result.data.user);
+      await setDeviceID(fcmToken);
       router.replace("/(tabs)/home");
       return result.data;
     } catch (error) {
@@ -205,6 +209,7 @@ export default function Login() {
       try {
         const user = await getUserDetails();
         setUser(user);
+        await setDeviceID(fcmToken);
         router.replace("(tabs)/home");
       } catch (error) {
         setError("root", {

@@ -20,3 +20,15 @@ export const updateUserDetails = async (data) => {
     throw err;
   }
 };
+export const setDeviceID = async (data) => {
+  try {
+    console.log(data);
+    const response = await api.put("users/setDeviceID", null, {
+      params: { deviceID: data },
+    });
+    return response.data;
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};

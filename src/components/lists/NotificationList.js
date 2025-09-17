@@ -1,9 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, PanResponder, ScrollView } from 'react-native';
-import { Trash2, Bell, Mail, Gift, ShoppingCart, Info } from 'lucide-react-native';
-import { Colors } from '../../../config/colors'; 
-
-const { width } = Dimensions.get('window');
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+  PanResponder,
+  ScrollView,
+} from "react-native";
+import {
+  Trash2,
+  Bell,
+  Mail,
+  Gift,
+  ShoppingCart,
+  Info,
+} from "lucide-react-native";
+import { Colors } from "../../../config/colors";
+import { getTimeAgo } from "../../../src/utils/shimmer/dateUtils";
+const { width } = Dimensions.get("window");
 const SWIPE_THRESHOLD = width * 0.25;
 
 // Mapping des types de notifications avec leurs icônes
@@ -16,7 +32,7 @@ const NOTIFICATION_ICONS = {
 };
 
 export default function NotificationList({ notifications = [], onDelete }) {
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState("all");
   const [swipeAnimations] = useState(
     notifications.map(() => new Animated.Value(0))
   );
@@ -25,9 +41,10 @@ export default function NotificationList({ notifications = [], onDelete }) {
   );
   const [deletingIndexes, setDeletingIndexes] = useState(new Set());
 
-  const filteredNotifications = activeTab === 'all' 
-    ? notifications 
-    : notifications.filter(notification => !notification.read);
+  const filteredNotifications =
+    activeTab === "all"
+      ? notifications
+      : notifications.filter((notification) => notification.status === "SENT");
 
   const createPanResponder = (index) => {
     return PanResponder.create({
@@ -37,7 +54,10 @@ export default function NotificationList({ notifications = [], onDelete }) {
         if (gestureState.dx < 0) {
           swipeAnimations[index].setValue(gestureState.dx);
           // Mettre à jour l'opacité en fonction du swipe
-          const opacity = Math.min(Math.abs(gestureState.dx) / (width * 0.25), 1);
+          const opacity = Math.min(
+            Math.abs(gestureState.dx) / (width * 0.25),
+            1
+          );
           deleteOpacities[index].setValue(opacity);
         }
       },
@@ -53,7 +73,7 @@ export default function NotificationList({ notifications = [], onDelete }) {
               toValue: 1,
               duration: 150,
               useNativeDriver: true,
-            })
+            }),
           ]).start();
         } else {
           Animated.parallel([
@@ -67,20 +87,22 @@ export default function NotificationList({ notifications = [], onDelete }) {
               toValue: 0,
               duration: 150,
               useNativeDriver: true,
-            })
+            }),
           ]).start();
         }
       },
     });
   };
 
-  const panResponders = notifications.map((_, index) => createPanResponder(index));
+  const panResponders = notifications.map((_, index) =>
+    createPanResponder(index)
+  );
 
   const handleDelete = (index) => {
     if (deletingIndexes.has(index)) return;
-    
-    setDeletingIndexes(current => new Set([...current, index]));
-    
+
+    setDeletingIndexes((current) => new Set([...current, index]));
+
     Animated.sequence([
       Animated.parallel([
         Animated.timing(deleteOpacities[index], {
@@ -92,17 +114,17 @@ export default function NotificationList({ notifications = [], onDelete }) {
           toValue: 0,
           duration: 100,
           useNativeDriver: true,
-        })
+        }),
       ]),
       Animated.timing(swipeAnimations[index], {
         toValue: -width,
         duration: 200,
         useNativeDriver: true,
-      })
+      }),
     ]).start(() => {
       setTimeout(() => {
         if (onDelete) onDelete(index);
-        setDeletingIndexes(current => {
+        setDeletingIndexes((current) => {
           const newSet = new Set(current);
           newSet.delete(index);
           return newSet;
@@ -124,12 +146,15 @@ export default function NotificationList({ notifications = [], onDelete }) {
     const translateX = swipeAnimations[index];
 
     return (
-      <View key={notification.id || `notification-${index}`} style={styles.notificationContainer}>
+      <View
+        key={notification.id || `notification-${index}`}
+        style={styles.notificationContainer}
+      >
         <Animated.View
           style={[
             styles.notificationContent,
             styles.notificationShadow,
-            { transform: [{ translateX }] }
+            { transform: [{ translateX }] },
           ]}
           {...panResponders[index].panHandlers}
         >
@@ -138,15 +163,16 @@ export default function NotificationList({ notifications = [], onDelete }) {
           </View>
           <View style={styles.notificationText}>
             <Text style={styles.notificationTitle}>{notification.title}</Text>
-            <Text style={styles.notificationMessage}>{notification.message}</Text>
-            <Text style={styles.notificationTime}>{notification.time}</Text>
+            <Text style={styles.notificationMessage}>
+              {notification.message}
+            </Text>
+            <Text style={styles.notificationTime}>
+              {getTimeAgo(notification.sentAt)}
+            </Text>
           </View>
         </Animated.View>
-        <Animated.View 
-          style={[
-            styles.deleteButton,
-            { opacity: deleteOpacities[index] }
-          ]}
+        <Animated.View
+          style={[styles.deleteButton, { opacity: deleteOpacities[index] }]}
         >
           <TouchableOpacity
             style={styles.deleteButtonContent}
@@ -163,28 +189,40 @@ export default function NotificationList({ notifications = [], onDelete }) {
     <View style={styles.container}>
       <View style={styles.tabs}>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'all' && styles.activeTab]}
-          onPress={() => setActiveTab('all')}
+          style={[styles.tab, activeTab === "all" && styles.activeTab]}
+          onPress={() => setActiveTab("all")}
         >
-          <Text style={[styles.tabText, activeTab === 'all' && styles.activeTabText]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "all" && styles.activeTabText,
+            ]}
+          >
             Toutes
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.tab, activeTab === 'unread' && styles.activeTab]}
-          onPress={() => setActiveTab('unread')}
+          style={[styles.tab, activeTab === "unread" && styles.activeTab]}
+          onPress={() => setActiveTab("unread")}
         >
-          <Text style={[styles.tabText, activeTab === 'unread' && styles.activeTabText]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === "unread" && styles.activeTabText,
+            ]}
+          >
             Non lues
           </Text>
         </TouchableOpacity>
       </View>
-      <ScrollView 
+      <ScrollView
         style={styles.notificationsList}
         contentContainerStyle={styles.notificationsListContent}
         showsVerticalScrollIndicator={false}
       >
-        {filteredNotifications.map((notification, index) => renderNotification(notification, index))}
+        {filteredNotifications.map((notification, index) =>
+          renderNotification(notification, index)
+        )}
       </ScrollView>
     </View>
   );
@@ -193,15 +231,15 @@ export default function NotificationList({ notifications = [], onDelete }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   tabs: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    backgroundColor: '#fff',
+    borderBottomColor: "#eee",
+    backgroundColor: "#fff",
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -209,7 +247,7 @@ const styles = StyleSheet.create({
   tab: {
     flex: 1,
     paddingVertical: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   activeTab: {
     borderBottomWidth: 2,
@@ -217,11 +255,11 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   activeTabText: {
     color: Colors.primary,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   notificationsList: {
     flex: 1,
@@ -234,19 +272,19 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 8,
     minHeight: 100,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   notificationContent: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   notificationShadow: {
     elevation: 3,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -256,45 +294,45 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.primary + '10',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: Colors.primary + "10",
+    justifyContent: "center",
+    alignItems: "center",
   },
   notificationText: {
     flex: 1,
   },
   notificationTitle: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
     marginBottom: 4,
   },
   notificationMessage: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
     marginBottom: 4,
     lineHeight: 20,
   },
   notificationTime: {
     fontSize: 12,
-    color: '#999',
+    color: "#999",
   },
   deleteButton: {
-    position: 'absolute',
+    position: "absolute",
     right: 0,
     top: 0,
     bottom: 0,
     width: width * 0.25,
-    backgroundColor: '#ff4444',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#ff4444",
+    justifyContent: "center",
+    alignItems: "center",
     borderTopRightRadius: 12,
     borderBottomRightRadius: 12,
   },
   deleteButtonContent: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
-}); 
+});

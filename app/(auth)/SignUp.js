@@ -33,7 +33,7 @@ export default function SignUp() {
   const mutation = useMutation({
     mutationFn: async (data) => {
       console.log("Submitting registration data:", data); // Check the data
-      data.deviceID = await registerForPushNotificationsAsync();
+      // data.deviceID = await registerForPushNotificationsAsync();
       await register(data);
     },
     onError: (err) => {

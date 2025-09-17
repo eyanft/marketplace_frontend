@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
 import { useZustandStore } from "../src/store/zustand";
 import { STRIPE_PUBLISHABLE_KEY } from "@env";
-import { registerForPushNotificationsAsync } from "../src/utils/notifications";
+
 import { StripeProvider } from "@stripe/stripe-react-native";
 
 const queryClient = new QueryClient();
@@ -125,11 +125,11 @@ export default function RootLayout() {
               headerTitleAlign: "center",
             }}
           />
-            <Stack.Screen
+          <Stack.Screen
             name="(categories)/categories"
             options={{
               headerShown: true,
-              title: 'Categories',
+              title: "Categories",
             }}
           />
         </Stack>
