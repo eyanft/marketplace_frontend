@@ -37,6 +37,18 @@ export default function SignUp() {
       await register(data);
     },
     onError: (err) => {
+         console.error("Registration error:", {
+      message: err.message,
+      code: err.code,
+      url: err.config?.url,
+      method: err.config?.method,
+      headers: err.config?.headers,
+      request: err.request ? "Request was made but no response received" : null,
+      response: err.response ? {
+        status: err.response.status,
+        data: err.response.data
+      } : null
+    });
       if (err.response?.data.includes("EMAIL_EXISTS")) {
         setError("email", {
           type: "manual",

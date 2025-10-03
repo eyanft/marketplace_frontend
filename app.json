@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Mercx",
-    "slug": "mercs-marketplace",
+    "name": "Merx",
+    "slug": "merx-marketplace",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/logo/logo1.png",
@@ -58,6 +58,6 @@
         "projectId": "b786c547-e0e0-4d33-b800-75deac2b6752"
       }
     },
-    "owner": "spawn005"
+    "owner": "eyanft"
   }
 }

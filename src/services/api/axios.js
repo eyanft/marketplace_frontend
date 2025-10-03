@@ -3,7 +3,7 @@ import { API_BASE_URL } from "@env";
 import { getIdToken } from "../token/tokenService";
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: "http://192.168.1.15:8222/api/v1",
 });
 
 api.interceptors.request.use(async (config) => {

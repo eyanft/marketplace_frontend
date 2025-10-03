@@ -1,47 +1,28 @@
-import React, { useEffect, useState } from "react";
-import {
-  Image,
-  Pressable,
-  StatusBar,
-  View,
-  StyleSheet,
-  ScrollView,
-  Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import { useMutation } from "@tanstack/react-query";
-import { Link, useRouter } from "expo-router";
-import { useForm } from "react-hook-form";
-import { Colors } from "../../config/colors";
-import Button from "../../src/components/ui/Button";
-import { Card, CardContent } from "../../src/components/ui/Card";
-import { Input } from "../../src/components/input/Input";
-import Text from "../../src/components/text/CustomText";
-import Checkbox from "../../src/components/buttons/Checkbox";
-import { signIn, register } from "../../src/services/auth/authService";
-import {
-  getUserDetails,
-  setDeviceID,
-} from "../../src/services/user/userService";
-import { useZustandStore } from "../../src/store/zustand";
-import { Controller } from "react-hook-form";
+import { Feather } from '@expo/vector-icons';
+import { useMutation } from '@tanstack/react-query';
+import { Link, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Alert, Image, Pressable, ScrollView, StatusBar, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors } from '../../config/colors';
+import Checkbox from '../../src/components/buttons/Checkbox';
+import { Input } from '../../src/components/input/Input';
+import Text from '../../src/components/text/CustomText';
+import Button from '../../src/components/ui/Button';
+import { register, signIn } from '../../src/services/auth/authService';
+import { getUserDetails, setDeviceID } from '../../src/services/user/userService';
+import { useZustandStore } from '../../src/store/zustand';
 // import { auth } from "../../src/services/firebaseConfig";
-import { LoginManager, AccessToken } from "react-native-fbsdk-next";
-
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
-import auth, { FacebookAuthProvider } from "@react-native-firebase/auth";
-import { WEB_CLIENT_ID, API_BASE_URL } from "@env";
-import { registerForPushNotificationsAsync } from "../../src/utils/notifications";
-import {
-  clearToken,
-  isAuthenticated,
-  saveIdToken,
-} from "../../src/services/token/tokenService";
+import { WEB_CLIENT_ID } from '@env';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
+import { saveIdToken } from '../../src/services/token/tokenService';
+import { registerForPushNotificationsAsync } from '../../src/utils/notifications';
 
 export default function Login() {
   const router = useRouter();
-  const setUser = useZustandStore((state) => state.setUser);
+  const setUser = useZustandStore(state => state.setUser);
   const [fcmToken, setFcmToken] = useState(null);
   GoogleSignin.configure({
     webClientId: WEB_CLIENT_ID,
@@ -50,10 +31,9 @@ export default function Login() {
     const setupPushNotifications = async () => {
       try {
         const token = await registerForPushNotificationsAsync();
-        console.log("firste");
         setFcmToken(token);
       } catch (error) {
-        console.error("Error setting up push notifications:", error);
+        console.error('Error setting up push notifications:', error);
       }
     };
 
@@ -65,68 +45,64 @@ export default function Login() {
       await GoogleSignin.signOut();
 
       const response = await GoogleSignin.signIn();
-      if (response.type === "cancelled") {
-        console.log("User cancelled Google Sign-In");
+      if (response.type === 'cancelled') {
+        console.log('User cancelled Google Sign-In');
         return;
       }
 
       if (!response.data) {
-        console.log("No data received from Google Sign-In");
+        console.log('No data received from Google Sign-In');
         return;
       }
 
-      const googleCredential = auth.GoogleAuthProvider.credential(
-        response.data.idToken
-      );
+      const googleCredential = auth.GoogleAuthProvider.credential(response.data.idToken);
 
-      const userCredential = await auth().signInWithCredential(
-        googleCredential
-      );
+      const userCredential = await auth().signInWithCredential(googleCredential);
       const firebaseUser = userCredential.user;
 
-      console.log("Firebase authentication successful:", googleCredential);
+      console.log('Firebase authentication successful:', googleCredential);
 
       // Get and save the Firebase ID token
       const firebaseIdToken = await firebaseUser.getIdToken();
       await saveIdToken(firebaseIdToken);
-      console.log("Firebase ID token saved for Google sign-in");
+      console.log('Firebase ID token saved for Google sign-in');
 
       const googleUserData = {
         firebaseID: firebaseUser.uid,
         email: firebaseUser.email,
-        firstname: firebaseUser.displayName?.split(" ")[0] || "",
-        lastname: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
+        firstname: firebaseUser.displayName?.split(' ')[0] || '',
+        lastname: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
         displayName: firebaseUser.displayName,
         photoURL: firebaseUser.photoURL,
         emailVerified: firebaseUser.emailVerified,
         deviceID: fcmToken,
-        signInMethod: "google",
+        signInMethod: 'google',
       };
 
       const result = await register(googleUserData);
 
-      console.log("Backend response:", result.data);
+      console.log('Backend response:', result.data);
 
       if (result.data.isNewUser) {
-        console.log("Welcome new user!");
+        console.log('Welcome new user!');
         // Optional: Show welcome screen
       } else {
-        console.log("Welcome back!");
+        console.log('Welcome back!');
       }
 
       setUser(result.data.user);
       await setDeviceID(fcmToken);
-      router.replace("/(tabs)/home");
+      router.replace('/(tabs)/home');
       return result.data;
     } catch (error) {
-      console.error("Google Sign-In error:", error);
+      console.error('Google Sign-In error:', error);
 
-      if (error.code === "SIGN_IN_CANCELLED") {
-        console.log("User cancelled sign-in");
-      } else if (error.code === "12500") {
-        console.log("Configuration error - check OAuth consent screen");
+      if (error.code === 'SIGN_IN_CANCELLED') {
+        console.log('User cancelled sign-in');
+      } else if (error.code === '12500') {
+        console.log('Configuration error - check OAuth consent screen');
       } else {
-        Alert.alert("Error", "Sign-in failed. Please try again.");
+        Alert.alert('Error', 'Sign-in failed. Please try again.');
       }
 
       throw error;
@@ -135,55 +111,43 @@ export default function Login() {
   const handleFacebookSignIn = async () => {
     try {
       // Facebook login
-      const result = await LoginManager.logInWithPermissions([
-        "public_profile",
-        "email",
-      ]);
+      const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
       if (result.isCancelled) {
-        console.log("User cancelled Facebook Sign-In");
+        console.log('User cancelled Facebook Sign-In');
         return;
       }
       // Get access token
       const data = await AccessToken.getCurrentAccessToken();
-      console.log("Facebook access token:", data.accessToken);
-      const facebookCredential = FacebookAuthProvider.credential(
-        data.accessToken
-      );
-      console.log("azeaazeaee", facebookCredential);
-      const userCredential = await auth().signInWithCredential(
-        facebookCredential
-      );
+      console.log('Facebook access token:', data.accessToken);
+      const facebookCredential = FacebookAuthProvider.credential(data.accessToken);
+      console.log('azeaazeaee', facebookCredential);
+      const userCredential = await auth().signInWithCredential(facebookCredential);
       const firebaseUser = userCredential.user;
-      console.log("azeae", firebaseUser);
+      console.log('azeae', firebaseUser);
       // Same backend call as Google
       const facebookUserData = {
         firebaseID: firebaseUser.uid,
         email: firebaseUser.email,
-        firstname: firebaseUser.displayName?.split(" ")[0] || "",
-        lastname: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
+        firstname: firebaseUser.displayName?.split(' ')[0] || '',
+        lastname: firebaseUser.displayName?.split(' ').slice(1).join(' ') || '',
         displayName: firebaseUser.displayName,
         photoURL: firebaseUser.photoURL,
         emailVerified: true,
         deviceID: fcmToken,
-        signInMethod: "facebook",
+        signInMethod: 'facebook',
       };
-      const backendResult = await register(facebookUserData);
-      Alert.alert("Success!", "Logged in with Facebook");
-      navigation.navigate("Home");
+      Alert.alert('Success!', 'Logged in with Facebook');
+      navigation.navigate('Home');
     } catch (error) {
       // console.error("Facebook Sign-in error:", error.code);
-      if (error.code === "auth/account-exists-with-different-credential") {
-        Alert.alert(
-          "Account Already Exists",
-          "You already have an account with this email. Please use Google Sign-In instead.",
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Switch to Google",
-              onPress: () => signInWithGoogle(),
-            },
-          ]
-        );
+      if (error.code === 'auth/account-exists-with-different-credential') {
+        Alert.alert('Account Already Exists', 'You already have an account with this email. Please use Google Sign-In instead.', [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Switch to Google',
+            onPress: () => signInWithGoogle(),
+          },
+        ]);
       }
     }
   };
@@ -209,12 +173,13 @@ export default function Login() {
       try {
         const user = await getUserDetails();
         setUser(user);
-        await setDeviceID(fcmToken);
-        router.replace("(tabs)/home");
+        // await setDeviceID(fcmToken);
+        router.replace('(tabs)/home');
       } catch (error) {
-        setError("root", {
-          type: "manual",
-          message: "Something went wrong. Please try again.",
+        console.log(error);
+        setError('root', {
+          type: 'manual',
+          message: 'Something went wrong. Please try again.',
         });
         // If API fails, we can still proceed with Firebase auth
         // Set a basic user object with Firebase data
@@ -228,43 +193,43 @@ export default function Login() {
         // }
       }
     },
-    onError: (error) => {
+    onError: error => {
       console.log(error);
       switch (error.code) {
-        case "auth/invalid-credential":
-        case "auth/wrong-password":
-        case "auth/user-not-found":
-          setError("password", {
-            type: "manual",
-            message: "Email or password is incorrect",
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+          setError('password', {
+            type: 'manual',
+            message: 'Email or password is incorrect',
           });
           break;
-        case "auth/too-many-requests":
-          setError("root", {
-            type: "manual",
-            message: "Too many attempts. Please try again later.",
+        case 'auth/too-many-requests':
+          setError('root', {
+            type: 'manual',
+            message: 'Too many attempts. Please try again later.',
           });
           break;
-        case "auth/network-request-failed":
-          setError("root", {
-            type: "manual",
-            message: "Network error. Please check your connection.",
+        case 'auth/network-request-failed':
+          setError('root', {
+            type: 'manual',
+            message: 'Network error. Please check your connection.',
           });
           break;
         default:
-          setError("root", {
-            type: "manual",
-            message: "Something went wrong. Please try again.",
+          setError('root', {
+            type: 'manual',
+            message: 'Something went wrong. Please try again.',
           });
       }
     },
   });
 
-  const onSubmit = (data) => {
-    console.log("first");
-    console.log("Form data being submitted:", data);
+  const onSubmit = data => {
+    console.log('first');
+    console.log('Form data being submitted:', data);
     if (!data.email || !data.password) {
-      console.log("Email or password is missing from form data");
+      console.log('Email or password is missing from form data');
       return;
     }
     mutation.mutate({
@@ -282,11 +247,7 @@ export default function Login() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Image
-          source={require("../../assets/images/Vector 2.png")}
-          style={styles.backgroundImage}
-          resizeMode="cover"
-        />
+        <Image source={require('../../assets/images/Vector 2.png')} style={styles.backgroundImage} resizeMode="cover" />
         <View style={styles.contentContainer}>
           {/* Sign in heading */}
           <Text style={styles.headingText}>Sign in</Text>
@@ -301,10 +262,10 @@ export default function Login() {
                 control={control}
                 name="email"
                 rules={{
-                  required: "Email is required",
+                  required: 'Email is required',
                   pattern: {
                     value: /^\S+@\S+$/i,
-                    message: "Invalid email address",
+                    message: 'Invalid email address',
                   },
                 }}
                 render={({ field: { onChange, onBlur, value } }) => (
@@ -314,23 +275,14 @@ export default function Login() {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    onFocus={() => setFocusedInput("email")}
+                    onFocus={() => setFocusedInput('email')}
                   />
                 )}
               />
             </View>
 
-            <View
-              style={[
-                styles.inputBottomLine,
-                focusedInput === "email" && styles.inputBottomLineActive,
-              ]}
-            />
-            {errors.email && (
-              <Text style={{ color: Colors.primary, marginTop: 4 }}>
-                {errors.email.message}
-              </Text>
-            )}
+            <View style={[styles.inputBottomLine, focusedInput === 'email' && styles.inputBottomLineActive]} />
+            {errors.email && <Text style={{ color: Colors.primary, marginTop: 4 }}>{errors.email.message}</Text>}
           </View>
 
           {/* Password input */}
@@ -341,7 +293,7 @@ export default function Login() {
               <Controller
                 control={control}
                 name="password"
-                rules={{ required: "Password is required" }}
+                rules={{ required: 'Password is required' }}
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     placeholder="Enter your password"
@@ -349,61 +301,32 @@ export default function Login() {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    onFocus={() => setFocusedInput("password")}
+                    onFocus={() => setFocusedInput('password')}
                     secureTextEntry={!showPassword}
                   />
                 )}
               />
               <Pressable onPress={() => setShowPassword(!showPassword)}>
-                <Feather
-                  name={showPassword ? "eye-off" : "eye"}
-                  size={16}
-                  color="#616161"
-                />
+                <Feather name={showPassword ? 'eye-off' : 'eye'} size={16} color="#616161" />
               </Pressable>
             </View>
 
-            <View
-              style={[
-                styles.inputBottomLine,
-                focusedInput === "password" && styles.inputBottomLineActive,
-              ]}
-            />
-            {errors.password && (
-              <Text style={{ color: Colors.primary, marginTop: 4 }}>
-                {errors.password.message}
-              </Text>
-            )}
-            {errors.root && (
-              <Text style={{ color: Colors.primary, marginTop: 4 }}>
-                {errors.root.message}
-              </Text>
-            )}
+            <View style={[styles.inputBottomLine, focusedInput === 'password' && styles.inputBottomLineActive]} />
+            {errors.password && <Text style={{ color: Colors.primary, marginTop: 4 }}>{errors.password.message}</Text>}
+            {errors.root && <Text style={{ color: Colors.primary, marginTop: 4 }}>{errors.root.message}</Text>}
           </View>
 
           {/* Remember Me and Forgot Password */}
           <View style={styles.rowBetween}>
-            <Checkbox
-              checked={rememberMe}
-              onChange={setRememberMe}
-              label="Remember Me"
-              style={styles.checkbox}
-            />
-            <Pressable onPress={() => router.push("/PasswordReset")}>
+            <Checkbox checked={rememberMe} onChange={setRememberMe} label="Remember Me" style={styles.checkbox} />
+            <Pressable onPress={() => router.push('/PasswordReset')}>
               <Text style={styles.forgotPassword}>Forgot Password?</Text>
             </Pressable>
           </View>
 
           {/* Login button */}
-          <Button
-            variant="default"
-            style={styles.loginButton}
-            onPress={handleSubmit(onSubmit)}
-            disabled={mutation.isLoading}
-          >
-            <Text style={styles.loginButtonText}>
-              {mutation.isLoading ? "Logging in..." : "Login"}
-            </Text>
+          <Button variant="default" style={styles.loginButton} onPress={handleSubmit(onSubmit)} disabled={mutation.isLoading}>
+            <Text style={styles.loginButtonText}>{mutation.isLoading ? 'Logging in...' : 'Login'}</Text>
           </Button>
 
           <View style={styles.orContainer}>
@@ -413,30 +336,12 @@ export default function Login() {
           </View>
 
           <View style={styles.socialButtonsContainer}>
-            <Button
-              variant="outline"
-              style={styles.socialButton}
-              onPress={signInWithGoogle}
-            >
-              <Feather
-                name="mail"
-                size={20}
-                color="#616161"
-                style={styles.socialButtonIcon}
-              />
+            <Button variant="outline" style={styles.socialButton} onPress={signInWithGoogle}>
+              <Feather name="mail" size={20} color="#616161" style={styles.socialButtonIcon} />
               <Text style={styles.socialButtonText}>Email</Text>
             </Button>
-            <Button
-              variant="outline"
-              style={styles.socialButton}
-              onPress={handleFacebookSignIn}
-            >
-              <Feather
-                name="facebook"
-                size={20}
-                color="#1877F2"
-                style={styles.socialButtonIcon}
-              />
+            <Button variant="outline" style={styles.socialButton} onPress={handleFacebookSignIn}>
+              <Feather name="facebook" size={20} color="#1877F2" style={styles.socialButtonIcon} />
               <Text style={styles.socialButtonText}>Facebook</Text>
             </Button>
           </View>
@@ -457,24 +362,24 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   scrollView: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   scrollViewContent: {
     flexGrow: 1,
   },
   backgroundImage: {
-    position: "absolute",
-    width: "100%",
+    position: 'absolute',
+    width: '100%',
     height: 600,
     top: -240,
   },
   contentContainer: {
     marginTop: 170,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     paddingHorizontal: 24,
@@ -483,10 +388,10 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   headingText: {
-    color: "#212121",
+    color: '#212121',
     fontSize: 32,
-    fontWeight: "700",
-    fontFamily: "Rubik",
+    fontWeight: '700',
+    fontFamily: 'Rubik',
     marginBottom: 2,
   },
   headingLine: {
@@ -498,18 +403,18 @@ const styles = StyleSheet.create({
   },
   inputBlock: {
     marginBottom: 20,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
   },
   inputLabel: {
-    color: "#212121",
+    color: '#212121',
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500',
     marginBottom: 8,
   },
   inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -519,16 +424,16 @@ const styles = StyleSheet.create({
     flex: 1,
     borderWidth: 0,
     padding: 0,
-    color: "#212121",
+    color: '#212121',
     fontSize: 15,
     marginLeft: 8,
-    backgroundColor: "transparent",
+    backgroundColor: 'transparent',
     height: 40,
   },
   inputBottomLine: {
     height: 2,
-    width: "100%",
-    backgroundColor: "#e0e0e0",
+    width: '100%',
+    backgroundColor: '#e0e0e0',
     borderRadius: 1,
     marginTop: 2,
   },
@@ -536,9 +441,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
   },
   rowBetween: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 32,
   },
   checkbox: {
@@ -547,75 +452,75 @@ const styles = StyleSheet.create({
   forgotPassword: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   loginButton: {
-    width: "100%",
+    width: '100%',
     backgroundColor: Colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     marginBottom: 32,
   },
   loginButtonText: {
-    color: "#fff",
-    fontWeight: "700",
+    color: '#fff',
+    fontWeight: '700',
     fontSize: 16,
-    textAlign: "center",
+    textAlign: 'center',
   },
   signUpContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginTop: 8,
   },
   signUpText: {
-    color: "#9e9e9e",
+    color: '#9e9e9e',
     fontSize: 14,
   },
   signUpLink: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: "700",
+    fontWeight: '700',
     marginLeft: 4,
   },
   orContainer: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     gap: 16,
     marginBottom: 24,
   },
   orLine: {
     height: 1,
     flex: 1,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: '#e0e0e0',
   },
   orText: {
-    color: "black",
+    color: 'black',
     fontSize: 14,
     marginHorizontal: 8,
   },
   socialButtonsContainer: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
     gap: 16,
     marginBottom: 32,
   },
   socialButton: {
     flex: 1,
-    borderColor: "#e0e0e0",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: '#e0e0e0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginHorizontal: 4,
   },
   socialButtonIcon: {
     marginRight: 8,
   },
   socialButtonText: {
-    color: "#616161",
+    color: '#616161',
     fontSize: 14,
   },
 });
