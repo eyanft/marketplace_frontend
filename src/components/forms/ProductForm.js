@@ -491,7 +491,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             style={[styles.button, styles.cancelButton]}
             onPress={onCancel}
           >
-            <Text style={styles.buttonText}>Annuler</Text>
+            <Text style={styles.buttonText}>Cancel</Text>
           </TouchableOpacity>
         )}
         {currentStep < 2 ? (
@@ -500,7 +500,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             onPress={nextStep}
           >
             <Text style={[styles.buttonText, styles.primaryButtonText]}>
-              Suivant
+              Next
             </Text>
           </TouchableOpacity>
         ) : (
@@ -509,7 +509,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             onPress={handleSubmit}
           >
             <Text style={[styles.buttonText, styles.primaryButtonText]}>
-              Publier
+            Publish
             </Text>
           </TouchableOpacity>
         )}
