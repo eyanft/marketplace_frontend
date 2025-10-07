@@ -71,9 +71,11 @@ export default function Chat() {
 
   const renderItem = ({ item }) => {
     const receiverId = item.participants.find((id) => id !== user?.firebaseID);
-    const receiverName = item.participantNames?.find(
-      (n) => n !== user.firstName + " " + user.lastName
+    const receiverIndex = item.participants.findIndex(
+      (id) => id === receiverId
     );
+    const receiverName =
+      item.participantNames?.[receiverIndex] || "Utilisateur";
 
     return (
       <TouchableOpacity

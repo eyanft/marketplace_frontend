@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { View } from "react-native";
 import { GiftedChat, Bubble, Send } from "react-native-gifted-chat";
 import {
@@ -14,7 +14,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 import { firestore } from "../../src/services/firebaseConfig";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { useMutation } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../../config/colors";
@@ -62,8 +62,15 @@ const renderSendButton = (props) => (
 export default function Chat() {
   const { chatId, username, userUID, receiverId, receiverName } =
     useLocalSearchParams();
+  const navigation = useNavigation();
   console.log("xxxxxxxxxxxxxxxxxxx");
   const [messages, setMessages] = useState([]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: receiverName || "Chat",
+    });
+  }, [navigation, receiverName]);
   const createChatIfMissing = async (
     chatId,
     userUID,
@@ -87,10 +94,10 @@ export default function Chat() {
     }
   };
   const generateChatId = (userA, userB) => {
-    return [userA, userB].sort().join("_"); // e.g., user1_user2
+    return [userA, userB].sort().join("_"); 
   };
 
-  // ✅ Real-time message listener
+  // Real time message listener
   useEffect(() => {
     if (!chatId) return;
 
