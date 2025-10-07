@@ -13,13 +13,12 @@ import Button from '../../src/components/ui/Button';
 import { register, signIn } from '../../src/services/auth/authService';
 import { getUserDetails, setDeviceID } from '../../src/services/user/userService';
 import { useZustandStore } from '../../src/store/zustand';
-import { auth } from "../../src/services/firebaseConfig";
+// import { auth } from "../../src/services/firebaseConfig";
 import { WEB_CLIENT_ID } from '@env';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { AccessToken, LoginManager } from 'react-native-fbsdk-next';
 import { saveIdToken } from '../../src/services/token/tokenService';
 import { registerForPushNotificationsAsync } from '../../src/utils/notifications';
-import { GoogleAuthProvider, FacebookAuthProvider, signInWithCredential } from 'firebase/auth';
 
 export default function Login() {
   const router = useRouter();
@@ -56,9 +55,9 @@ export default function Login() {
         return;
       }
 
-      const googleCredential = GoogleAuthProvider.credential(response.data.idToken);
+      const googleCredential = auth.GoogleAuthProvider.credential(response.data.idToken);
 
-      const userCredential = await signInWithCredential(auth, googleCredential);
+      const userCredential = await auth().signInWithCredential(googleCredential);
       const firebaseUser = userCredential.user;
 
       console.log('Firebase authentication successful:', googleCredential);
@@ -92,16 +91,7 @@ export default function Login() {
       }
 
       setUser(result.data.user);
-      
-      // Try to set device ID, but don't fail the login if it doesn't work
-      try {
-        await setDeviceID(fcmToken);
-        console.log('Device ID set successfully');
-      } catch (deviceError) {
-        console.warn('Failed to set device ID, but continuing with login:', deviceError.message);
-        // Don't throw the error - just log it and continue
-      }
-      
+      await setDeviceID(fcmToken);
       router.replace('/(tabs)/home');
       return result.data;
     } catch (error) {
@@ -130,16 +120,10 @@ export default function Login() {
       const data = await AccessToken.getCurrentAccessToken();
       console.log('Facebook access token:', data.accessToken);
       const facebookCredential = FacebookAuthProvider.credential(data.accessToken);
-      console.log('Facebook credential:', facebookCredential);
-      const userCredential = await signInWithCredential(auth, facebookCredential);
+      console.log('azeaazeaee', facebookCredential);
+      const userCredential = await auth().signInWithCredential(facebookCredential);
       const firebaseUser = userCredential.user;
-      console.log('Firebase user:', firebaseUser);
-      
-      // Get and save the Firebase ID token
-      const firebaseIdToken = await firebaseUser.getIdToken();
-      await saveIdToken(firebaseIdToken);
-      console.log('Firebase ID token saved for Facebook sign-in');
-      
+      console.log('azeae', firebaseUser);
       // Same backend call as Google
       const facebookUserData = {
         firebaseID: firebaseUser.uid,
@@ -152,24 +136,10 @@ export default function Login() {
         deviceID: fcmToken,
         signInMethod: 'facebook',
       };
-      
-      const result_backend = await register(facebookUserData);
-      console.log('Backend response:', result_backend.data);
-      
-      setUser(result_backend.data.user);
-      
-      // Try to set device ID, but don't fail the login if it doesn't work
-      try {
-        await setDeviceID(fcmToken);
-        console.log('Device ID set successfully');
-      } catch (deviceError) {
-        console.warn('Failed to set device ID, but continuing with login:', deviceError.message);
-        // Don't throw the error - just log it and continue
-      }
-      
-      router.replace('/(tabs)/home');
+      Alert.alert('Success!', 'Logged in with Facebook');
+      navigation.navigate('Home');
     } catch (error) {
-      console.error("Facebook Sign-in error:", error);
+      // console.error("Facebook Sign-in error:", error.code);
       if (error.code === 'auth/account-exists-with-different-credential') {
         Alert.alert('Account Already Exists', 'You already have an account with this email. Please use Google Sign-In instead.', [
           { text: 'Cancel', style: 'cancel' },
@@ -178,8 +148,6 @@ export default function Login() {
             onPress: () => signInWithGoogle(),
           },
         ]);
-      } else {
-        Alert.alert('Error', 'Facebook sign-in failed. Please try again.');
       }
     }
   };
@@ -205,6 +173,7 @@ export default function Login() {
       try {
         const user = await getUserDetails();
         setUser(user);
+        // await setDeviceID(fcmToken);
         router.replace('(tabs)/home');
       } catch (error) {
         console.log(error);
