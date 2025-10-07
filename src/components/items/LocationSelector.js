@@ -1,14 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MapPin } from 'lucide-react-native';
-import { Colors } from '../../../config/colors'; 
+import { View, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function LocationSelector() {
   return (
     <View style={styles.container}>
-      <MapPin size={20} color={Colors.primary} />
       <TouchableOpacity>
-        <Text style={styles.locationText}>Manouba, TUN</Text>
+        <Image
+          source={require('../../../assets/logo/logo1.png')} 
+          style={styles.image}
+        />
       </TouchableOpacity>
     </View>
   );
@@ -16,15 +16,12 @@ export default function LocationSelector() {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
     marginTop: 8,
   },
-  locationText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#555',
+  image: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
   },
 });

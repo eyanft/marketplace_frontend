@@ -11,6 +11,7 @@ import { getCategories } from "../../services/category/categoryService";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { useZustandStore } from "../../store/zustand";
+import ContentLoader, { Rect, Circle } from "react-content-loader/native";
 
 // const categories = [
 //   { name: "Clothing", icon: require("../../../assets/images/clothing.png") },
@@ -64,7 +65,30 @@ const CategoryList = () => {
   });
 
   if (isLoading) {
-    return <Text>Loading...</Text>;
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Category</Text>
+          <Text style={styles.seeAll}>View All</Text>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          {[0, 1, 2, 3, 4].map((i) => (
+            <View key={i} style={styles.categoryContainer}>
+              <ContentLoader
+                speed={1.2}
+                width={80}
+                height={90}
+                backgroundColor="#E6E6E6"
+                foregroundColor="#F2F2F2"
+              >
+                <Circle cx="30" cy="30" r="30" />
+                <Rect x="0" y="70" rx="6" ry="6" width="60" height="12" />
+              </ContentLoader>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
   }
 
   if (error) {

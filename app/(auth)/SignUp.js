@@ -29,6 +29,7 @@ export default function SignUp() {
   } = useForm();
   const [showPassword, setShowPassword] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const mutation = useMutation({
     mutationFn: async (data) => {
@@ -63,7 +64,10 @@ export default function SignUp() {
       }
     },
     onSuccess: () => {
-      router.replace("/login");
+      setSuccessMessage("Account created successfully. Redirecting to sign in...");
+      setTimeout(() => {
+        router.replace("/login");
+      }, 1200);
     },
   });
 
@@ -91,6 +95,12 @@ export default function SignUp() {
         <View style={styles.contentContainer}>
           <Text style={styles.headingText}>Sign up</Text>
           <View style={styles.headingLine} />
+
+          {successMessage ? (
+            <View style={styles.successContainer}>
+              <Text style={styles.successText}>{successMessage}</Text>
+            </View>
+          ) : null}
 
           {/* First Name input */}
           <View style={styles.inputBlock}>
@@ -425,5 +435,20 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontSize: 12,
     marginTop: 4,
+  },
+  successContainer: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: "#F3F7FF",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  successText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
   },
 });

@@ -6,6 +6,8 @@ import {
   Modal,
   Text,
   ImageBackground,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { ChevronLeft, Camera } from "lucide-react-native";
 import CameraView from "../items/CameraView";
@@ -85,6 +87,12 @@ export default function VisualSearch({ visible, onClose }) {
             style={styles.backgroundImage}
             blurRadius={1}
           >
+            {mutation.isPending && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color="#ff4500" />
+                <Text style={styles.loadingText}>Recognizing image…</Text>
+              </View>
+            )}
             <View style={styles.modalHeader}>
               <TouchableOpacity onPress={onClose} style={styles.backButton}>
                 <ChevronLeft size={24} color="#000" />
@@ -100,14 +108,16 @@ export default function VisualSearch({ visible, onClose }) {
 
               <TouchableOpacity
                 style={styles.actionButton}
-                onPress={() => setShowCamera(true)}
+                onPress={() => !mutation.isPending && setShowCamera(true)}
+                disabled={mutation.isPending}
               >
                 <Text style={styles.actionButtonText}>TAKE A PHOTO</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={handleImageUpload}
+                onPress={!mutation.isPending ? handleImageUpload : undefined}
                 style={styles.uploadButton}
+                disabled={mutation.isPending}
               >
                 <Text style={styles.uploadButtonText}>UPLOAD AN IMAGE</Text>
               </TouchableOpacity>
@@ -192,5 +202,22 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 16,
     fontWeight: "600",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#333",
+    fontWeight: "500",
   },
 });

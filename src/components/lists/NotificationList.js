@@ -198,7 +198,7 @@ export default function NotificationList({ notifications = [], onDelete }) {
               activeTab === "all" && styles.activeTabText,
             ]}
           >
-            Toutes
+            All
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -211,7 +211,7 @@ export default function NotificationList({ notifications = [], onDelete }) {
               activeTab === "unread" && styles.activeTabText,
             ]}
           >
-            Non lues
+Unread
           </Text>
         </TouchableOpacity>
       </View>
