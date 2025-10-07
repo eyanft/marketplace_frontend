@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
+import { Modal, Text, TouchableOpacity, StyleSheet } from "react-native";
 import ItemCard from "../../src/components/cards/ItemCart";
 import SectionTitle from "../../src/components/text/CustomText";
 import CheckoutButton from "../../src/components/buttons/FilledButton";
@@ -9,6 +10,7 @@ import { router } from "expo-router";
 import { useZustandStore } from "../../src/store/zustand";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "react-native";
+import { Colors } from "../../config/colors";
 import { getAuth } from "firebase/auth";
 import {
   initPaymentSheet,
@@ -19,6 +21,7 @@ export default function Index() {
   const { cart, updateQuantity, removeFromCart, clearCart, user } =
     useZustandStore();
   const [processing, setProcessing] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   console.log("Cart items:", user);
   const totalAmount = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -52,10 +55,7 @@ export default function Index() {
 
       if (!error) {
         await passOrder(payload);
-        Alert.alert("Success", "Your order has been placed.");
-
-        clearCart();
-        router.replace("/(tabs)/home");
+        setShowSuccessModal(true);
       }
     },
     onError: (error) => {
@@ -75,6 +75,12 @@ export default function Index() {
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleSuccessAcknowledge = () => {
+    setShowSuccessModal(false);
+    clearCart();
+    router.replace("/(tabs)/home");
   };
 
   return (
@@ -113,6 +119,87 @@ export default function Index() {
       <CheckoutButton disabled={isLoading || processing} onPress={onConfirm}>
         PURCHASE
       </CheckoutButton>
+
+      {/* Success Modal */}
+      <Modal
+        transparent={true}
+        animationType="fade"
+        visible={showSuccessModal}
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.iconCircle}>
+              <Text style={styles.checkIcon}>✓</Text>
+            </View>
+            <Text style={styles.modalTitle}>Success</Text>
+            <Text style={styles.modalMessage}>Your order has been placed.</Text>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={handleSuccessAcknowledge}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.primaryButtonText}>Continue</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: 320,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+  },
+  iconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: Colors.secondary,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  checkIcon: {
+    color: Colors.primary,
+    fontSize: 40,
+    fontWeight: "700",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginTop: 4,
+    marginBottom: 6,
+    color: "#111",
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#444",
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  primaryButton: {
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    alignSelf: "stretch",
+    alignItems: "center",
+  },
+  primaryButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+});
