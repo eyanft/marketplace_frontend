@@ -1,5 +1,6 @@
 import { Slot, Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
 import "../config/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CartCard from "../src/components/cards/CartCard";
@@ -25,6 +26,7 @@ export default function RootLayout() {
       merchantIdentifier="merchant.com.example"
     >
       <QueryClientProvider client={queryClient}>
+        <StatusBar hidden />
         <CartCard cartItemCount={cart.length} />
         <Stack
           screenOptions={{
