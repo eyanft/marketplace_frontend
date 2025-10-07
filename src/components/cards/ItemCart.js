@@ -15,13 +15,13 @@ export default function ItemCart({
   console.log(product);
   const totalAmount = product?.price * product?.quantity;
   return (
-    <View className="flex flex-row w-full h-36 bg-white rounded-lg">
+    <View className="flex flex-row w-full bg-white rounded-lg p-2">
       <Image
         contentFit="cover"
-        style={{ width: "35%", height: "100%", borderRadius: 10 }}
+        style={{ width: "30%", aspectRatio: 1, borderRadius: 10 }}
         source={product?.imageUrls[0]}
       />
-      <View className="p-2 w-1/2">
+      <View className="px-2 flex-1">
         <View>
           <ItemText className="text-2xl font-semibold">
             {product?.name}
@@ -33,7 +33,7 @@ export default function ItemCart({
             <ItemText className="text-lg ">L</ItemText>
           </View> */}
           {edit ? (
-            <View className="mt-5 flex items-center flex-row gap-5 w-full ">
+            <View className="mt-5 flex items-center flex-row gap-5 w-full">
               <Pressable
                 onPress={onDecrease}
                 className="bg-white rounded-full p-1 shadow-2xl"
@@ -76,7 +76,7 @@ export default function ItemCart({
           )}
         </View>
       </View>
-      <View className=" w-32 h-full p-4  justify-end">
+      <View className="justify-end items-end pl-2">
         <ItemText className="font-semibold">{totalAmount} DT</ItemText>
       </View>
     </View>
