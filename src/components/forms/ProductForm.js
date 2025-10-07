@@ -484,7 +484,7 @@ export default function ProductForm({ onSubmit, onCancel, product }) {
             style={[styles.button, styles.secondaryButton]}
             onPress={prevStep}
           >
-            <Text style={styles.buttonText}>Précédent</Text>
+            <Text style={styles.buttonText}>Precedent</Text>
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
